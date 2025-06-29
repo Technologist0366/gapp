@@ -269,13 +269,19 @@ def update_tenant(tid):
             tenant.approved_domains = approved_domains
 
     if any(
-        key in data for key in ["license", "storage_cap", "user_cap", "project_cap"]
-    ):
-        Authorizer(current_user).can_user_manage_platform()
-        tenant.license = data.get("license", tenant.license)
-        tenant.storage_cap = str(data.get("storage_cap", tenant.storage_cap))
-        tenant.user_cap = int(data.get("user_cap", tenant.user_cap))
+    key in data for key in ["license", "storage_cap", "user_cap", "project_cap"]):
+     Authorizer(current_user).can_user_manage_platform()
+     tenant.license = data.get("license", tenant.license)
+
+    # Auto-assign based on license
+    license_lower = tenant.license.lower()
+    if license_lower in LICENSE_PROJECT_CAPS:
+        tenant.project_cap = LICENSE_PROJECT_CAPS[license_lower]
+    else:
         tenant.project_cap = int(data.get("project_cap", tenant.project_cap))
+
+    tenant.storage_cap = str(data.get("storage_cap", tenant.storage_cap))
+    tenant.user_cap = int(data.get("user_cap", tenant.user_cap))
 
     db.session.commit()
     return jsonify(result["extra"]["tenant"].as_dict())
