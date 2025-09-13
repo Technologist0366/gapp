@@ -34,7 +34,7 @@ def parse_url_with_defaults(url, default_scheme="http", default_port=5000):
 
 
 class Config:
-    APP_NAME = os.environ.get("APP_NAME", " Auditnex")
+    APP_NAME = os.environ.get("APP_NAME", " Mehit")
     APP_SUBTITLE = os.environ.get("APP_SUBTITLE", "")
     CR_YEAR = os.environ.get("CR_YEAR", "2025")
     VERSION = os.environ.get("VERSION", "1.0.0")
@@ -67,9 +67,9 @@ class Config:
     ENABLE_SELF_REGISTRATION = (
         os.environ.get("ENABLE_SELF_REGISTRATION", "false").lower() == "true"
     )
-    DOC_LINK = os.environ.get("DOC_LINK", "https://auditnex.net")
-    DEFAULT_EMAIL = os.environ.get("DEFAULT_EMAIL", "admin@example.com")
-    DEFAULT_PASSWORD = os.environ.get("DEFAULT_PASSWORD", "admin1234567")
+    DOC_LINK = os.environ.get("DOC_LINK", "https://mehit.app")
+    DEFAULT_EMAIL = os.environ.get("DEFAULT_EMAIL", "mehit@example.com")
+    DEFAULT_PASSWORD = os.environ.get("DEFAULT_PASSWORD", "Mehit1234567")
     HELP_EMAIL = os.environ.get("HELP_EMAIL", DEFAULT_EMAIL)
 
     ENABLE_GOOGLE_AUTH = os.environ.get("ENABLE_GOOGLE_AUTH", "false").lower() == "true"
