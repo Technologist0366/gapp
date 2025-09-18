@@ -687,7 +687,7 @@ class Tenant(db.Model, QueryMixin, AuthorizerMixin):
     ai_token_usage = db.Column(db.Integer(), default=0)
     ai_token_cap = db.Column(db.Integer(), default=500)
     user_cap = db.Column(db.Integer(), default=500)
-    project_cap = db.Column(db.Integer(), default=2)
+    project_cap = db.Column(db.Integer(), default=6)
     storage_cap = db.Column(db.String(), default="10000000")
     data_class = db.relationship(
         "DataClass", backref="tenant", lazy="dynamic", cascade="all, delete-orphan"
