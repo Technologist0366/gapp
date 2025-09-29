@@ -1,0 +1,807 @@
+[
+{
+"name": "Understanding the organization and its context",
+"description": "The organization shall determine external and internal issues that are relevant to its purpose and that affect its ability to achieve the intended result(s) of its FSMS. The organization shall identify, review and update information related to these external and internal issues. NOTE 1 Issues can include positive and negative factors or conditions for consideration. NOTE 2 Understanding the context can be facilitated by considering external and internal issues, including, but not limited to, legal, technological, competitive, market, cultural, social and economic environments, cybersecurity and food fraud, food defence and intentional contamination, knowledge and performance of the organization, whether international, national, regional or local.",
+"ref_code": "4.1",
+"system_level": false,
+"category": "process",
+"subcategory": "identify",
+"dti": "easy",
+"dtc": "easy",
+"meta": {},
+"subcontrols": []
+},
+{
+"name": "Understanding the needs and expectations of interested parties",
+"description": "To ensure that the organization has the ability to consistently provide products and services that meet applicable statutory, regulatory and customer requirements with regard to food safety, the organization shall determine: a) the interested parties that are relevant to the FSMS; b) the relevant requirements of the interested parties of the FSMS. The organization shall identify, review and update information related to the interested parties and their requirements.",
+"ref_code": "4.2",
+"system_level": false,
+"category": "process",
+"subcategory": "identify",
+"dti": "easy",
+"dtc": "easy",
+"meta": {},
+"subcontrols": []
+},
+{
+"name": "Determining the scope of the food safety management system",
+"description": "The organization shall determine the boundaries and applicability of the FSMS to establish its scope. The scope shall specify the products and services, processes and production site(s) that are included in the FSMS. The scope shall include the activities, processes, products or services that can have an influence on the food safety of its end products. When determining this scope, the organization shall consider: a) the external and internal issues referred to in 4.1; b) the requirements referred to in 4.2. The scope shall be available and maintained as documented information.",
+"ref_code": "4.3",
+"system_level": false,
+"category": "process",
+"subcategory": "identify",
+"dti": "easy",
+"dtc": "easy",
+"meta": {},
+"subcontrols": []
+},
+{
+"name": "Food safety management system",
+"description": "The organization shall establish, implement, maintain, update and continually improve a FSMS, including the processes needed and their interactions, in accordance with the requirements of this document.",
+"ref_code": "4.4",
+"system_level": false,
+"category": "process",
+"subcategory": "identify",
+"dti": "easy",
+"dtc": "easy",
+"meta": {},
+"subcontrols": []
+},
+{
+"name": "Leadership and commitment",
+"description": "Top management shall demonstrate leadership and commitment with respect to the FSMS by: a) ensuring that the food safety policy and the objectives of the FSMS are established and are compatible with the strategic direction of the organization; b) ensuring the integration of the FSMS requirements into the organization’s business processes; c) ensuring that the resources needed for the FSMS are available; d) communicating the importance of effective food safety management and conforming to the FSMS requirements, applicable statutory and regulatory requirements, and mutually agreed customer requirements related to food safety; e) ensuring that the FSMS is evaluated and maintained to achieve its intended result(s) (see 4.1); f) directing and supporting persons to contribute to the effectiveness of the FSMS; g) promoting continual improvement; h) supporting other relevant management roles to demonstrate their leadership as it applies to their areas of responsibility. NOTE Reference to “business” in this document can be interpreted broadly to mean those activities that are core to the purposes of the organization’s existence.",
+"ref_code": "5.1",
+"system_level": false,
+"category": "people",
+"subcategory": "identify",
+"dti": "easy",
+"dtc": "easy",
+"meta": {},
+"subcontrols": []
+},
+{
+"name": "Policy",
+"description": "",
+"ref_code": "5.2",
+"system_level": false,
+"category": "people",
+"subcategory": "identify",
+"dti": "easy",
+"dtc": "easy",
+"meta": {},
+"subcontrols": [
+{
+"name": "Establishing the food safety policy",
+"ref_code": "5.2.1",
+"mitigation": "Top management shall establish, implement and maintain a food safety policy that: a) is appropriate to the purpose and context of the organization; b) provides a framework for setting and reviewing the objectives of the FSMS; c) includes a commitment to satisfy applicable food safety requirements, including statutory and regulatory requirements and mutually agreed customer requirements related to food safety; d) addresses internal and external communication; e) includes a commitment to continual improvement of the FSMS; f) addresses the need to ensure competencies related to food safety.",
+"meta": {}
+},
+{
+"name": "Communicating the food safety policy",
+"ref_code": "5.2.2",
+"mitigation": "The food safety policy shall: a) be available and maintained as documented information; b) be communicated, understood and applied at all levels within the organization; c) be available to relevant interested parties, as appropriate.",
+"meta": {}
+}
+]
+},
+{
+"name": "Organizational roles, responsibilities and authorities",
+"description": "",
+"ref_code": "5.3",
+"system_level": false,
+"category": "people",
+"subcategory": "identify",
+"dti": "easy",
+"dtc": "easy",
+"meta": {},
+"subcontrols": [
+{
+"name": "Top management responsibilities and authorities",
+"ref_code": "5.3.1",
+"mitigation": "Top management shall ensure that the responsibilities and authorities for relevant roles are assigned, communicated and understood within the organization. Top management shall assign the responsibility and authority for: a) ensuring that the FSMS conforms to the requirements of this document; b) reporting on the performance of the FSMS to top management; c) appointing the food safety team and the food safety team leader; d) designating persons with defined responsibility and authority to initiate and document action(s).",
+"meta": {}
+},
+{
+"name": "Food safety team leader responsibilities",
+"ref_code": "5.3.2",
+"mitigation": "The food safety team leader shall be responsible for: a) ensuring the FSMS is established, implemented, maintained and updated; b) managing and organizing the work of the food safety team; c) ensuring relevant training and competencies for the food safety team (see 7.2); d) reporting to top management on the effectiveness and suitability of the FSMS.",
+"meta": {}
+},
+{
+"name": "All persons responsibilities",
+"ref_code": "5.3.3",
+"mitigation": "All persons shall have the responsibility to report problem(s) with regards to the FSMS to identified person(s).",
+"meta": {}
+}
+]
+},
+{
+"name": "Actions to address risks and opportunities",
+"description": "",
+"ref_code": "6.1",
+"system_level": false,
+"category": "process",
+"subcategory": "identify",
+"dti": "easy",
+"dtc": "easy",
+"meta": {},
+"subcontrols": [
+{
+"name": "Planning for the FSMS",
+"ref_code": "6.1.1",
+"mitigation": "When planning for the FSMS, the organization shall consider the issues referred to in 4.1 and the requirements referred to in 4.2 and 4.3 and determine the risks and opportunities that need to be addressed to: a) give assurance that the FSMS can achieve its intended result(s); b) enhance desirable effects; c) prevent, or reduce, undesired effects; d) achieve continual improvement. NOTE In the context of this document, the concept of risks and opportunities is limited to events and their consequences relating to the performance and effectiveness of the FSMS. Public authorities are responsible for addressing public health risks. Organizations are required to manage food safety hazards (see 3.22) and the requirements related to this process that are laid down in Clause 8.",
+"meta": {}
+},
+{
+"name": "Planning actions",
+"ref_code": "6.1.2",
+"mitigation": "The organization shall plan: a) actions to address these risks and opportunities; b) how to: 1) integrate and implement the actions into its FSMS processes; 2) evaluate the effectiveness of these actions.",
+"meta": {}
+},
+{
+"name": "Proportionate actions",
+"ref_code": "6.1.3",
+"mitigation": "The actions taken by the organization to address risks and opportunities shall be proportionate to: a) the impact on food safety requirements; b) the conformity of food products and services to customers; c) requirements of interested parties in the food chain. NOTE 1 Actions to address risks and opportunities can include: avoiding risk, taking risk in order to pursue an opportunity, eliminating the risk source, changing the likelihood or consequences, sharing the risk, or accepting the presence of risk by informed decision. NOTE 2 Opportunities can lead to the adoption of new practices (modification of products or processes), using new technology and other desirable and viable possibilities to address the food safety needs of the organization or its customers.",
+"meta": {}
+}
+]
+},
+{
+"name": "Objectives of the food safety management system and planning to achieve them",
+"description": "",
+"ref_code": "6.2",
+"system_level": false,
+"category": "process",
+"subcategory": "identify",
+"dti": "easy",
+"dtc": "easy",
+"meta": {},
+"subcontrols": [
+{
+"name": "Establishing objectives",
+"ref_code": "6.2.1",
+"mitigation": "The organization shall establish objectives for the FSMS at relevant functions and levels. The objectives of the FSMS shall: a) be consistent with the food safety policy; b) be measurable (if practicable); c) take into account applicable food safety requirements, including statutory, regulatory and customer requirements; d) be monitored and verified; e) be communicated; f) be maintained and updated as appropriate. The organization shall retain documented information on the objectives for the FSMS.",
+"meta": {}
+},
+{
+"name": "Planning to achieve objectives",
+"ref_code": "6.2.2",
+"mitigation": "When planning how to achieve its objectives for the FSMS, the organization shall determine: a) what will be done; b) what resources will be required; c) who will be responsible; d) when it will be completed; e) how the results will be evaluated.",
+"meta": {}
+}
+]
+},
+{
+"name": "Planning of changes",
+"description": "When the organization determines the need for changes to the FSMS, including personnel changes, the changes shall be carried out and communicated in a planned manner. The organization shall consider: a) the purpose of the changes and their potential consequences; b) the continued integrity of the FSMS; c) the availability of resources to effectively implement the changes; d) the allocation or re-allocation of responsibilities and authorities.",
+"ref_code": "6.3",
+"system_level": false,
+"category": "process",
+"subcategory": "identify",
+"dti": "easy",
+"dtc": "easy",
+"meta": {},
+"subcontrols": []
+},
+{
+"name": "Resources",
+"description": "",
+"ref_code": "7.1",
+"system_level": false,
+"category": "technology",
+"subcategory": "protect",
+"dti": "easy",
+"dtc": "easy",
+"meta": {},
+"subcontrols": [
+{
+"name": "General",
+"ref_code": "7.1.1",
+"mitigation": "The organization shall determine and provide the resources needed for the establishment, implementation, maintenance, update and continual improvement of the FSMS. The organization shall consider: a) the capability of, and any constraints on, existing internal resources; b) the need for external resources.",
+"meta": {}
+},
+{
+"name": "People",
+"ref_code": "7.1.2",
+"mitigation": "The organization shall ensure that persons necessary to operate and maintain an effective FSMS are competent (see 7.2). Where the assistance of external experts is used for the development, implementation, operation or assessment of the FSMS, evidence of agreement or contracts defining the competency, responsibility and authority of external experts shall be retained as documented information.",
+"meta": {}
+},
+{
+"name": "Infrastructure",
+"ref_code": "7.1.3",
+"mitigation": "The organization shall provide the resources for the determination, establishment and maintenance of the infrastructure necessary to achieve conformity with the requirements of the FSMS. NOTE Infrastructure can include: — land, vessels, buildings and associated utilities; — equipment, including hardware and software; — transportation; — information and communication technology.",
+"meta": {}
+},
+{
+"name": "Work environment",
+"ref_code": "7.1.4",
+"mitigation": "The organization shall determine, provide and maintain the resources for the establishment, management and maintenance of the work environment necessary to achieve conformity with the requirements of the FSMS. NOTE A suitable environment can be a combination of human and physical factors such as: a) social (e.g. non-discriminatory, calm, non-confrontational); b) psychological (e.g. stress-reducing, burnout prevention, emotionally protective); c) physical (e.g. temperature, heat, humidity, light, air flow, hygiene, noise). These factors can differ substantially depending on the products and services provided.",
+"meta": {}
+},
+{
+"name": "Externally developed elements of the food safety management system",
+"ref_code": "7.1.5",
+"mitigation": "When an organization establishes, maintains, updates and continually improves its FSMS by using externally developed elements of a FSMS, including PRPs, the hazard analysis and the hazard control plan (see 8.5.4), the organization shall ensure that the provided elements are: a) developed in conformance with requirements of this document; b) applicable to the sites, processes and products of the organization; c) specifically adapted to the processes and products of the organization by the food safety team; d) implemented, maintained and updated as required by this document; e) retained as documented information.",
+"meta": {}
+},
+{
+"name": "Control of externally provided processes, products or services",
+"ref_code": "7.1.6",
+"mitigation": "The organization shall: a) establish and apply criteria for the evaluation, selection, monitoring of performance and re-evaluation of external providers of processes, products and/or services; b) ensure adequate communication of requirements to the external provider(s); c) ensure that externally provided processes, products or services do not adversely affect the organization's ability to consistently meet the requirements of the FSMS; d) retain documented information of these activities and any necessary actions as a result of the evaluations and re-evaluations.",
+"meta": {}
+}
+]
+},
+{
+"name": "Competence",
+"description": "The organization shall: a) determine the necessary competence of person(s), including external providers, doing work under its control that affects its food safety performance and effectiveness of the FSMS; b) ensure that these persons, including the food safety team and those responsible for the operation of the hazard control plan, are competent on the basis of appropriate education, training and/or experience; c) ensure that the food safety team has a combination of multi-disciplinary knowledge and experience in developing and implementing the FSMS (including, but not limited to, the organization’s products, processes, equipment and food safety hazards within the scope of the FSMS); d) where applicable, take actions to acquire the necessary competence, and evaluate the effectiveness of the actions taken; e) retain appropriate documented information as evidence of competence. NOTE Applicable actions can include, for example, the provision of training to, the mentoring of, or the re-assignment of currently employed persons; or the hiring or contracting of competent persons.",
+"ref_code": "7.2",
+"system_level": false,
+"category": "people",
+"subcategory": "protect",
+"dti": "easy",
+"dtc": "easy",
+"meta": {},
+"subcontrols": []
+},
+{
+"name": "Awareness",
+"description": "The organization shall ensure that all relevant persons doing work under the organization’s control shall be aware of: a) the food safety policy; b) the objectives of the FSMS relevant to their task(s); c) their individual contribution to the effectiveness of the FSMS, including the benefits of improved food safety performance; d) the implications of not conforming with the FSMS requirements.",
+"ref_code": "7.3",
+"system_level": false,
+"category": "people",
+"subcategory": "protect",
+"dti": "easy",
+"dtc": "easy",
+"meta": {},
+"subcontrols": []
+},
+{
+"name": "Communication",
+"description": "",
+"ref_code": "7.4",
+"system_level": false,
+"category": "technology",
+"subcategory": "protect",
+"dti": "easy",
+"dtc": "easy",
+"meta": {},
+"subcontrols": [
+{
+"name": "General",
+"ref_code": "7.4.1",
+"mitigation": "The organization shall determine the internal and external communications relevant to the FSMS, including: a) on what it will communicate; b) when to communicate; c) with whom to communicate; d) how to communicate; e) who communicates. The organization shall ensure that the requirement for effective communication is understood by all persons whose activities have an impact on food safety.",
+"meta": {}
+},
+{
+"name": "External communication",
+"ref_code": "7.4.2",
+"mitigation": "The organization shall ensure that sufficient information is communicated externally and is available for interested parties of the food chain. The organization shall establish, implement and maintain effective communications with: a) external providers and contractors; b) customers and/or consumers, in relation to: 1) product information related to food safety, to enable the handling, display, storage, preparation, distribution and use of the product within the food chain or by the consumer; 2) identified foods safety hazards that need to be controlled by other organizations in the food chain and/or by consumers; 3) contractual arrangements, enquiries and orders, including their amendments; 4) customer and/or consumer feedback, including complaints; c) statutory and regulatory authorities; d) other organizations that have an impact on, or will be affected by, the effectiveness or updating of the FSMS. Designated persons shall have defined responsibility and authority for the external communication of any information concerning food safety. Where relevant, information obtained through external communication shall be included as input for management review (see 9.3) and for updating the FSMS (see 4.4 and 10.3). Evidence of external communication shall be retained as documented information.",
+"meta": {}
+},
+{
+"name": "Internal communication",
+"ref_code": "7.4.3",
+"mitigation": "The organization shall establish, implement and maintain an effective system for communicating issues having an impact on food safety. To maintain the effectiveness of the FSMS, the organization shall ensure that the food safety team is informed in a timely manner of changes in the following: a) products or new products; b) raw materials, ingredients and services; c) production systems and equipment; d) production premises, location of equipment and surrounding environment; e) cleaning and sanitation programmes; f) packaging, storage and distribution systems; g) competencies and/or allocation of responsibilities and authorizations; h) applicable statutory and regulatory requirements; i) knowledge regarding food safety hazards and control measures; j) customer, sector and other requirements that the organization observes; k) relevant enquiries and communications from external interested parties; l) complaints and alerts indicating food safety hazards associated with the end product; m) other conditions that have an impact on food safety. The food safety team shall ensure that this information is included when updating the FSMS (see 4.4 and 10.3). Top management shall ensure that relevant information is included as input to the management review (see 9.3).",
+"meta": {}
+}
+]
+},
+{
+"name": "Documented information",
+"description": "",
+"ref_code": "7.5",
+"system_level": false,
+"category": "process",
+"subcategory": "protect",
+"dti": "easy",
+"dtc": "easy",
+"meta": {},
+"subcontrols": [
+{
+"name": "General",
+"ref_code": "7.5.1",
+"mitigation": "The organization’s FSMS shall include: a) documented information required by this document; b) documented information determined by the organization as being necessary for the effectiveness of the FSMS; c) documented information and food safety requirements required by statutory, regulatory authorities and customers. NOTE The extent of documented information for a FSMS can differ from one organization to another due to: — the size of organization and its type of activities, processes, products and services; — the complexity of processes and their interactions; — the competence of persons.",
+"meta": {}
+},
+{
+"name": "Creating and updating",
+"ref_code": "7.5.2",
+"mitigation": "When creating and updating documented information, the organization shall ensure appropriate: a) identification and description (e.g. a title, date, author, or reference number); b) format (e.g. language, software version, graphics) and media (e.g. paper, electronic); c) review and approval for suitability and adequacy.",
+"meta": {}
+},
+{
+"name": "Control of documented information",
+"ref_code": "7.5.3",
+"mitigation": "7.5.3.1 Documented information required by the FSMS and by this document shall be controlled to ensure: a) it is available and suitable for use, where and when it is needed; b) it is adequately protected (e.g. from loss of confidentiality, improper use, or loss of integrity). 7.5.3.2 For the control of documented information, the organization shall address the following activities, as applicable: a) distribution, access, retrieval and use; b) storage and preservation, including preservation of legibility; c) control of changes (e.g. version control); d) retention and disposition. Documented information of external origin determined by the organization to be necessary for the planning and operation of the FSMS shall be identified, as appropriate, and controlled. Documented information retained as evidence of conformity shall be protected from unintended alterations. NOTE Access can imply a decision regarding the permission to view the documented information only, or the permission and authority to view and change the documented information.",
+"meta": {}
+}
+]
+},
+{
+"name": "Operational planning and control",
+"description": "The organization shall plan, implement, control, maintain and update the processes needed to meet requirements for the realization of safe products, and to implement the actions determined in 6.1, by: a) establishing criteria for the processes; b) implementing control of the processes in accordance with the criteria; c) keeping documented information to the extent necessary to have the confidence to demonstrate that the processes have been carried out as planned. The organization shall control planned changes and review the consequences of unintended changes, taking action to mitigate any adverse effects, as necessary. The organization shall ensure that outsourced processes are controlled (see 7.1.6).",
+"ref_code": "8.1",
+"system_level": false,
+"category": "process",
+"subcategory": "protect",
+"dti": "easy",
+"dtc": "easy",
+"meta": {},
+"subcontrols": []
+},
+{
+"name": "Prerequisite programmes (PRPs)",
+"description": "",
+"ref_code": "8.2",
+"system_level": false,
+"category": "process",
+"subcategory": "protect",
+"dti": "easy",
+"dtc": "easy",
+"meta": {},
+"subcontrols": [
+{
+"name": "Establishing PRPs",
+"ref_code": "8.2.1",
+"mitigation": "The organization shall establish, implement, maintain and update PRP(s) to facilitate the prevention and/or reduction of contaminants (including food safety hazards) in the products, product processing and work environment.",
+"meta": {}
+},
+{
+"name": "PRP characteristics",
+"ref_code": "8.2.2",
+"mitigation": "The PRP(s) shall be: a) appropriate to the organization and its context with regard to food safety; b) appropriate to the size and type of the operation and the nature of the products being manufactured and/or handled; c) implemented across the entire production system, either as programmes applicable in general or as programmes applicable to a particular product or process; d) approved by the food safety team.",
+"meta": {}
+},
+{
+"name": "Selecting and establishing PRPs",
+"ref_code": "8.2.3",
+"mitigation": "When selecting and/or establishing PRP(s), the organization shall ensure that applicable statutory, regulatory and mutually agreed customer requirements are identified. The organization should consider: a) the applicable part of the ISO/TS 22002 series; b) applicable standards, codes of practice and guidelines.",
+"meta": {}
+},
+{
+"name": "Establishing PRPs considerations",
+"ref_code": "8.2.4",
+"mitigation": "When establishing PRP(s) the organization shall consider: a) construction, lay-out of buildings and associated utilities; b) lay-out of premises, including zoning, workspace and employee facilities; c) supplies of air, water, energy and other utilities; d) pest control, waste and sewage disposal and supporting services; e) the suitability of equipment and its accessibility for cleaning and maintenance; f) supplier approval and assurance processes (e.g. raw materials, ingredients, chemicals and packaging); g) reception of incoming materials, storage, dispatch, transportation and handling of products; h) measures for the prevention of cross contamination; i) cleaning and disinfecting; j) personal hygiene; k) product information/consumer awareness; l) others, as appropriate. Documented information shall specify the selection, establishment, applicable monitoring and verification of the PRP(s).",
+"meta": {}
+}
+]
+},
+{
+"name": "Traceability system",
+"description": "The traceability system shall be able to uniquely identify incoming material from the suppliers and the first stage of the distribution route of the end product. When establishing and implementing the traceability system, the following shall be considered as a minimum: a) relation of lots of received materials, ingredients and intermediate products to the end products; b) reworking of materials/products; c) distribution of the end product. The organization shall ensure that applicable statutory, regulatory and customer requirements are identified. Documented information as evidence of the traceability system shall be retained for a defined period to include, as a minimum, the shelf life of the product. The organization shall verify and test the effectiveness of the traceability system. NOTE Where appropriate, the verification of the system is expected to include the reconciliation of quantities of end products with the quantity of ingredients as evidence of effectiveness.",
+"ref_code": "8.3",
+"system_level": false,
+"category": "technology",
+"subcategory": "protect",
+"dti": "easy",
+"dtc": "easy",
+"meta": {},
+"subcontrols": []
+},
+{
+"name": "Emergency preparedness and response",
+"description": "",
+"ref_code": "8.4",
+"system_level": false,
+"category": "process",
+"subcategory": "respond",
+"dti": "easy",
+"dtc": "easy",
+"meta": {},
+"subcontrols": [
+{
+"name": "General",
+"ref_code": "8.4.1",
+"mitigation": "Top management shall ensure procedures are in place to respond to potential emergency situations or incidents that can have an impact on food safety which are relevant to the role of the organization in the food chain. Documented information shall be established and maintained to manage these situations and incidents.",
+"meta": {}
+},
+{
+"name": "Handling of emergencies and incidents",
+"ref_code": "8.4.2",
+"mitigation": "The organization shall: a) respond to actual emergency situations and incidents by: 1) ensuring applicable statutory and regulatory requirements are identified; 2) communicating internally; 3) communicating externally (e.g. suppliers, customers, appropriate authorities, media); b) take action to reduce the consequences of the emergency situation, appropriate to the magnitude of the emergency or incident and the potential food safety impact; c) periodically test procedures where practical; d) review and, where necessary, update the documented information after the occurrence of any incident, emergency situation or tests. NOTE Examples of emergency situations that can affect food safety and/or production are natural disasters, environmental accidents, bioterrorism, workplace accidents, public health emergencies and other accidents, e.g. interruption of essential services such as water, electricity or refrigeration supply.",
+"meta": {}
+}
+]
+},
+{
+"name": "Hazard control",
+"description": "",
+"ref_code": "8.5",
+"system_level": false,
+"category": "process",
+"subcategory": "protect",
+"dti": "easy",
+"dtc": "easy",
+"meta": {},
+"subcontrols": [
+{
+"name": "Preliminary steps to enable hazard analysis",
+"ref_code": "8.5.1",
+"mitigation": "",
+"meta": {}
+},
+{
+"name": "Hazard analysis",
+"ref_code": "8.5.2",
+"mitigation": "",
+"meta": {}
+},
+{
+"name": "Validation of control measure(s) and combinations of control measures",
+"ref_code": "8.5.3",
+"mitigation": "The food safety team shall validate that the selected control measures are capable of achieving the intended control of the significant food safety hazard(s). This validation shall be done prior to implementation of control measure(s) and combinations of control measures to be included in the hazard control plan (see 8.5.4) and after any change therein (see 7.4.2, 7.4.3, 10.2 and 10.3). When the result of validation shows that the control measures(s) is (are) not capable of achieving the intended control, the food safety team shall modify and re-assess the control measure(s) and/or combination(s) of control measure(s). The food safety team shall maintain the validation methodology and evidence of capability of the control measure(s) to achieve the intended control as documented information. NOTE Modification can include changes in control measure(s) (i.e. process parameters, rigour and/or their combination) and/or change(s) in the manufacturing technologies for raw materials, end product characteristics, methods of distribution and intended use of the end products.",
+"meta": {}
+},
+{
+"name": "Hazard control plan (HACCP/OPRP plan)",
+"ref_code": "8.5.4",
+"mitigation": "",
+"meta": {}
+}
+]
+},
+{
+"name": "Preliminary steps to enable hazard analysis",
+"description": "",
+"ref_code": "8.5.1",
+"system_level": false,
+"category": "process",
+"subcategory": "identify",
+"dti": "easy",
+"dtc": "easy",
+"meta": {},
+"subcontrols": [
+{
+"name": "General",
+"ref_code": "8.5.1.1",
+"mitigation": "To carry out the hazard analysis, preliminary documented information shall be collected, maintained and updated by the food safety team. This shall include, but not be limited to: a) applicable statutory, regulatory and customer requirements; b) the organization’s products, processes and equipment; c) food safety hazards relevant to the FSMS.",
+"meta": {}
+},
+{
+"name": "Characteristics of raw materials, ingredients and product contact materials",
+"ref_code": "8.5.1.2",
+"mitigation": "The organization shall ensure that all applicable statutory and regulatory food safety requirements are identified for all raw materials, ingredients and product contact materials. The organization shall maintain documented information concerning all raw materials, ingredients and product contact materials to the extent needed to conduct the hazard analysis (see 8.5.2), including the following, as appropriate: a) biological, chemical and physical characteristics; b) composition of formulated ingredients, including additives and processing aids; c) source (e.g. animal, mineral or vegetable); d) place of origin (provenance); e) method of production; f) method of packaging and delivery; g) storage conditions and shelf life; h) preparation and/or handling before use or processing; i) acceptance criteria related to food safety or specifications of purchased materials and ingredients appropriate to their intended use.",
+"meta": {}
+},
+{
+"name": "Characteristics of end products",
+"ref_code": "8.5.1.3",
+"mitigation": "The organization shall ensure that all applicable statutory and regulatory food safety requirements are identified for all the end products intended to be produced. The organization shall maintain documented information concerning the characteristics of end products to the extent needed to conduct the hazard analysis (see 8.5.2), including information on the following, as appropriate: a) product name or similar identification; b) composition; c) biological, chemical and physical characteristics relevant for food safety; d) intended shelf life and storage conditions; e) packaging; f) labelling relating to food safety and/or instructions for handling, preparation and intended use; g) method(s) of distribution and delivery.",
+"meta": {}
+},
+{
+"name": "Intended use",
+"ref_code": "8.5.1.4",
+"mitigation": "The intended use, including reasonably expected handling of the end product and any unintended use but reasonably expected mishandling and misuse of the end product, shall be considered and shall be maintained as documented information to the extent needed to conduct the hazard analysis (see 8.5.2). Where appropriate, groups of consumers/users shall be identified for each product. Groups of consumers/users known to be especially vulnerable to specific food safety hazards shall be identified.",
+"meta": {}
+},
+{
+"name": "Flow diagrams and description of processes",
+"ref_code": "8.5.1.5",
+"mitigation": "",
+"meta": {}
+}
+]
+},
+{
+"name": "Flow diagrams and description of processes",
+"description": "",
+"ref_code": "8.5.1.5",
+"system_level": false,
+"category": "process",
+"subcategory": "identify",
+"dti": "easy",
+"dtc": "easy",
+"meta": {},
+"subcontrols": [
+{
+"name": "Preparation of the flow diagrams",
+"ref_code": "8.5.1.5.1",
+"mitigation": "The food safety team shall establish, maintain and update flow diagrams as documented information for the products or product categories and the processes covered by the FSMS. Flow diagrams provide a graphic representation of the process. Flow diagrams shall be used when conducting the hazard analysis as a basis for evaluating the possible occurrence, increase, decrease or introduction of food safety hazards. Flow diagrams shall be clear, accurate and sufficiently detailed to the extent needed to conduct the hazard analysis. Flow diagrams shall, as appropriate, include the following: a) the sequence and interaction of the steps in the operation; b) any outsourced processes; c) where raw materials, ingredients, processing aids, packaging materials, utilities and intermediate products enter the flow; d) where reworking and recycling take place; e) where end products, intermediate products, by-products and waste are released or removed.",
+"meta": {}
+},
+{
+"name": "On-site confirmation of flow diagrams",
+"ref_code": "8.5.1.5.2",
+"mitigation": "The food safety team shall confirm on-site the accuracy of the flow diagrams, update the flow diagrams where appropriate and retain as documented information.",
+"meta": {}
+},
+{
+"name": "Description of processes and process environment",
+"ref_code": "8.5.1.5.3",
+"mitigation": "The food safety team shall describe, to the extent needed to conduct the hazard analysis: a) the layout of premises, including food and non-food handling areas; b) processing equipment and contact materials, processing aids and flow of materials; c) existing PRPs, process parameters, control measures (if any) and/or the strictness with which they are applied, or procedures that can influence food safety; d) external requirements (e.g. from statutory and regulatory authorities or customers) that can impact the choice and the strictness of the control measures. The variations resulting from expected seasonal changes or shift patterns shall be included as appropriate. The descriptions shall be updated as appropriate and maintained as documented information.",
+"meta": {}
+}
+]
+},
+{
+"name": "Hazard analysis",
+"description": "",
+"ref_code": "8.5.2",
+"system_level": false,
+"category": "process",
+"subcategory": "identify",
+"dti": "easy",
+"dtc": "easy",
+"meta": {},
+"subcontrols": [
+{
+"name": "General",
+"ref_code": "8.5.2.1",
+"mitigation": "The food safety team shall conduct a hazard analysis, based on the preliminary information, to determine the hazards that need to be controlled. The degree of control shall ensure food safety and, where appropriate, a combination of control measures shall be used.",
+"meta": {}
+},
+{
+"name": "Hazard identification and determination of acceptable levels",
+"ref_code": "8.5.2.2",
+"mitigation": "8.5.2.2.1 The organization shall identify and document all food safety hazards that are reasonably expected to occur in relation to the type of product, type of process and process environment. The identification shall be based on: a) the preliminary information and data collected in accordance with 8.5.1; b) experience; c) internal and external information including, to the extent possible, epidemiological, scientific and other historical data; d) information from the food chain on food safety hazards related to the safety of the end products, intermediate products and the food at the time of consumption; e) statutory, regulatory and customer requirements. NOTE 1 Experience can include information from staff and external experts who are familiar with the product and/or processes in other facilities. NOTE 2 Statutory and regulatory requirements can include food safety objectives (FSOs). The Codex Alimentarius Commission defines FSOs as “The maximum frequency and/or concentration of a hazard in a food at the time of consumption that provides or contributes to the appropriate level of protection (ALOP)”. Hazards should be considered in sufficient detail to enable hazard assessment and the selection of appropriate control measures. 8.5.2.2.2 The organization shall identify step(s) (e.g. receiving raw materials, processing, distribution and delivery) at which each food safety hazard can be present, be introduced, increase or persist. When identifying hazards, the organization shall consider: a) the stages preceding and following in the food chain; b) all steps in the flow diagram; c) the process equipment, utilities/services, process environment and persons. 8.5.2.2.3 The organization shall determine the acceptable level in the end product of each food safety hazard identified, whenever possible. When determining acceptable levels, the organization shall: a) ensure that applicable statutory, regulatory and customer requirements are identified; b) consider the intended use of end products; c) consider any other relevant information. The organization shall maintain documented information concerning the determination of acceptable levels and the justification for the acceptable levels.",
+"meta": {}
+},
+{
+"name": "Hazard assessment",
+"ref_code": "8.5.2.3",
+"mitigation": "The organization shall conduct, for each identified food safety hazard, a hazard assessment to determine whether its prevention or reduction to an acceptable level is essential. The organization shall evaluate each food safety hazard with regard to: a) the likelihood of its occurrence in the end product prior to application of control measures; b) the severity of its adverse health effects in relation to the intended use (see 8.5.1.4). The organization shall identify any significant food safety hazards. The methodology used shall be described, and the result of the hazard assessment shall be maintained as documented information.",
+"meta": {}
+},
+{
+"name": "Selection and categorization of control measure(s)",
+"ref_code": "8.5.2.4",
+"mitigation": "8.5.2.4.1 Based on the hazard assessment, the organization shall select an appropriate control measure or combination of control measures that will be capable of preventing or reducing the identified significant food safety hazards to defined acceptable levels. The organization shall categorize the selected identified control measure(s) to be managed as OPRP(s) (see 3.30) or at CCPs (see 3.11). The categorization shall be carried out using a systematic approach. For each of the control measures selected, there shall be an assessment of the following: a) the likelihood of failure of its functioning; b) the severity of the consequence in the case of failure of its functioning; this assessment shall include: 1) the effect on identified significant food safety hazards; 2) the location in relation to other control measure(s); 3) whether it is specifically established and applied to reduce the hazards to an acceptable level; 4) whether it is a single measure or is part of combination of control measure(s). 8.5.2.4.2 In addition, for each control measure, the systematic approach shall include an assessment of the feasibility of: a) establishing measurable critical limits and/or measurable/observable action criteria; b) monitoring to detect any failure to remain within critical limit and/or measurable/observable action criteria; c) applying timely corrections in case of failure. The decision-making process and results of the selection and categorization of the control measures shall be maintained as documented information. External requirements (e.g. statutory, regulatory and customer requirements) that can impact the choice and the strictness of the control measures shall also be maintained as documented information.",
+"meta": {}
+}
+]
+},
+{
+"name": "Hazard control plan (HACCP/OPRP plan)",
+"description": "",
+"ref_code": "8.5.4",
+"system_level": false,
+"category": "process",
+"subcategory": "protect",
+"dti": "easy",
+"dtc": "easy",
+"meta": {},
+"subcontrols": [
+{
+"name": "General",
+"ref_code": "8.5.4.1",
+"mitigation": "The organization shall establish, implement and maintain a hazard control plan. The hazard control plan shall be maintained as documented information and shall include the following information for each control measure at each CCP or OPRP: a) food safety hazard(s) to be controlled at the CCP or by the OPRP; b) critical limit(s) at CCP or action criteria for OPRP; c) monitoring procedure(s); d) correction(s) to be made if critical limits or action criteria are not met; e) responsibilities and authorities; f) records of monitoring.",
+"meta": {}
+},
+{
+"name": "Determination of critical limits and action criteria",
+"ref_code": "8.5.4.2",
+"mitigation": "Critical limits at CCPs and action criteria for OPRPs shall be specified. The rationale for their determination shall be maintained as documented information. Critical limits at CCPs shall be measurable. Conformance with critical limits shall ensure that the acceptable level is not exceeded. Action criteria for OPRPs shall be measurable or observable. Conformance with action criteria shall contribute to the assurance that the acceptable level is not exceeded.",
+"meta": {}
+},
+{
+"name": "Monitoring systems at CCPs and for OPRPs",
+"ref_code": "8.5.4.3",
+"mitigation": "At each CCP, a monitoring system shall be established for each control measure or combination of control measure(s) to detect any failure to remain within the critical limits. The system shall include all scheduled measurements relative to the critical limit(s). For each OPRP, a monitoring system shall be established for the control measure or combination of control measure(s) to detect failure to meet the action criterion. The monitoring system, at each CCP and for each OPRP, shall consist of documented information, including: a) measurements or observations that provide results within an adequate time frame; b) monitoring methods or devices used; c) applicable calibration methods or, for OPRPs, equivalent methods for verification of reliable measurements or observations (see 8.7); d) monitoring frequency; e) monitoring results; f) responsibility and authority related to monitoring; g) responsibility and authority related to evaluation of monitoring results. At each CCP, the monitoring method and frequency shall be capable of timely detection of any failure to remain within critical limits, to allow timely isolation and evaluation of the product (see 8.9.4). For each OPRP, the monitoring method and frequency shall be proportionate to the likelihood of failure and the severity of consequences. When monitoring an OPRP is based on subjective data from observations (e.g. visual inspection), the method shall be supported by instructions or specifications.",
+"meta": {}
+},
+{
+"name": "Actions when critical limits or action criteria are not met",
+"ref_code": "8.5.4.4",
+"mitigation": "The organization shall specify corrections (see 8.9.2) and corrective actions (see 8.9.3) to be taken when critical limits or action criterion are not met and shall ensure that: a) the potentially unsafe products are not released (see 8.9.4); b) the cause of nonconformity is identified; c) the parameter(s) controlled at the CCP or by the OPRP is (are) returned within the critical limits or action criteria; d) recurrence is prevented. The organization shall make corrections in accordance with 8.9.2 and corrective actions in accordance with 8.9.3.",
+"meta": {}
+},
+{
+"name": "Implementation of the hazard control plan",
+"ref_code": "8.5.4.5",
+"mitigation": "The organization shall implement and maintain the hazard control plan, and retain evidence of the implementation as documented information.",
+"meta": {}
+}
+]
+},
+{
+"name": "Updating the information specifying the PRPs and the hazard control plan",
+"description": "Following the establishment of the hazard control plan, the organization shall update the following information, if necessary: a) characteristics of raw materials, ingredients and product-contact materials; b) characteristics of end products; c) intended use; d) flow diagrams and descriptions of processes and process environment. The organization shall ensure that the hazard control plan and/or the PRP(s) are up to date.",
+"ref_code": "8.6",
+"system_level": false,
+"category": "process",
+"subcategory": "protect",
+"dti": "easy",
+"dtc": "easy",
+"meta": {},
+"subcontrols": []
+},
+{
+"name": "Control of monitoring and measuring",
+"description": "The organization shall provide evidence that the specified monitoring and measuring methods and equipment in use are adequate for the monitoring and measuring activities related to the PRP(s) and the hazard control plan. The monitoring and measuring equipment used shall be: a) calibrated or verified at specified intervals prior to use; b) adjusted or re-adjusted as necessary; c) identified to enable the calibration status to be determined; d) safeguarded from adjustments that would invalidate the measurement results; e) protected from damage and deterioration. The results of calibration and verification shall be retained as documented information. The calibration of all the equipment shall be traceable to international or national measurement standards; where no standards exist, the basis used for calibration or verification shall be retained as documented information. The organization shall assess the validity of the previous measurement results when the equipment or process environment is found not to conform to requirements. The organization shall take appropriate action in relation to the equipment or process environment and any product affected by the non-conformance. The assessment and resulting action shall be maintained as documented information. Software used in monitoring and measuring within the FSMS shall be validated by the organization, software supplier or third party prior to use. Documented information on validation activities shall be maintained by the organization and the software shall be updated in a timely manner. Whenever there are changes, including software configuration/modifications to commercial off-the-shelf software, they shall be authorized, documented and validated before implementation. NOTE Commercial off-the-shelf software in general use within its designed application range can be considered to be sufficiently validated.",
+"ref_code": "8.7",
+"system_level": false,
+"category": "technology",
+"subcategory": "detect",
+"dti": "easy",
+"dtc": "easy",
+"meta": {},
+"subcontrols": []
+},
+{
+"name": "Verification related to PRPs and the hazard control plan",
+"description": "",
+"ref_code": "8.8",
+"system_level": false,
+"category": "process",
+"subcategory": "detect",
+"dti": "easy",
+"dtc": "easy",
+"meta": {},
+"subcontrols": [
+{
+"name": "Verification",
+"ref_code": "8.8.1",
+"mitigation": "The organization shall establish, implement and maintain verification activities. The verification planning shall define purpose, methods, frequencies and responsibilities for the verification activities. The verification activities shall confirm that: a) the PRP(s) are implemented and effective; b) the hazard control plan is implemented and effective; c) hazard levels are within identified acceptable levels; d) input to the hazard analysis is updated; e) other actions determined by the organization are implemented and effective. The organization shall ensure that verification activities are not carried out by the person responsible for monitoring the same activities. Verification results shall be retained as documented information and shall be communicated. Where verification is based on testing of end product samples or direct process samples and where such test samples show nonconformity with the acceptable level of the food safety hazard (see 8.5.2.2), the organization shall handle the affected lot(s) of product as potentially unsafe (see 8.9.4.3) and apply corrective actions in accordance with 8.9.3.",
+"meta": {}
+},
+{
+"name": "Analysis of results of verification activities",
+"ref_code": "8.8.2",
+"mitigation": "The food safety team shall conduct an analysis of the results of verification that shall be used as an input to the performance evaluation of the FSMS (see 9.1.2).",
+"meta": {}
+}
+]
+},
+{
+"name": "Control of product and process nonconformities",
+"description": "",
+"ref_code": "8.9",
+"system_level": false,
+"category": "process",
+"subcategory": "respond",
+"dti": "easy",
+"dtc": "easy",
+"meta": {},
+"subcontrols": [
+{
+"name": "General",
+"ref_code": "8.9.1",
+"mitigation": "The organization shall ensure that data derived from the monitoring of OPRPs and at CCPs are evaluated by designated persons who are competent and have the authority to initiate corrections and corrective actions.",
+"meta": {}
+},
+{
+"name": "Corrections",
+"ref_code": "8.9.2",
+"mitigation": "8.9.2.1 The organization shall ensure that when critical limits at CCP(s) and/or action criteria for OPRPs are not met, the products affected are identified and controlled with regard to their use and release. The organization shall establish, maintain and update documented information that includes: a) a method of identification, assessment and correction for affected products to ensure their proper handling; b) arrangements for review of the corrections carried out. 8.9.2.2 When critical limits at CCPs are not met, affected products shall be identified and handled as potentially unsafe products (see 8.9.4). 8.9.2.3 Where action criteria for an OPRP are not met, the following shall be carried out: a) determination of the consequences of that failure with respect to food safety; b) determination of the cause(s) of failure; c) identification of the affected products and handling in accordance with 8.9.4. The organization shall retain results of the evaluation as documented information. 8.9.2.4 Documented information shall be retained to describe corrections made on nonconforming products and processes, including: a) the nature of the nonconformity; b) the cause(s) of the failure; c) the consequences as a result of the nonconformity.",
+"meta": {}
+},
+{
+"name": "Corrective actions",
+"ref_code": "8.9.3",
+"mitigation": "The need for corrective actions shall be evaluated when critical limits at CCP(s) and/or action criteria for OPRPs are not met. The organization shall establish and maintain documented information that specifies appropriate actions to identify and eliminate the cause of detected nonconformities, to prevent recurrence, and to return the process to control after a nonconformity is identified. These actions shall include: a) reviewing nonconformities identified by customer and/or consumer complaints and/or regulatory inspection reports; b) reviewing trends in monitoring results that can indicate loss of control; c) determining the cause(s) of nonconformities; d) determining and implementing actions to ensure that nonconformities do not recur; e) documenting the results of corrective actions taken; f) verifying corrective actions taken to ensure that they are effective. The organization shall retain documented information on all corrective actions.",
+"meta": {}
+},
+{
+"name": "Handling of potentially unsafe products",
+"ref_code": "8.9.4",
+"mitigation": "8.9.4.1 General The organization shall take action(s) to prevent potentially unsafe products from entering the food chain, unless it can demonstrate that: a) the food safety hazard(s) of concern is (are) reduced to the defined acceptable levels; b) the food safety hazard(s) of concern will be reduced to identified acceptable levels prior to entering the food chain; or c) the product still meets the defined acceptable level(s) of the food safety hazard(s) of concern despite the nonconformity. The organization shall retain products that have been identified as potentially unsafe under its control until the products have been evaluated and the disposition has been determined. If products that have left the control of the organization are subsequently determined to be unsafe, the organization shall notify relevant interested parties and initiate a withdrawal/recall (see 8.9.5). The controls and related responses from relevant interested parties and authorization for dealing with potentially unsafe products shall be retained as documented information. 8.9.4.2 Evaluation for release Each lot of products affected by the nonconformity shall be evaluated. Products affected by failure to remain within critical limits at CCPs shall not be released, but shall be handled in accordance with 8.9.4.3. Products affected by failure to meet action criterion for OPRPs shall only be released as safe when any of the following conditions apply: a) evidence other than the monitoring system demonstrates that the control measures have been effective; b) evidence shows that the combined effect of the control measures for that particular product conforms to the performance intended (i.e. identified acceptable levels); c) the results of sampling, analysis and/or other verification activities demonstrate that the affected products conform to the identified acceptable levels for the food safety hazard(s) concerned. Results of evaluation for release of products shall be retained as documented information. 8.9.4.3 Disposition of nonconforming products Products that are not acceptable for release shall be: a) reprocessed or further processed within or outside the organization to ensure that the food safety hazard is reduced to acceptable levels; or b) redirected for other use as long as food safety in the food chain is not affected; or c) destroyed and/or disposed as waste. Documented information on the disposition of nonconforming products, including the identification of the person(s) with approving authority shall be retained.",
+"meta": {}
+},
+{
+"name": "Withdrawal/recall",
+"ref_code": "8.9.5",
+"mitigation": "The organization shall be able to ensure the timely withdrawal/recall of lots of end products that have been identified as potentially unsafe, by appointing competent person(s) having the authority to initiate and carry out the withdrawal/recall. The organization shall establish and maintain documented information for: a) notifying relevant interested parties (e.g. statutory and regulatory authorities, customers and/or consumers); b) handling withdrawn/recalled products as well as products still in stock; c) performing the sequence of actions to be taken. Withdrawn/recalled products and end products still in stock shall be secured or held under the control of the organization until they are managed in accordance with 8.9.4.3. The cause, extent and result of a withdrawal/recall shall be retained as documented information and reported to the top management as input for the management review (see 9.3). The organization shall verify the implementation and effectiveness of withdrawals/recalls through the use of appropriate techniques (e.g. mock withdrawal/recall or practice withdrawal/recall) and retain documented information.",
+"meta": {}
+}
+]
+},
+{
+"name": "Monitoring, measurement, analysis and evaluation",
+"description": "",
+"ref_code": "9.1",
+"system_level": false,
+"category": "process",
+"subcategory": "detect",
+"dti": "easy",
+"dtc": "easy",
+"meta": {},
+"subcontrols": [
+{
+"name": "General",
+"ref_code": "9.1.1",
+"mitigation": "The organization shall determine: a) what needs to be monitored and measured; b) the methods for monitoring, measurement, analysis and evaluation, as applicable, to ensure valid results; c) when the monitoring and measuring shall be performed; d) when the results from monitoring and measurement shall be analysed and evaluated; e) who shall analyse and evaluate the results from monitoring and measurement. The organization shall retain appropriate documented information as evidence of the results. The organization shall evaluate the performance and the effectiveness of the FSMS.",
+"meta": {}
+},
+{
+"name": "Analysis and evaluation",
+"ref_code": "9.1.2",
+"mitigation": "The organization shall analyse and evaluate appropriate data and information arising from monitoring and measurement, including the results of verification activities related to PRPs and the hazard control plan (see 8.8 and 8.5.4), the internal audits (see 9.2) and external audits. The analysis shall be carried out: a) to confirm that the overall performance of the system meets the planned arrangements and the FSMS requirements established by the organization; b) to identify the need for updating or improving the FSMS; c) to identify trends which indicate a higher incidence of potentially unsafe products or process failures; d) to establish information for planning of the internal audit programme related to the status and importance of areas to be audited; e) to provide evidence that corrections and corrective actions are effective. The results of the analysis and the resulting activities shall be retained as documented information. The results shall be reported to top management and used as input to the management review (see 9.3) and the updating of the FSMS (see 10.3). NOTE Methods to analyse data can include statistical techniques.",
+"meta": {}
+}
+]
+},
+{
+"name": "Internal audit",
+"description": "",
+"ref_code": "9.2",
+"system_level": false,
+"category": "process",
+"subcategory": "detect",
+"dti": "easy",
+"dtc": "easy",
+"meta": {},
+"subcontrols": [
+{
+"name": "Conducting internal audits",
+"ref_code": "9.2.1",
+"mitigation": "The organization shall conduct internal audits at planned intervals to provide information on whether the FSMS: a) conforms to: 1) the organization’s own requirements for its FSMS; 2) the requirements of this document; b) is effectively implemented and maintained.",
+"meta": {}
+},
+{
+"name": "Audit programme",
+"ref_code": "9.2.2",
+"mitigation": "The organization shall: a) plan, establish, implement and maintain (an) audit programme(s), including the frequency, methods, responsibilities, planning requirements and reporting, which shall take into consideration the importance of the processes concerned, changes in the FSMS, and the results of monitoring, measurement and previous audits; b) define the audit criteria and scope for each audit; c) select competent auditors and conduct audits to ensure objectivity and the impartiality of the audit process; d) ensure that the results of the audits are reported to the food safety team and relevant management; e) retain documented information as evidence of the implementation of the audit programme and the audit results; f) make the necessary correction and take the necessary corrective action within the agreed time frame; g) determine if the FSMS meets the intent of the food safety policy (see 5.2) and objectives of the FSMS (see 6.2). Follow-up activities by the organization shall include the verification of the actions taken and the reporting of the verification results. NOTE ISO 19011 provides guidelines for auditing management systems.",
+"meta": {}
+}
+]
+},
+{
+"name": "Management review",
+"description": "",
+"ref_code": "9.3",
+"system_level": false,
+"category": "process",
+"subcategory": "detect",
+"dti": "easy",
+"dtc": "easy",
+"meta": {},
+"subcontrols": [
+{
+"name": "General",
+"ref_code": "9.3.1",
+"mitigation": "Top management shall review the organization’s FSMS, at planned intervals, to ensure its continuing suitability, adequacy and effectiveness.",
+"meta": {}
+},
+{
+"name": "Management review input",
+"ref_code": "9.3.2",
+"mitigation": "The management review shall consider: a) the status of actions from previous management reviews; b) changes in external and internal issues that are relevant to the FSMS, including changes in the organization and its context (see 4.1); c) information on the performance and the effectiveness of the FSMS, including trends in: 1) result(s) of system updating activities (see 4.4 and 10.3); 2) monitoring and measurement results; 3) analysis of the results of verification activities related to PRPs and the hazard control plan (see 8.8.2); 4) nonconformities and corrective actions; 5) audit results (internal and external); 6) inspections (e.g. regulatory, customer); 7) the performance of external providers; 8) the review of risks and opportunities and of the effectiveness of actions taken to address them (see 6.1); 9) the extent to which objectives of the FSMS have been met; d) the adequacy of resources; e) any emergency situation, incident (see 8.4.2) or withdrawal/recall (see 8.9.5) that occurred; f) relevant information obtained through external (see 7.4.2) and internal (see 7.4.3) communication, including requests and complaints from interested parties; g) opportunities for continual improvement. The data shall be presented in a manner that enables top management to relate the information to stated objectives of the FSMS.",
+"meta": {}
+},
+{
+"name": "Management review output",
+"ref_code": "9.3.3",
+"mitigation": "The outputs of the management review shall include: a) decisions and actions related to continual improvement opportunities; b) any need for updates and changes to the FSMS, including resource needs and revision of the food safety policy and objectives of the FSMS. The organization shall retain documented information as evidence of the results of management reviews.",
+"meta": {}
+}
+]
+},
+{
+"name": "Nonconformity and corrective action",
+"description": "10.1.1 When a nonconformity occurs, the organization shall: a) react to the nonconformity and, as applicable: 1) take action to control and correct it; 2) deal with the consequences; b) evaluate the need for action to eliminate the cause(s) of the nonconformity, in order that it does not recur or occur elsewhere, by: 1) reviewing the nonconformity; 2) determining the causes of the nonconformity; 3) determining if similar nonconformities exist, or could potentially occur; c) implement any action needed; d) review the effectiveness of any corrective action taken; e) make changes to the FSMS, if necessary. Corrective actions shall be appropriate to the effects of the nonconformities encountered. 10.1.2 The organization shall retain documented information as evidence of: a) the nature of the nonconformities and any subsequent actions taken; b) the results of any corrective action.",
+"ref_code": "10.1",
+"system_level": false,
+"category": "process",
+"subcategory": "respond",
+"dti": "easy",
+"dtc": "easy",
+"meta": {},
+"subcontrols": []
+},
+{
+"name": "Continual improvement",
+"description": "The organization shall continually improve the suitability, adequacy and effectiveness of the FSMS. Top management shall ensure that the organization continually improves the effectiveness of the FSMS through the use of communication (see 7.4), management review (see 9.3), internal audit (see 9.2), analysis of results of verification activities (see 8.8.2), validation of control measure(s) and combination(s) of control measure(s) (see 8.5.3), corrective actions (see 8.9.3) and FSMS updating (see 10.3).",
+"ref_code": "10.2",
+"system_level": false,
+"category": "process",
+"subcategory": "respond",
+"dti": "easy",
+"dtc": "easy",
+"meta": {},
+"subcontrols": []
+},
+{
+"name": "Update of the food safety management system",
+"description": "Top management shall ensure that the FSMS is continually updated. To achieve this, the food safety team shall evaluate the FSMS at planned intervals. The team shall consider whether it is necessary to review the hazard analysis (see 8.5.2), the established hazard control plan (see 8.5.4) and the established PRPs (see 8.2). The updating activities shall be based on: a) input from communication, external as well as internal (see 7.4); b) input from other information concerning the suitability, adequacy and effectiveness of the FSMS; c) output from the analysis of results of verification activities (see 9.1.2); d) output from management review (see 9.3). System updating activities shall be retained as documented information and reported as input to the management review (see 9.3).",
+"ref_code": "10.3",
+"system_level": false,
+"category": "process",
+"subcategory": "respond",
+"dti": "easy",
+"dtc": "easy",
+"meta": {},
+"subcontrols": []
+}
+]
