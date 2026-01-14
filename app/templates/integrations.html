@@ -1,0 +1,274 @@
+{% extends "layouts/sidebar-nav.html" %}
+
+{% block head %}
+<style>
+  #main {
+    background-image: url("https://www.gstatic.com/pantheon/images/welcome/background_illustration_v2.svg");
+    background-repeat: no-repeat;
+    background-position: center bottom;
+    background-size: contain;
+  }
+</style>
+{% endblock %}
+
+{% block page_header_title %}Integrations{% endblock %}
+{% block page_header_title_border %}{% endblock %}
+
+{% block content %}
+<div x-data="integrations()" class="mt-12 px-10 pb-16">
+  <div class="flex flex-col gap-8">
+    <!-- Hero / Intro -->
+    <div>
+      <div class="flex flex-row items-center">
+        <span class="text-3xl" id="emoji">🔗</span>
+        <div class="text-4xl font-medium ml-4">Integrations Hub</div>
+      </div>
+      <p class="py-6 max-w-3xl mt-4 font-medium">
+        Connect {{config.APP_NAME}} to your existing tools to automatically collect evidence, pull documents, receive alerts, and streamline compliance workflows.
+        Start with the most valuable connections for evidence gathering and risk management.
+      </p>
+    </div>
+
+    <!-- Quick Stats Overview (optional but matches home style) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div class="card bg-base-100 shadow-lg">
+        <div class="card-body text-center py-6">
+          <h3 class="text-lg font-semibold opacity-80">Connected Tools</h3>
+          <div class="text-5xl font-bold mt-2" x-text="connectedCount"></div>
+        </div>
+      </div>
+      <div class="card bg-base-100 shadow-lg">
+        <div class="card-body text-center py-6">
+          <h3 class="text-lg font-semibold opacity-80">Evidence Items</h3>
+          <div class="text-5xl font-bold mt-2 text-success" x-text="evidenceCount"></div>
+        </div>
+      </div>
+      <div class="card bg-base-100 shadow-lg">
+        <div class="card-body text-center py-6">
+          <h3 class="text-lg font-semibold opacity-80">Pending Setup</h3>
+          <div class="text-5xl font-bold mt-2 text-warning" x-text="pendingCount"></div>
+        </div>
+      </div>
+      <div class="card bg-base-100 shadow-lg">
+        <div class="card-body text-center py-6">
+          <h3 class="text-lg font-semibold opacity-80">Last Sync</h3>
+          <div class="text-2xl font-medium mt-3" x-text="lastSync || '—'"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-xl font-medium mt-6 mb-6">🚀 Available Integrations</div>
+
+    <!-- Cards Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+      <!-- Google Workspace / Drive / Docs -->
+      <div class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300">
+        <div class="card-body">
+          <h2 class="card-title text-xl flex items-center gap-3">
+            <i class="ti ti-brand-google-drive text-3xl text-success"></i>
+            Google Workspace
+          </h2>
+          <p class="font-medium my-6">
+            Automatically pull policies, evidence files, audit notes from Google Drive, Docs, Sheets. Sync folders linked to controls/projects.
+          </p>
+          <div class="card-actions border-t border-base-300 pt-4">
+            <div class="flex justify-between w-full items-center">
+              <div class="text-xs px-3 py-1 font-medium bg-base-300 rounded-lg inline-flex items-center gap-2">
+                <i class="ti ti-folder-check"></i>
+                <span x-text="integrations.google?.evidence || 0"></span>
+              </div>
+              <button @click="connect('google')" :class="integrations.google?.connected ? 'btn-success' : 'btn-primary'" class="btn btn-sm gap-2">
+                <template x-if="integrations.google?.connected">Manage / Re-sync</template>
+                <template x-if="!integrations.google?.connected">Connect</template>
+                <i class="ti ti-arrow-right text-lg"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Microsoft 365 / OneDrive / SharePoint -->
+      <div class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300">
+        <div class="card-body">
+          <h2 class="card-title text-xl flex items-center gap-3">
+            <i class="ti ti-brand-office text-3xl text-blue-500"></i>
+            Microsoft 365
+          </h2>
+          <p class="font-medium my-6">
+            Collect evidence from OneDrive, SharePoint, Teams files/chats. Link documents to controls and auto-sync updates.
+          </p>
+          <div class="card-actions border-t border-base-300 pt-4">
+            <div class="flex justify-between w-full items-center">
+              <div class="text-xs px-3 py-1 font-medium bg-base-300 rounded-lg inline-flex items-center gap-2">
+                <i class="ti ti-folder-check"></i>
+                <span x-text="integrations.microsoft?.evidence || 0"></span>
+              </div>
+              <button @click="connect('microsoft')" :class="integrations.microsoft?.connected ? 'btn-success' : 'btn-primary'" class="btn btn-sm gap-2">
+                <template x-if="integrations.microsoft?.connected">Manage</template>
+                <template x-if="!integrations.microsoft?.connected">Connect</template>
+                <i class="ti ti-arrow-right text-lg"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Jira / Ticketing for issues → evidence -->
+      <div class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300">
+        <div class="card-body">
+          <h2 class="card-title text-xl flex items-center gap-3">
+            <i class="ti ti-brand-jira text-3xl text-blue-600"></i>
+            Jira
+          </h2>
+          <p class="font-medium my-6">
+            Link Jira tickets/issues as evidence. Auto-import comments, attachments, status changes into controls/risks.
+          </p>
+          <div class="card-actions border-t border-base-300 pt-4">
+            <div class="flex justify-between w-full items-center">
+              <div class="text-xs px-3 py-1 font-medium bg-base-300 rounded-lg inline-flex items-center gap-2">
+                <i class="ti ti-ticket"></i>
+                <span x-text="integrations.jira?.linked || 0"></span>
+              </div>
+              <button @click="connect('jira')" :class="integrations.jira?.connected ? 'btn-success' : 'btn-primary'" class="btn btn-sm gap-2">
+                <template x-if="integrations.jira?.connected">Manage</template>
+                <template x-if="!integrations.jira?.connected">Connect</template>
+                <i class="ti ti-arrow-right text-lg"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slack / Teams for notifications -->
+      <div class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300">
+        <div class="card-body">
+          <h2 class="card-title text-xl flex items-center gap-3">
+            <i class="ti ti-brand-slack text-3xl text-[#36C5F0]"></i>
+            Slack / Microsoft Teams
+          </h2>
+          <p class="font-medium my-6">
+            Get real-time alerts for new risks, control deadlines, audit requests. Share evidence links directly in channels.
+          </p>
+          <div class="card-actions border-t border-base-300 pt-4">
+            <div class="flex justify-between w-full items-center">
+              <div class="text-xs px-3 py-1 font-medium bg-base-300 rounded-lg inline-flex items-center gap-2">
+                <i class="ti ti-bell"></i>
+                <span x-text="integrations.slack?.alerts || 0"></span>
+              </div>
+              <button @click="connect('slack')" :class="integrations.slack?.connected ? 'btn-success' : 'btn-primary'" class="btn btn-sm gap-2">
+                <template x-if="integrations.slack?.connected">Manage</template>
+                <template x-if="!integrations.slack?.connected">Connect</template>
+                <i class="ti ti-arrow-right text-lg"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WhatsApp Business (limited – mostly notifications) -->
+      <div class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300 opacity-75">
+        <div class="card-body">
+          <h2 class="card-title text-xl flex items-center gap-3">
+            <i class="ti ti-brand-whatsapp text-3xl text-green-500"></i>
+            WhatsApp Business API
+          </h2>
+          <p class="font-medium my-6">
+            Send compliance reminders, urgent risk alerts, or evidence approval requests via WhatsApp (Business API required).
+          </p>
+          <div class="card-actions border-t border-base-300 pt-4">
+            <div class="flex justify-between w-full items-center">
+              <div class="text-xs px-3 py-1 font-medium bg-base-300 rounded-lg inline-flex items-center gap-2">
+                <i class="ti ti-bell-ringing"></i>
+                <span x-text="integrations.whatsapp?.sent || 0"></span>
+              </div>
+              <button @click="connect('whatsapp')" class="btn btn-sm btn-primary gap-2">
+                Connect (Beta)
+                <i class="ti ti-arrow-right text-lg"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Coming Soon placeholder -->
+      <div class="card bg-base-200 shadow-lg opacity-60">
+        <div class="card-body text-center py-10">
+          <i class="ti ti-hourglass-high text-6xl mb-4 opacity-70"></i>
+          <h2 class="text-xl font-semibold mb-3">More Coming Soon</h2>
+          <p class="text-sm opacity-80">
+            ServiceNow, Confluence, Dropbox, GitHub evidence linking, email (Outlook/Gmail), and audit tools...
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extrajs %}
+<script>
+function integrations() {
+  return {
+    integrations: {
+      google:    { connected: false, evidence: 0 },
+      microsoft: { connected: false, evidence: 0 },
+      jira:      { connected: false, linked: 0 },
+      slack:     { connected: false, alerts: 0 },
+      whatsapp:  { connected: false, sent: 0 },
+      // add more later
+    },
+    connectedCount: 0,
+    evidenceCount: 0,
+    pendingCount: 0,
+    lastSync: null,
+
+    init() {
+      this.loadIntegrationStatus();
+    },
+
+    loadIntegrationStatus() {
+      // TODO: real API call in production
+      // request("GET", `/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/integrations`, data => {
+      //   this.integrations = data;
+      //   this.updateStats();
+      // });
+
+      // Mock data for demo/MVP
+      setTimeout(() => {
+        this.integrations.google.connected    = true;
+        this.integrations.google.evidence     = 42;
+        this.integrations.microsoft.connected = false;
+        this.integrations.jira.connected      = true;
+        this.integrations.jira.linked         = 18;
+        this.integrations.slack.connected     = true;
+        this.integrations.slack.alerts        = 137;
+
+        this.updateStats();
+      }, 800);
+    },
+
+    updateStats() {
+      this.connectedCount = Object.values(this.integrations).filter(i => i.connected).length;
+      this.evidenceCount  = (this.integrations.google?.evidence || 0) + (this.integrations.microsoft?.evidence || 0);
+      this.pendingCount   = Object.values(this.integrations).filter(i => !i.connected).length;
+      this.lastSync       = new Date().toLocaleString([], {hour: '2-digit', minute:'2-digit', month:'short', day:'numeric'});
+    },
+
+    connect(type) {
+      // In real app → redirect to OAuth flow or show modal with instructions
+      toast(`Starting connection to ${type.toUpperCase()}... (OAuth flow would start here)`, "info");
+
+      // Simulate success after 2s (remove in prod)
+      setTimeout(() => {
+        this.integrations[type].connected = true;
+        this.integrations[type].evidence = this.integrations[type].evidence || 12;
+        this.updateStats();
+        toast(`${type.toUpperCase()} connected!`, "success");
+      }, 1800);
+    }
+  }
+}
+</script>
+{% endblock %}

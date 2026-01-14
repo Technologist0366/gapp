@@ -253,6 +253,7 @@ def set_password():
     return render_template("auth/set_password.html")
 
 
+
 @auth.route("/register", methods=["GET"])
 @is_logged_in
 def get_register():

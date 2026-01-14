@@ -1295,9 +1295,10 @@ class Tenant(db.Model, QueryMixin, AuthorizerMixin):
 
     def get_tenant_info(self):
         data = {
-            "projects": self.projects.count(),
-            "users": self.members.count(),
-            "risks": self.risks.count(),
+        "projects": self.projects.count(),
+        "users": self.members.count(),
+        "risks": self.risks.count(),
+        "evidence": self.evidence.count(),
         }
         return data
 

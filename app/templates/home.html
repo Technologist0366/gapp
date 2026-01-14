@@ -1,69 +1,129 @@
 {% extends "layouts/sidebar-nav.html" %}
 
-{%block head%}
+{% block head %}
 <style>
 #main {
   background-image: url("https://www.gstatic.com/pantheon/images/welcome/background_illustration_v2.svg");
   background-repeat: no-repeat;
+  background-position: center bottom;
+  background-size: contain;
 }
 </style>
-{%endblock%}
-{%block header%}{%endblock%}
-{%block header_title%}Home{%endblock%}
-{%block page_header%}{%endblock%}
+{% endblock %}
 
-{%block content%}
-<div x-data="welcome()" class="mt-12 px-10">
-  <div class="flex-col">
+{% block header %}{% endblock %}
+{% block header_title %}Home{% endblock %}
+{% block page_header %}{% endblock %}
+
+{% block content %}
+<div x-data="welcome()" class="mt-12 px-10 pb-16">
+  <div class="flex flex-col gap-8">
     <div>
-      <div class="flex flex-row">
-        <div><span class="text-3xl" id="emoji">👋</span></div>
+      <div class="flex flex-row items-center">
+        <span class="text-3xl" id="emoji">👋</span>
         <div class="text-4xl font-medium ml-4" x-text="welcomeMessage"></div>
       </div>
-      <p class="py-6 w-1/2 mt-4 font-medium ">{{config.APP_NAME}} is a risk governance and compliance platform. <a class="underline underline-offset-4 hover:text-neutral-content" href="{{config.DOC_LINK}}">Please check here</a> for more information and/or questions.</p>
-      <div class="text-xl font-medium  mt-4 mb-4">🚀 Get Started</div>
-      <div class="flex flex-row bg-base-200 w-full rounded-box space-x-4 p-6">
-        <div class="card bg-base-100 w-full">
+      <p class="py-6 max-w-2xl mt-4 font-medium">
+        {{config.APP_NAME}} is a risk governance and compliance platform. 
+        <a class="underline underline-offset-4 hover:text-neutral-content" href="{{config.DOC_LINK}}">
+          Please check here
+        </a> for more information and/or questions.
+      </p>
+
+      <div class="text-xl font-medium mt-6 mb-6">🚀 Get Started</div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Compliance Projects Card -->
+        <div class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300">
           <div class="card-body">
             <h2 class="card-title text-xl">Compliance Projects</h2>
             <p class="font-medium my-6">Start managing your compliance projects. Track controls, edit policies and monitor your progress.</p>
-            <div class="card-actions border-t border-base-300">
-              <div class="mt-4 flex justify-between w-full">
-                <div class="text-xs my-auto px-2 py-1 font-medium bg-base-300 rounded-lg">
-                  <i class="ti ti-brand-asana my-auto"></i>
-                  <span x-text="tenantInfo.projects"></span>
+            <div class="card-actions border-t border-base-300 pt-4">
+              <div class="flex justify-between w-full items-center">
+                <div class="text-xs px-3 py-1 font-medium bg-base-300 rounded-lg inline-flex items-center gap-2">
+                  <i class="ti ti-brand-asana"></i>
+                  <span x-text="tenantInfo.projects || 0"></span>
                 </div>
-                <a href="/projects" class="btn btn-sm my-auto">Continue<i class="ti ti-arrow-right text-lg my-auto"></i></a>
+                <a href="/projects" class="btn btn-sm btn-primary gap-2">
+                  Continue <i class="ti ti-arrow-right text-lg"></i>
+                </a>
               </div>
             </div>
           </div>
         </div>
-        <div class="card bg-base-100 w-full">
+
+        <!-- Risk Management Card -->
+        <div class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300">
           <div class="card-body">
             <h2 class="card-title text-xl">Risk Management</h2>
             <p class="font-medium my-6">Start managing your risk register. Assess threats, implement controls, and monitor your mitigation progress.</p>
-            <div class="card-actions border-t border-base-300">
-              <div class="mt-4 flex justify-between w-full">
-                <div class="text-xs my-auto px-2 py-1 font-medium bg-base-300 rounded-lg">
-                  <i class="ti ti-flag-exclamation my-auto"></i>
-                  <span x-text="tenantInfo.risks"></span>
+            <div class="card-actions border-t border-base-300 pt-4">
+              <div class="flex justify-between w-full items-center">
+                <div class="text-xs px-3 py-1 font-medium bg-base-300 rounded-lg inline-flex items-center gap-2">
+                  <i class="ti ti-flag-exclamation"></i>
+                  <span x-text="tenantInfo.risks || 0"></span>
                 </div>
-                <a :href="'/tenants/'+selectedTenantId+'/risk'" class="btn btn-sm my-auto">Continue<i class="ti ti-arrow-right text-lg my-auto"></i></a>
+                <a :href="'/tenants/' + $store.currentUser.selectedTenant.id + '/risk'" 
+                   class="btn btn-sm btn-primary gap-2">
+                  Continue <i class="ti ti-arrow-right text-lg"></i>
+                </a>
               </div>
             </div>
           </div>
         </div>
-        <div class="card bg-base-100 w-full">
+
+        <!-- User Management Card -->
+        <div class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300">
           <div class="card-body">
             <h2 class="card-title text-xl">User Management</h2>
             <p class="font-medium my-6">Start managing your users in your tenant. Invite users, assign roles, set permissions, and monitor user activity.</p>
-            <div class="card-actions border-t border-base-300">
-              <div class="mt-4 flex justify-between w-full">
-                <div class="text-xs my-auto px-2 py-1 font-medium bg-base-300 rounded-lg">
-                  <i class="ti ti-users my-auto"></i>
-                  <span x-text="tenantInfo.users"></span>
+            <div class="card-actions border-t border-base-300 pt-4">
+              <div class="flex justify-between w-full items-center">
+                <div class="text-xs px-3 py-1 font-medium bg-base-300 rounded-lg inline-flex items-center gap-2">
+                  <i class="ti ti-users"></i>
+                  <span x-text="tenantInfo.users || 0"></span>
                 </div>
-                <a href="/users" class="btn btn-sm my-auto">Continue<i class="ti ti-arrow-right text-lg my-auto"></i></a>
+                <a href="/users" class="btn btn-sm btn-primary gap-2">
+                  Continue <i class="ti ti-arrow-right text-lg"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Policy Management Card (from earlier) -->
+        <div class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300">
+          <div class="card-body">
+            <h2 class="card-title text-xl">Policy Management</h2>
+            <p class="font-medium my-6">Create, review, version and publish your organization's master policy templates. Reuse them across projects.</p>
+            <div class="card-actions border-t border-base-300 pt-4">
+              <div class="flex justify-between w-full items-center">
+                <div class="text-xs px-3 py-1 font-medium bg-base-300 rounded-lg inline-flex items-center gap-2">
+                  <i class="ti ti-file-text"></i>
+                  <span x-text="tenantInfo.policies || 0"></span>
+                </div>
+                <a href="/policies" class="btn btn-sm btn-primary gap-2">
+                  Continue <i class="ti ti-arrow-right text-lg"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- NEW: Evidence Management Card -->
+        <div class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300">
+          <div class="card-body">
+            <h2 class="card-title text-xl">Evidence Management</h2>
+            <p class="font-medium my-6">Collect, organize, and attach evidence files and notes. Link them to controls, subcontrols, and policies for audits and reviews.</p>
+            <div class="card-actions border-t border-base-300 pt-4">
+              <div class="flex justify-between w-full items-center">
+                <div class="text-xs px-3 py-1 font-medium bg-base-300 rounded-lg inline-flex items-center gap-2">
+                  <i class="ti ti-folder-check"></i> <!-- or ti ti-file-check, ti ti-database-check -->
+                  <span x-text="tenantInfo.evidence || 0"></span>
+                </div>
+                <a href="/evidence" class="btn btn-sm btn-primary gap-2">
+                  Continue <i class="ti ti-arrow-right text-lg"></i>
+                </a>
               </div>
             </div>
           </div>
@@ -72,41 +132,40 @@
     </div>
   </div>
 </div>
+{% endblock %}
 
-{%endblock%}
-
-{%block extrajs%}
+{% block extrajs %}
 <script>
 function welcome(){
-    return {
-        init() {
-            this.setWelcomeMessage()
-            this.getTenantInfo()
+  return {
+    init() {
+      this.setWelcomeMessage()
+      this.getTenantInfo()
+    },
+    welcomeMessage: "",
+    tenantInfo: {},
+    setWelcomeMessage: function() {
+      const currentHour = new Date().getHours();
+      if (currentHour < 12) {
+        this.welcomeMessage = 'Good Morning';
+      } else if (currentHour < 16) {
+        this.welcomeMessage = 'Good Afternoon';
+      } else {
+        this.welcomeMessage = 'Good Evening';
+      }
+    },
+    getTenantInfo: function() {
+      request("GET",
+        `/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/info`,
+        data => {
+          this.tenantInfo = data
         },
-        welcomeMessage: "",
-        tenantInfo: {},
-        setWelcomeMessage: function() {
-            const currentHour = new Date().getHours(); // Get local browser time (hour)
-            if (currentHour < 12) {
-              this.welcomeMessage = 'Good Morning';
-            } else if (currentHour < 16) {
-              this.welcomeMessage = 'Good Afternoon';
-            } else {
-              this.welcomeMessage = 'Good Evening';
-            }
-        },
-        getTenantInfo: function() {
-          request("GET",
-            `/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/info`,
-            data => {
-              this.tenantInfo = data
-            },
-            error => {
-              toast(error.message, "error");
-            }
-          );
+        error => {
+          toast(error.message, "error");
         }
+      );
     }
+  }
 }
 </script>
-{%endblock%}
+{% endblock %}

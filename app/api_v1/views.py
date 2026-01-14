@@ -18,21 +18,44 @@ from app.utils.authorizer import Authorizer
 import arrow
 
 
+
+# ─── Helper Response Functions ───────────────────────────────────────────────
+def forbidden(msg="Permission denied"):
+    return jsonify({"error": msg}), 403
+
+
+def bad_request(msg="Bad request"):
+    return jsonify({"error": msg}), 400
+
+
+def not_found(msg="Not found"):
+    return jsonify({"error": msg}), 404
+
+
+# ─── Assessment Endpoints ─────────────────────────────────────────────────────
+
 @api.route("/assessments/<string:qid>", methods=["GET"])
 @login_required
 def get_assessment(qid):
     result = Authorizer(current_user).can_user_read_assessment(qid)
-    data = result["extra"]["assessment"].as_dict()
-    available_guests = request.args.get("available-guests")
-    if available_guests:
-        data["guests"] = result["extra"]["assessment"].get_available_guests()
+    if not result["can"]:
+        return forbidden()
+
+    assessment = result["extra"]["assessment"]
+    data = assessment.as_dict()
+
+    if request.args.get("available-guests"):
+        data["guests"] = assessment.get_available_guests()
+
     return jsonify(data)
 
 
-@api.route("/assessments/<string:qid>/guests")
+@api.route("/assessments/<string:qid>/guests", methods=["GET"])
 @login_required
 def get_guests_for_assessment(qid):
     result = Authorizer(current_user).can_user_read_assessment(qid)
+    if not result["can"]:
+        return forbidden()
     return jsonify(result["extra"]["assessment"].get_available_guests())
 
 
@@ -40,8 +63,12 @@ def get_guests_for_assessment(qid):
 @login_required
 def publish_assessment(qid):
     result = Authorizer(current_user).can_user_manage_assessment(qid)
-    data = request.get_json()
-    result["extra"]["assessment"].published = data.get("enabled")
+    if not result["can"]:
+        return forbidden()
+
+    data = request.get_json() or {}
+    result["extra"]["assessment"].published = bool(data.get("enabled"))
+    db.session.commit()
     return jsonify({"message": "ok"})
 
 
@@ -49,10 +76,12 @@ def publish_assessment(qid):
 @login_required
 def update_assessment_guests(qid):
     result = Authorizer(current_user).can_user_manage_assessment(qid)
-    data = request.get_json()
-    result["extra"]["assessment"].set_guests(
-        data.get("guests"), send_notification=False
-    )
+    if not result["can"]:
+        return forbidden()
+
+    data = request.get_json() or {}
+    result["extra"]["assessment"].set_guests(data.get("guests", []), send_notification=False)
+    db.session.commit()
     return jsonify(result["extra"]["assessment"].as_dict())
 
 
@@ -60,7 +89,10 @@ def update_assessment_guests(qid):
 @login_required
 def update_assessment_form(qid):
     result = Authorizer(current_user).can_user_manage_assessment(qid)
-    data = request.get_json()
+    if not result["can"]:
+        return forbidden()
+
+    data = request.get_json() or {}
     result["extra"]["assessment"].form = data.get("form", {})
     db.session.commit()
     return jsonify(result["extra"]["assessment"].as_dict())
@@ -70,14 +102,18 @@ def update_assessment_form(qid):
 @login_required
 def update_assessment_submission(qid):
     result = Authorizer(current_user).can_user_respond_to_assessment(qid)
+    if not result["can"]:
+        return forbidden()
+
     assessment = result["extra"]["assessment"]
-    data = request.get_json()
-    if submit := request.args.get("submit", False):
+    data = request.get_json() or {}
+
+    if request.args.get("submit", "").lower() == "true":
         assessment.submitted = True
-    assessment.submission = data.get("form", {})
+        assessment.submission = data.get("form", {})
+
     db.session.commit()
     return jsonify(assessment.as_dict())
-
 
 @api.route("/tenants/<string:tid>/assessments", methods=["GET"])
 @login_required
@@ -378,6 +414,41 @@ def reload_tenant_policies(tid):
     result["extra"]["tenant"].create_base_policies()
     return jsonify({"message": "ok"})
 
+@api.route("/tenants/<string:tid>/evidence", methods=["GET"])
+@login_required
+def get_evidence_for_tenant(tid):
+    result = Authorizer(current_user).can_user_access_tenant(tid)
+    if not result["can"]:
+        return jsonify({"error": "Permission denied"}), 403
+    
+    tenant = result["extra"]["tenant"]
+    evidence_list = [e.as_dict() for e in tenant.evidence.all()]
+    
+    return jsonify(evidence_list)
+
+# Create new evidence for a tenant
+@api.route("/tenants/<string:tid>/evidence", methods=["POST"])
+@login_required
+def create_evidence_for_tenant(tid):
+    result = Authorizer(current_user).can_user_manage_tenant(tid)
+    if not result["can"]:
+        return jsonify({"error": "Permission denied"}), 403
+    
+    # Handle multipart/form-data (file + fields)
+    name = request.form.get("name")
+    if not name:
+        return jsonify({"error": "Name is required"}), 400
+    
+    evidence = result["extra"]["tenant"].create_evidence(
+        name=name,
+        description=request.form.get("description"),
+        content=request.form.get("content"),
+        collected_on=request.form.get("collected_on"),
+        file=request.files.get("file"),
+        owner_id=current_user.id
+    )
+    
+    return jsonify(evidence.as_dict()), 201
 
 @api.route("/projects/<string:pid>", methods=["GET"])
 @login_required

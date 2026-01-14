@@ -245,7 +245,15 @@ def delete_tenant(id):
 @login_required
 def get_tenant_info(tid):
     result = Authorizer(current_user).can_user_access_tenant(tid)
-    return jsonify(result["extra"]["tenant"].get_tenant_info())
+    
+    tenant = result["extra"]["tenant"]
+    
+    info = tenant.get_tenant_info()          # existing call
+    
+    # Add evidence count
+    info["evidence"] = tenant.evidence.count()
+    
+    return jsonify(info)
 
 
 @api.route("/tenants/<string:tid>", methods=["PUT"])

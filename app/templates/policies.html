@@ -1,298 +1,301 @@
+
+
+
 {% extends "layouts/sidebar-nav.html" %}
 
-{%block page_header_title%}Policy Templates{%endblock%}
-{%block page_header_title_border%}{%endblock%}
+{% block page_header_title %}Policy Templates Hub{% endblock %}
+{% block page_header_title_border %}{% endblock %}
 
-{%block content%}
-<div x-data="table()" class="grid grid-cols-6 gap-4 mt-2">
-    <div class="col-span-6">
-        <div class="card bg-base-200 border border-base-300">
-            <div class="card-body">
-                <div class="flex justify-between align-items-center">
-                    <h2 class="card-title mb-4" x-text="'Templates ('+items.length+')'"></h2>
-                    <div class="space-x-2 flex">
-                        <button class="btn btn-xs btn-ghost border border-base-300 capitalize tooltip"
-                                @click="getItems" data-tip="Refresh table"><i class="ti ti-refresh"></i></button>
-                        <button class="btn btn-xs btn-success" @click="openCreateModal">Create Policy</button>
-                    </div>
-                </div>
-                <div class="overflow-x-auto">
-                  <table class="table">
-                    <!-- head -->
-                    <thead>
-                      <tr>
-                        <th>#</th>
-                        <th>Title</th>
-                        <th>Description</th>
-                        <th>Created</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <template x-for="(policy, index) in items">
-                          <tr>
-                            <th x-text="index+1"></th>
-                            <td class="capitalize" x-text="policy.name"></td>
-                            <td x-text="policy.description"></td>
-                            <td x-text="policy.date_added"></td>
-                            <td>
-                                <div class="flex flex-row gap-x-2">
-                                    <button @click="openModal(policy)" class="btn btn-xs"><i class="ti ti-settings text-lg"></i></button>
-                                    <a :href="'/tenants/'+$store.currentUser.selectedTenant.id+'/policy-center?policy-id='+policy.id" class="btn btn-xs"><i class="ti ti-maximize text-lg"></i></a>
-                                </div>
-                            </td>
-                          </tr>
-                      </template>
+{% block content %}
+<div x-data="policyHub()" class="mt-8 px-6 pb-12">
 
-                    </tbody>
-                  </table>
-                </div>
-            </div>
-        </div>
+  <!-- Hero Section -->
+  <div class="mb-10">
+    <h1 class="text-4xl font-bold">Policy Templates</h1>
+    <p class="text-lg mt-3 opacity-80 max-w-3xl">
+      Create, manage and version your organization's reusable master policy templates. 
+      These can then be added to any compliance project for customization.
+    </p>
+  </div>
+
+  <!-- Stats Overview Cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+    <div class="card bg-base-100 shadow-lg">
+      <div class="card-body text-center py-6">
+        <h3 class="text-lg font-semibold opacity-80">Total Templates</h3>
+        <div class="text-5xl font-bold mt-2" x-text="stats.total"></div>
+      </div>
     </div>
 
-    <div>
-        <div class="modal" x-bind:class="{ 'modal-open': showDeleteModal }">
-            <div class="modal-box">
-                <form method="dialog">
-                    <button @click="showDeleteModal = false"
-                            class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
-                    </button>
-                </form>
-                <h3 class="font-bold text-lg" x-text="'Are you sure you want to delete ' + selectedItem.id + '?'"></h3>
-                <div class="modal-action">
-                    <button class="btn" @click="showModal = false">Close</button>
-                    <button class="btn btn-error" :class='{"btn-disabled": buttonDisabled}'
-                            @click="deletePolicy(selectedItem)">Delete Policy
-                    </button>
-                </div>
-            </div>
-        </div>
+    <div class="card bg-base-100 shadow-lg border border-success border-2">
+      <div class="card-body text-center py-6">
+        <h3 class="text-lg font-semibold opacity-80">Published</h3>
+        <div class="text-5xl font-bold mt-2 text-success" x-text="stats.published"></div>
+      </div>
     </div>
 
-    <div>
-        <div class="modal" x-bind:class="{ 'modal-open': showCreateModal }">
-            <div class="modal-box w-6/12 max-w-3xl">
-                <form method="dialog">
-                    <button @click="showCreateModal = false"
-                            class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕
-                    </button>
-                </form>
-                <h3 class="font-bold text-lg">Create Policy</h3>
-                <div class="card card-body">
-                    <div class="grid grid-cols-6 gap-x-6">
-                        <div class="col-span-3">
-                            <label class="block text-sm font-medium pb-2">Name</label>
-                            <input x-model="formData.name" type="text" placeholder="Input policy name"
-                                   class="input input-sm input-bordered w-full" required/>
-                        </div>
-                        <div class="col-span-3">
-                            <label class="block text-sm font-medium pb-2">Description</label>
-                            <textarea x-model="formData.description" class="textarea textarea-bordered w-full" placeholder="Input description of the policy" required></textarea>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-action">
-                    <button class="btn" @click="showCreateModal = false">Close</button>
-                    <button :disabled="!formData.name" class="btn btn-primary" @click="createPolicy">
-                        Create
-                    </button>
-                </div>
-            </div>
-        </div>
+    <div class="card bg-base-100 shadow-lg border border-warning border-2">
+      <div class="card-body text-center py-6">
+        <h3 class="text-lg font-semibold opacity-80">Drafts</h3>
+        <div class="text-5xl font-bold mt-2 text-warning" x-text="stats.drafts"></div>
+      </div>
     </div>
 
-    <div>
-        <div class="modal" x-bind:class="{ 'modal-open': showModal }">
-            <div class="modal-box w-11/12 max-w-5xl">
-                <form method="dialog">
-                    <button @click="showModal = false" class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
-                        ✕
-                    </button>
-                </form>
-                <h3 class="font-bold text-lg" x-text="selectedItem.id"></h3>
-                <div class="card card-body">
-                    <div class="grid grid-cols-6 gap-6">
-                        <template x-for="item in modalFields" :key="item.field">
-                            <div x-show="!item.modal.hide" :class="'col-span-' + item.modal.span">
-                                <label class="block text-sm font-medium mb-2" x-text="item.headerName"></label>
-                                <input
-                                        x-model="selectedItem[item.field]"
-                                        :type="item.modal.type"
-                                        :disabled="item.modal.disable"
-                                        class="input input-sm input-bordered w-full"
-                                />
-                            </div>
-                        </template>
-                    </div>
-                </div>
-                <div class="modal-action">
-                    <button class="btn" @click="showModal = false">Close</button>
-                    <button class="btn btn-error" @click="openDeleteModal(selectedItem)">Delete</button>
-                    <a :href="'/tenants/'+$store.currentUser.selectedTenant.id+'/policy-center?policy-id='+selectedItem.id" class="btn btn-primary">View Policy</a>
-
-                </div>
-            </div>
-        </div>
+    <div class="card bg-base-100 shadow-lg">
+      <div class="card-body text-center py-6">
+        <h3 class="text-lg font-semibold opacity-80">Last Updated</h3>
+        <div class="text-2xl font-medium mt-3" x-text="stats.lastUpdated || '—'"></div>
+      </div>
     </div>
+  </div>
+
+  <!-- Main Policies Table -->
+  <div class="card bg-base-200 border border-base-300 shadow-xl">
+    <div class="card-body">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <h2 class="card-title text-2xl" x-text="'All Policy Templates (' + (items?.length || 0) + ')'"></h2>
+        <div class="flex flex-wrap gap-3">
+          <button class="btn btn-sm btn-ghost border border-base-300 tooltip" 
+                  @click="getItems" data-tip="Refresh list">
+            <i class="ti ti-refresh"></i> Refresh
+          </button>
+          <button class="btn btn-sm btn-primary gap-2" @click="showCreateModal = true">
+            <i class="ti ti-plus text-lg"></i> Create New Policy
+          </button>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="table table-zebra w-full">
+          <thead>
+            <tr>
+              <th class="w-12">#</th>
+              <th>Title</th>
+              <th>Description</th>
+              <th>Status</th>
+              <th>Created</th>
+              <th class="w-32">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-for="(policy, index) in items" :key="policy.id">
+              <tr class="hover">
+                <th x-text="index + 1"></th>
+                <td class="font-medium capitalize" x-text="policy.name"></td>
+                <td class="max-w-md truncate" x-text="policy.description || 'No description provided'"></td>
+                <td>
+                  <div class="badge" 
+                       :class="policy.active_version ? 'badge-success' : 'badge-warning'"
+                       x-text="policy.active_version ? 'Published' : 'Draft'"></div>
+                </td>
+                <td x-text="policy.date_added"></td>
+                <td>
+                  <div class="flex gap-2">
+                    <button @click="openModal(policy)" 
+                            class="btn btn-sm btn-ghost tooltip" data-tip="Edit/View Details">
+                      <i class="ti ti-settings text-lg"></i>
+                    </button>
+                    <a :href="'/tenants/' + $store.currentUser.selectedTenant.id + '/policy-center?policy-id=' + policy.id"
+                       class="btn btn-sm btn-ghost tooltip" data-tip="Open in Policy Center">
+                      <i class="ti ti-maximize text-lg"></i>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+            </template>
+            <tr x-show="!items?.length && !loading">
+              <td colspan="6" class="text-center py-8 opacity-70">
+                No policies found. Click "Create New Policy" to get started!
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div x-show="loading" class="text-center py-12">
+        <span class="loading loading-spinner loading-lg"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- === CREATE MODAL === -->
+  <div class="modal" :class="{ 'modal-open': showCreateModal }">
+    <div class="modal-box w-11/12 max-w-2xl">
+      <form method="dialog">
+        <button @click="showCreateModal = false" 
+                class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+      </form>
+      <h3 class="font-bold text-xl mb-6">Create New Policy Template</h3>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium mb-2">Policy Name <span class="text-error">*</span></label>
+          <input x-model="formData.name" type="text" 
+                 placeholder="e.g. Acceptable Use Policy" 
+                 class="input input-bordered w-full" required/>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-2">Short Description</label>
+          <textarea x-model="formData.description" 
+                    class="textarea textarea-bordered w-full h-24" 
+                    placeholder="Brief overview of what this policy covers..."></textarea>
+        </div>
+      </div>
+
+      <div class="modal-action mt-8">
+        <button class="btn btn-ghost" @click="showCreateModal = false">Cancel</button>
+        <button :disabled="!formData.name || buttonDisabled" 
+                class="btn btn-primary" @click="createPolicy">
+          <span x-show="!buttonDisabled">Create Policy</span>
+          <span x-show="buttonDisabled" class="loading loading-spinner"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- === VIEW/EDIT MODAL (your original) === -->
+  <div class="modal" :class="{ 'modal-open': showModal }">
+    <div class="modal-box w-11/12 max-w-5xl">
+      <form method="dialog">
+        <button @click="showModal = false" 
+                class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+      </form>
+      <h3 class="font-bold text-lg" x-text="selectedItem?.name || 'Policy Details'"></h3>
+      <!-- Your existing fields/modal content here if you want to expand editing -->
+      <div class="modal-action">
+        <button class="btn" @click="showModal = false">Close</button>
+        <button class="btn btn-error" @click="openDeleteModal(selectedItem)">Delete</button>
+        <a :href="'/tenants/'+$store.currentUser.selectedTenant.id+'/policy-center?policy-id='+selectedItem.id" 
+           class="btn btn-primary">Open in Policy Center</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- === DELETE CONFIRMATION MODAL === -->
+  <div class="modal" :class="{ 'modal-open': showDeleteModal }">
+    <div class="modal-box">
+      <h3 class="font-bold text-lg">Confirm Deletion</h3>
+      <p class="py-4" x-text="'Are you sure you want to permanently delete policy: ' + (selectedItem?.name || selectedItem?.id) + '?'"></p>
+      <div class="modal-action">
+        <button class="btn" @click="showDeleteModal = false">Cancel</button>
+        <button :disabled="buttonDisabled" class="btn btn-error" @click="deletePolicy(selectedItem)">
+          <span x-show="!buttonDisabled">Yes, Delete</span>
+          <span x-show="buttonDisabled" class="loading loading-spinner"></span>
+        </button>
+      </div>
+    </div>
+  </div>
 
 </div>
-{%endblock%}
+{% endblock %}
 
-{%block extrajs%}
+{% block extrajs %}
 <script>
-function table(){
-    return {
-        init() {
-          this.getItems()
-        },
-        loadingSkeleton: '<span class="loading loading-dots loading-lg"></span>',
-        loading: true,
-        showDeleteModal: false,
-        showModal: false,
-        buttonDisabled: false,
-        selectedItem: {},
-        modalFields: [],
-        openModal(item) {
-          this.selectedItem = item;
-          this.showModal = true;
-        },
-        showCreateModal: false,
-        openCreateModal(item) {
-          this.showCreateModal = true;
-        },
-        openDeleteModal(item) {
-          this.selectedItem = item;
-          this.showModal = false;
-          this.showDeleteModal = true;
-        },
-        items: [],
-        formData: {
-          "name": "",
-          "description": ""
-        },
-        createPolicy() {
-          if (!this.formData.name) {
-            toast("Name is required", "error")
-            return
-          }
-          toast("Please wait...")
-          this.buttonDisabled = true;
-          request("POST",
-            `/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/policies`,
-            data => {
-              toast("Created policy")
-              this.getItems()
-              this.showCreateModal = false;
-              this.formData.name = ""
-              this.formData.description = ""
-              this.buttonDisabled = false;
-            },
-            error => {
-              toast(error.message, "error");
-            },
-            this.formData
-          );
-        },
-        deletePolicy(item) {
-          toast("Please wait... This may take a minute.")
-          this.buttonDisabled = true;
-          request("DELETE",
-            "/api/v1/policies/"+item.id,
-            data => {
-              toast("Deleted policy")
-              this.getItems()
-              this.showDeleteModal = false;
-              this.buttonDisabled = false;
-            },
-            error => {
-              toast(error.message, "error");
-            },
-            this.formData
-          );
-        },
-        exportCSV: function() {
-          this.table.exportDataAsCsv();
-        },
-        removeControlFilters: function() {
-          this.table.setFilterModel(null);
-        },
-        drawTable: function({ selector = null, tableData = null, formatter = null }) {
-          var data = tableData;
-          var columns = [];
+function policyHub() {
+  return {
+    items: [],
+    stats: { total: 0, published: 0, drafts: 0, lastUpdated: null },
+    loading: true,
+    showCreateModal: false,
+    showModal: false,
+    showDeleteModal: false,
+    buttonDisabled: false,
+    selectedItem: {},
+    formData: { name: "", description: "" },
 
-          gridOptions = {
-            pagination: true,
-            paginationPageSize: 25,
-            domLayout: "autoHeight",
-            suppressMenuHide: true,
-            suppressHorizontalScroll: true,
-            enableCellTextSelection:true,
-            suppressFieldDotNotation: true,
-            onGridReady: (params) => {
-              params.api.sizeColumnsToFit();
-              this.loading = false;
-              window.onresize = () => {
-                this.loading = true;
-                params.api.sizeColumnsToFit();
-                this.loading = false;
-              }
-            },
-            autoSizeStrategy: {
-              type: 'fitGridWidth',
-              defaultMinWidth: 50,
-            }
-          }
-          const gridElement = document.querySelector(selector);
-          if (this.table) {
-            this.table.destroy();
-          }
+    init() {
+      this.getItems()
+    },
 
-          gridOptions.rowData = this.formattedTable(tableData);
-          gridOptions.columnDefs = this.tableHeaders
-
-          gridOptions.onRowDoubleClicked = (row) => {
-            selectedItem = this.items.find(obj => obj.id === row.data.id);
-            this.openModal(selectedItem)
-          },
-
-          this.table = agGrid.createGrid(gridElement, gridOptions);
-
+    getItems() {
+      this.loading = true
+      request("GET",
+        `/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/policies`,
+        data => {
+          this.items = data || []
+          this.updateStats()
+          this.loading = false
         },
-        formattedTable: function(data) {
-          var filteredData = [];
-          var keysToExtract = this.tableHeaders.map(header => header.field)
-
-          data.forEach((row) => {
-            var filteredRow = {};
-            keysToExtract.forEach(key => {
-              /*
-              if (row.name === "Limit unsuccessful logon") {
-                row.name = `<button class='btn btn-sm' @click='alert(1)' x-text='${this.controls.length}'></button>`
-              }*/
-
-              filteredRow[key] = row[key];
-            });
-            filteredData.push(filteredRow);
-          });
-
-          return filteredData
-        },
-        getItems: function() {
-          this.loading = true,
-          request("GET",
-            `/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/policies`,
-            data => {
-              this.items = data;
-              this.loading = false;
-            },
-            error => {
-              toast(error.message, "error");
-            }
-          );
+        error => {
+          toast(error.message || "Failed to load policies", "error")
+          this.loading = false
         }
-    }
-}
+      )
+    },
 
+    updateStats() {
+      if (!this.items.length) return
+      
+      this.stats.total = this.items.length
+      this.stats.published = this.items.filter(p => p.active_version).length
+      this.stats.drafts = this.items.length - this.stats.published
+      
+      // Optional: find most recent update (if your API provides updated_at)
+      const dates = this.items
+        .map(p => new Date(p.updated_at || p.date_added))
+        .filter(d => !isNaN(d))
+      if (dates.length) {
+        const latest = new Date(Math.max(...dates))
+        this.stats.lastUpdated = latest.toLocaleDateString()
+      }
+    },
+
+    createPolicy() {
+      if (!this.formData.name.trim()) {
+        toast("Policy name is required", "error")
+        return
+      }
+
+      this.buttonDisabled = true
+      toast("Creating policy...")
+
+      request("POST",
+        `/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/policies`,
+        data => {
+          toast("Policy created successfully", "success")
+          this.getItems()
+          this.showCreateModal = false
+          this.formData = { name: "", description: "" }
+          this.buttonDisabled = false
+        },
+        error => {
+          toast(error.message || "Failed to create policy", "error")
+          this.buttonDisabled = false
+        },
+        this.formData
+      )
+    },
+
+    deletePolicy(item) {
+      this.buttonDisabled = true
+      toast("Deleting policy...")
+
+      request("DELETE",
+        `/api/v1/policies/${item.id}`,
+        data => {
+          toast("Policy deleted", "success")
+          this.getItems()
+          this.showDeleteModal = false
+          this.buttonDisabled = false
+        },
+        error => {
+          toast(error.message || "Failed to delete policy", "error")
+          this.buttonDisabled = false
+        }
+      )
+    },
+
+    openModal(item) {
+      this.selectedItem = { ...item }
+      this.showModal = true
+    },
+
+    openDeleteModal(item) {
+      this.selectedItem = { ...item }
+      this.showModal = false
+      this.showDeleteModal = true
+    }
+  }
+}
 </script>
-{%endblock%}
+{% endblock %}

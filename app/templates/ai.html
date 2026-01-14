@@ -1,0 +1,165 @@
+{% extends "layouts/sidebar-nav.html" %}
+
+{% block head %}
+<style>
+  #main {
+    background-image: url("https://www.gstatic.com/pantheon/images/welcome/background_illustration_v2.svg");
+    background-repeat: no-repeat;
+    background-position: center bottom;
+    background-size: contain;
+  }
+</style>
+{% endblock %}
+
+{% block page_header_title %}AI Assistant{% endblock %}
+{% block page_header_title_border %}{% endblock %}
+
+{% block content %}
+<div x-data="aiHub()" class="mt-12 px-10 pb-16">
+  <div class="flex flex-col gap-8">
+    <!-- Intro -->
+    <div>
+      <div class="flex flex-row items-center">
+        <span class="text-3xl">🧠</span>
+        <div class="text-4xl font-medium ml-4">AI Assistant</div>
+      </div>
+      <p class="py-6 max-w-3xl mt-4 font-medium">
+        Use AI to speed up risk analysis, policy drafting, evidence summarization, and compliance questions.
+        Ask anything about your tenant data in natural language.
+      </p>
+      <div class="flex flex-wrap gap-4 mt-6">
+        <button @click="openChat()" class="btn btn-primary btn-lg gap-3">
+          <i class="ti ti-messages text-2xl"></i> Open AI Chat
+        </button>
+      </div>
+    </div>
+
+    <!-- Stats row -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div class="card bg-base-100 shadow-lg">
+        <div class="card-body text-center py-6">
+          <h3 class="text-lg font-semibold opacity-80">AI Queries</h3>
+          <div class="text-5xl font-bold mt-2" x-text="stats.queries || 0"></div>
+        </div>
+      </div>
+      <div class="card bg-base-100 shadow-lg">
+        <div class="card-body text-center py-6">
+          <h3 class="text-lg font-semibold opacity-80">Suggestions</h3>
+          <div class="text-5xl font-bold mt-2 text-success" x-text="stats.suggestions || 0"></div>
+        </div>
+      </div>
+      <div class="card bg-base-100 shadow-lg">
+        <div class="card-body text-center py-6">
+          <h3 class="text-lg font-semibold opacity-80">Risks Analyzed</h3>
+          <div class="text-5xl font-bold mt-2 text-primary" x-text="stats.risksAnalyzed || 0"></div>
+        </div>
+      </div>
+      <div class="card bg-base-100 shadow-lg">
+        <div class="card-body text-center py-6">
+          <h3 class="text-lg font-semibold opacity-80">Last Insight</h3>
+          <div class="text-xl font-medium mt-3" x-text="stats.lastInsight || '—'"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-xl font-medium mt-6 mb-6">🛠️ AI Helpers</div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Risk Suggestions -->
+      <div class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow">
+        <div class="card-body">
+          <h2 class="card-title text-xl flex items-center gap-3">
+            <i class="ti ti-alert-triangle text-3xl text-error"></i>
+            Smart Risk Suggestions
+          </h2>
+          <p class="font-medium my-6">
+            Get AI-generated risk ideas, severity levels, and mitigation steps based on your register and industry patterns.
+          </p>
+          <div class="card-actions border-t border-base-300 pt-4">
+            <a href="/ai/risk-suggest" class="btn btn-sm btn-primary gap-2">
+              Try Now <i class="ti ti-arrow-right text-lg"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Policy Generator -->
+      <div class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow">
+        <div class="card-body">
+          <h2 class="card-title text-xl flex items-center gap-3">
+            <i class="ti ti-file-text text-3xl text-primary"></i>
+            Policy Generator
+          </h2>
+          <p class="font-medium my-6">
+            Describe your policy needs → get draft text, gap analysis against NIST/ISO/GDPR, ready for review.
+          </p>
+          <div class="card-actions border-t border-base-300 pt-4">
+            <a href="/ai/policy-draft" class="btn btn-sm btn-primary gap-2">
+              Generate Policy <i class="ti ti-arrow-right text-lg"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Evidence Analyzer -->
+      <div class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow">
+        <div class="card-body">
+          <h2 class="card-title text-xl flex items-center gap-3">
+            <i class="ti ti-folder-check text-3xl text-success"></i>
+            Evidence Analyzer
+          </h2>
+          <p class="font-medium my-6">
+            Upload/link documents → AI summarizes, suggests control mappings, flags gaps.
+          </p>
+          <div class="card-actions border-t border-base-300 pt-4">
+            <a href="/ai/evidence-ai" class="btn btn-sm btn-primary gap-2">
+              Analyze Evidence <i class="ti ti-arrow-right text-lg"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ask Anything -->
+      <div class="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow">
+        <div class="card-body">
+          <h2 class="card-title text-xl flex items-center gap-3">
+            <i class="ti ti-messages text-3xl text-info"></i>
+            Ask AI Anything
+          </h2>
+          <p class="font-medium my-6">
+            Natural language questions over your data: "Top open high risks?" "Controls for supply chain?"
+          </p>
+          <div class="card-actions border-t border-base-300 pt-4">
+            <button @click="openChat()" class="btn btn-sm btn-primary gap-2">
+              Start Asking <i class="ti ti-arrow-right text-lg"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extrajs %}
+<script>
+function aiHub() {
+  return {
+    stats: {},
+    init() {
+      // TODO: fetch real stats later
+      this.stats = {
+        queries: 142,
+        suggestions: 89,
+        risksAnalyzed: 47,
+        lastInsight: 'High supply chain risk trend detected'
+      };
+    },
+    openChat() {
+      // Reuse your existing third sidebar chat
+      toggleThirdSidebarMenu();
+    }
+  }
+}
+</script>
+{% endblock %}

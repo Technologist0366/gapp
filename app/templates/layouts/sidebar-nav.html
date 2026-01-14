@@ -117,11 +117,19 @@
       <!-- Sidebar links -->
       <nav x-cloak @mouseover="isSidebarOpen=true" class="flex-1 overflow-hidden hover:overflow-y-auto">
         <ul class="p-2 overflow-hidden text-sm font-semibold">
-          {%if "vendor" in user_roles%}
-          {% set sidebarlinks = [{'label':'home','link':'/','icon':'<i class="ti ti-timeline text-2xl"></i>'}]%}
-          {%else%}
-          {% set sidebarlinks = [{'label':'home','link':'/','icon':'<i class="ti ti-home text-2xl"></i>'},{'label':'tenants','link':'/tenants','icon':'<i class="ti ti-building-skyscraper text-2xl"></i>'},{'label':'projects','link':'/projects','icon':'<i class="ti ti-circles text-2xl"></i>'}]%}
-          {%endif%}
+          {% if "vendor" in user_roles %}
+  {% set sidebarlinks = [
+    {'label': 'home',  'link': '/',  'icon': '<i class="ti ti-timeline text-2xl"></i>'}
+  ] %}
+{% else %}
+  {% set sidebarlinks = [
+    {'label': 'home',      'link': '/',                        'icon': '<i class="ti ti-home text-2xl"></i>'},
+    {'label': 'tenants',   'link': '/tenants',                 'icon': '<i class="ti ti-building-skyscraper text-2xl"></i>'},
+    {'label': 'projects',  'link': '/projects',                'icon': '<i class="ti ti-circles text-2xl"></i>'},
+    {'label': 'integrate', 'link': '/integrations',            'icon': '<i class="ti ti-plug-connected text-2xl"></i>'},
+    {'label': 'ai',        'link': '/ai',                      'icon': '<i class="ti ti-brain text-2xl"></i>'}
+  ] %}
+{% endif %}
           {%for link in sidebarlinks%}
           <li class="mb-4">
             <a :class="{'justify-center': !isSidebarOpen}" class="flex items-center p-2 space-x-2 rounded-md justify-center capitalize hover:bg-base-100" href="{{link["link"]}}">

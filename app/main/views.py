@@ -183,3 +183,13 @@ def get_application(id):
 def search_vendor():
     # TODO - auth
     return render_template("search_vendor.html")
+
+@main.route('/integrations')
+@login_required
+def integrations():
+    return render_template('integrations.html')
+
+@main.route('/ai')
+@login_required
+def ai():
+    return render_template('ai.html')
