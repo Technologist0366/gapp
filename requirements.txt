@@ -31,3 +31,10 @@ google-cloud-storage==2.14.0
 boto3
 authlib
 google-cloud-logging
+# Google OAuth + Drive API
+google-auth-oauthlib>=1.2.0
+google-auth-httplib2>=0.2.0
+google-api-python-client>=2.111.0
+
+
+

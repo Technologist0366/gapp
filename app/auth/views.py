@@ -302,3 +302,5 @@ def post_get_started():
         abort(400, str(e))
     flash("Created tenant")
     return redirect(url_for("main.home"))
+
+

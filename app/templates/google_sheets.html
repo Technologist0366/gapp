@@ -1,0 +1,41 @@
+{% extends "layouts/sidebar-nav.html" %}
+
+{% block content %}
+<h1 class="text-3xl font-bold mb-6">Your Google Sheets</h1>
+<p class="mb-6">These are likely your Google Forms response sheets. Pick one as evidence.</p>
+
+{% if sheets %}
+<div class="overflow-x-auto">
+  <table class="table table-zebra w-full">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Last Modified</th>
+        <th>Owner</th>
+        <th>Link</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for sheet in sheets %}
+      <tr>
+        <td>{{ sheet.name }}</td>
+        <td>{{ sheet.modifiedTime | datetimeformat }}</td>
+        <td>{{ sheet.owners[0].emailAddress }}</td>
+        <td>
+          <a href="{{ sheet.webViewLink }}" target="_blank" class="btn btn-xs btn-info">
+            Open Sheet
+          </a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="alert alert-info">
+  No Google Sheets found in your Drive (or none shared with this app).
+</div>
+{% endif %}
+
+<a href="{{ url_for('main.integrations') }}" class="btn btn-primary mt-6">Back to Integrations</a>
+{% endblock %}

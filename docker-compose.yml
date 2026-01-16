@@ -13,6 +13,8 @@ services:
     ports:
       - "8000:5000"
     restart: unless-stopped
+    env_file:
+      - .env  # ← enabled: loads GOOGLE_CLIENT_ID, etc. from .env file
     environment:
       - SQLALCHEMY_DATABASE_URI=postgresql://${POSTGRES_USER:-db1}:${POSTGRES_PASSWORD:-db1}@${POSTGRES_HOST:-postgres}/${POSTGRES_DB:-db1}
       - RESET_DB=${RESET_DB:-no}
@@ -22,8 +24,11 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-db1}
       - POSTGRES_DB=${POSTGRES_DB:-db1}
       - GUNICORN_WORKERS=2
-    #env_file:
-    #  - .env
+
+      # Google OAuth (fallback if not in .env)
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-316191398968-krd77rveddlvhubmpqtad1648disr4t9.apps.googleusercontent.com}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-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}
+      - GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI:-https://marcelene-uninterpretable-syreeta.ngrok-free.dev/integrations/google/callback}
 
   postgres:
     container_name: postgres
@@ -34,7 +39,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-db1}
       PGDATA: /data/postgres
     #volumes:
-    #   - postgres:/data/postgres
+    #  - postgres:/data/postgres
     ports:
       - "5433:5432"
     networks:
@@ -46,5 +51,6 @@ networks:
     driver: bridge
   web_nw:
     driver: bridge
+
 volumes:
   dbdata:
