@@ -726,6 +726,14 @@ class Tenant(db.Model, QueryMixin, AuthorizerMixin):
     labels = db.relationship(
         "PolicyLabel", backref="tenant", lazy="dynamic", cascade="all, delete-orphan"
     )
+    invites = db.relationship(
+        "Invite", 
+        foreign_keys="Invite.tenant_id",  # Specify foreign key
+        backref="invite_tenant",  # Different backref name
+        lazy="dynamic", 
+        cascade="all, delete-orphan"
+    )
+
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 
@@ -1392,6 +1400,56 @@ class Tenant(db.Model, QueryMixin, AuthorizerMixin):
         db.session.commit()
         return project
 
+# Add this Invite model after the Tenant class but before the ProjectEvidence class
+class Invite(db.Model, QueryMixin):
+    __tablename__ = 'invites'
+    
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    tenant_id = db.Column(db.String(36), db.ForeignKey('tenants.id'), nullable=False)
+    email = db.Column(db.String(255))
+    roles = db.Column(db.JSON)  # Store as JSON array ['admin', 'user', etc.]
+    access_link = db.Column(db.Text, nullable=False)
+    created_by = db.Column(db.String(36), db.ForeignKey('users.id'))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    expires_at = db.Column(db.DateTime)
+    status = db.Column(db.String(50), default='active')  # active, used, expired, revoked
+    use_count = db.Column(db.Integer, default=0)
+    max_uses = db.Column(db.Integer, default=1)
+    invite_metadata = db.Column(db.JSON)  # Store additional data like sharing methods
+    
+    # ========== NO RELATIONSHIPS DEFINED HERE ==========
+    # Remove all relationship definitions from Invite model
+    # ==================================================
+    
+    def is_expired(self):
+        return self.expires_at and datetime.utcnow() > self.expires_at
+    
+    def can_be_used(self):
+        if self.status in ['used', 'revoked', 'expired']:
+            return False
+        if self.is_expired():
+            return False
+        if self.use_count >= self.max_uses:
+            return False
+        return True
+    
+    def as_dict(self):
+        return {
+            'id': self.id,
+            'tenant_id': self.tenant_id,
+            'email': self.email,
+            'roles': self.roles or [],
+            'access_link': self.access_link,
+            'created_by': self.created_by,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'expires_at': self.expires_at.isoformat() if self.expires_at else None,
+            'status': self.status,
+            'use_count': self.use_count,
+            'max_uses': self.max_uses,
+            'invite_metadata': self.invite_metadata or {},
+            'is_expired': self.is_expired(),
+            'can_be_used': self.can_be_used()
+        }
 
 class ProjectEvidence(db.Model, QueryMixin):
     __tablename__ = "project_evidence"
@@ -1414,15 +1472,56 @@ class ProjectEvidence(db.Model, QueryMixin):
     tenant_id = db.Column(db.String, db.ForeignKey("tenants.id"))
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
+    
+    # ========== ADD THESE FIELDS FOR GLOBAL EVIDENCE REPOSITORY ==========
+    source_type = db.Column(db.String(50), default='manual')  # 'manual', 'ai_ocr', 'upload', 'scan'
+    evidence_type = db.Column(db.String(100))  # 'policy', 'screenshot', 'log', 'config', 'procedure'
+    compliance_standard = db.Column(db.String(100))  # 'ISO27001', 'SOC2', 'NIST', 'GDPR', etc.
+    severity = db.Column(db.String(20))  # 'low', 'medium', 'high', 'critical'
+    needs_review = db.Column(db.Boolean, default=False)
+    extraction_metadata = db.Column(db.JSON)  # For AI/OCR metadata
+    source_document = db.Column(db.String(500))  # Original filename
+    source_reference = db.Column(db.String(500))  # Source reference/link
+    is_global = db.Column(db.Boolean, default=False)  # Global evidence flag
+    # =====================================================================
 
-    def as_dict(self):
+    def as_dict(self, include_details=False):
         data = {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        
+        # Convert datetime objects to ISO format
+        for date_field in ['collected_on', 'date_added', 'date_updated']:
+            if data.get(date_field) and isinstance(data[date_field], datetime):
+                data[date_field] = data[date_field].isoformat()
+        
         data["control_count"] = self.control_count()
         data["controls"] = [
             {"id": control.id, "name": control.subcontrol.name}
             for control in self.get_controls()
         ]
         data["has_file"] = self.has_file()
+        
+        # Add linked projects for global evidence
+        if include_details and self.project:
+            data['project'] = {
+                'id': self.project.id,
+                'name': self.project.name,
+                'description': self.project.description
+            }
+        
+        # Add owner info if requested
+        if include_details and self.owner:
+            data['owner'] = {
+                'id': self.owner.id,
+                'email': self.owner.email
+            }
+        
+        # Add tenant info
+        if include_details and self.tenant:
+            data['tenant'] = {
+                'id': self.tenant.id,
+                'name': self.tenant.name
+            }
+        
         return data
 
     def has_file(self):
@@ -1449,6 +1548,16 @@ class ProjectEvidence(db.Model, QueryMixin):
         collected_on=None,
         file=None,
         associate_with=[],
+        # Add global evidence fields
+        source_type=None,
+        evidence_type=None,
+        compliance_standard=None,
+        severity=None,
+        needs_review=None,
+        extraction_metadata=None,
+        source_document=None,
+        source_reference=None,
+        is_global=None,
     ):
         """
         Update evidence for a project
@@ -1462,6 +1571,15 @@ class ProjectEvidence(db.Model, QueryMixin):
             collected_on: Date at which it is collected
             file: FileStorage file
             associate_with: List of control IDs to associate the evidence with
+            source_type: Type of source (manual, ai_ocr, upload, scan)
+            evidence_type: Type of evidence (policy, screenshot, log, config, procedure)
+            compliance_standard: Compliance standard (ISO27001, SOC2, NIST, GDPR)
+            severity: Severity level (low, medium, high, critical)
+            needs_review: Whether evidence needs review
+            extraction_metadata: AI/OCR extraction metadata
+            source_document: Original document filename
+            source_reference: Source reference/link
+            is_global: Whether evidence is global
 
         Returns:
             evidence object
@@ -1485,8 +1603,56 @@ class ProjectEvidence(db.Model, QueryMixin):
             self.save_file(file, overwrite=True)
         if associate_with:
             self.associate_with_controls(associate_with)
+        
+        # Update global evidence fields
+        if source_type is not None:
+            self.source_type = source_type
+        if evidence_type is not None:
+            self.evidence_type = evidence_type
+        if compliance_standard is not None:
+            self.compliance_standard = compliance_standard
+        if severity is not None:
+            self.severity = severity
+        if needs_review is not None:
+            self.needs_review = needs_review
+        if extraction_metadata is not None:
+            self.extraction_metadata = extraction_metadata
+        if source_document is not None:
+            self.source_document = source_document
+        if source_reference is not None:
+            self.source_reference = source_reference
+        if is_global is not None:
+            self.is_global = is_global
+        
         db.session.commit()
 
+        return self
+
+    def update_metadata(self, **kwargs):
+        """
+        Update only the metadata fields for global evidence
+        
+        Args:
+            **kwargs: Metadata fields to update
+        
+        Returns:
+            Updated evidence object
+        """
+        allowed_fields = [
+            'source_type', 'evidence_type', 'compliance_standard',
+            'severity', 'needs_review', 'extraction_metadata',
+            'source_document', 'source_reference', 'is_global'
+        ]
+        
+        updates = {}
+        for field, value in kwargs.items():
+            if field in allowed_fields and hasattr(self, field):
+                setattr(self, field, value)
+                updates[field] = value
+        
+        if updates:
+            db.session.commit()
+        
         return self
 
     def remove_controls(self, control_ids: List[int] = []):
@@ -1651,7 +1817,185 @@ class ProjectEvidence(db.Model, QueryMixin):
             db.session.commit()
             abort(500, f"Unable to upload {file_name} to {provider}")
         return True
-
+    
+    # ========== ADD THESE METHODS FOR GLOBAL EVIDENCE ==========
+    
+    def is_global_evidence(self):
+        """
+        Check if evidence is global (not linked to any project)
+        
+        Returns:
+            Boolean indicating if evidence is global
+        """
+        return self.project_id is None or self.is_global
+    
+    def link_to_project(self, project_id):
+        """
+        Link evidence to a project
+        
+        Args:
+            project_id: Project ID to link to
+        
+        Returns:
+            Updated evidence object
+        """
+        from app.models import Project
+        
+        project = Project.query.get(project_id)
+        if not project:
+            raise ValueError(f"Project not found: {project_id}")
+        
+        self.project_id = project_id
+        self.tenant_id = project.tenant_id
+        self.is_global = False
+        
+        db.session.commit()
+        return self
+    
+    def unlink_from_project(self):
+        """
+        Unlink evidence from project (make it global)
+        
+        Returns:
+            Updated evidence object
+        """
+        self.project_id = None
+        self.is_global = True
+        
+        db.session.commit()
+        return self
+    
+    def get_linked_projects_count(self):
+        """
+        Get count of projects this evidence is linked to
+        
+        Returns:
+            Integer count (0 or 1 for project evidence, could be more with many-to-many)
+        """
+        if self.project_id:
+            return 1
+        return 0
+    
+    def to_global_dict(self):
+        """
+        Convert evidence to dictionary with global evidence repository format
+        
+        Returns:
+            Dictionary with global evidence format
+        """
+        data = self.as_dict(include_details=True)
+        
+        # Add global evidence specific fields
+        data.update({
+            'is_global_evidence': self.is_global_evidence(),
+            'linked_projects_count': self.get_linked_projects_count(),
+            'source_type_display': self.get_source_type_display(),
+            'severity_display': self.get_severity_display(),
+            'needs_review_display': 'Yes' if self.needs_review else 'No'
+        })
+        
+        # Add content preview
+        if self.content and len(self.content) > 200:
+            data['content_preview'] = self.content[:200] + '...'
+        else:
+            data['content_preview'] = self.content
+        
+        return data
+    
+    def get_source_type_display(self):
+        """
+        Get display name for source type
+        
+        Returns:
+            Display string for source type
+        """
+        display_map = {
+            'manual': 'Manual Entry',
+            'ai_ocr': 'AI Extracted',
+            'upload': 'File Upload',
+            'scan': 'Document Scan'
+        }
+        return display_map.get(self.source_type, self.source_type or 'Manual Entry')
+    
+    def get_severity_display(self):
+        """
+        Get display name for severity
+        
+        Returns:
+            Display string for severity
+        """
+        display_map = {
+            'low': 'Low',
+            'medium': 'Medium',
+            'high': 'High',
+            'critical': 'Critical'
+        }
+        return display_map.get(self.severity, self.severity or 'Not Set')
+    
+    @classmethod
+    def get_global_evidence_for_tenant(cls, tenant_id, filters=None):
+        """
+        Get all global evidence for a tenant
+        
+        Args:
+            tenant_id: Tenant ID
+            filters: Dictionary of filters
+        
+        Returns:
+            Query object
+        """
+        from sqlalchemy import or_
+        
+        query = cls.query.filter(cls.tenant_id == tenant_id)
+        
+        if not filters:
+            return query
+        
+        # Apply scope filter
+        scope = filters.get('scope', 'all')
+        if scope == 'global':
+            query = query.filter(cls.project_id.is_(None))
+        elif scope == 'linked':
+            query = query.filter(cls.project_id.isnot(None))
+        # 'all' includes both
+        
+        # Apply search filter
+        search = filters.get('search', '')
+        if search:
+            query = query.filter(
+                or_(
+                    cls.name.ilike(f'%{search}%'),
+                    cls.description.ilike(f'%{search}%'),
+                    cls.content.ilike(f'%{search}%')
+                )
+            )
+        
+        # Apply source type filter
+        source_type = filters.get('source_type')
+        if source_type:
+            query = query.filter(cls.source_type == source_type)
+        
+        # Apply evidence type filter
+        evidence_type = filters.get('evidence_type')
+        if evidence_type:
+            query = query.filter(cls.evidence_type == evidence_type)
+        
+        # Apply severity filter
+        severity = filters.get('severity')
+        if severity:
+            query = query.filter(cls.severity == severity)
+        
+        # Apply needs review filter
+        needs_review = filters.get('needs_review')
+        if needs_review is not None:
+            query = query.filter(cls.needs_review == bool(needs_review))
+        
+        # Apply compliance standard filter
+        compliance_standard = filters.get('compliance_standard')
+        if compliance_standard:
+            query = query.filter(cls.compliance_standard == compliance_standard)
+        
+        return query.order_by(cls.date_added.desc())
 
 class EvidenceAssociation(db.Model):
     __tablename__ = "evidence_association"
@@ -3564,6 +3908,14 @@ class User(db.Model, UserMixin):
     memberships = db.relationship("TenantMember", backref="user", lazy="dynamic")
     projects = db.relationship("Project", backref="user", lazy="dynamic")
     assessments = db.relationship("AssessmentGuest", backref="user", lazy="dynamic")
+    created_invites = db.relationship(
+        "Invite", 
+        foreign_keys="Invite.created_by",  # Specify foreign key
+        backref="invite_creator",  # Different backref name
+        lazy="dynamic", 
+        cascade="all, delete-orphan"
+    )
+
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=datetime.utcnow)
 

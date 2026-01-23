@@ -15,6 +15,8 @@ from sqlalchemy import func
 from app.email import send_email
 from app.utils.reports import Report
 from app.utils.authorizer import Authorizer
+from app.models import ProjectEvidence, EvidenceAssociation, db
+
 import arrow
 
 

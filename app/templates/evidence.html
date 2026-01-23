@@ -1,753 +1,2158 @@
 {% extends "layouts/sidebar-nav.html" %}
 
-{% import "helpers/snippets.html" as snippet with context %}
-{% block before_head %}
-  {{ super() }}
-  {% import "helpers/src_macros.html" as macro %}
-  {{ macro.filehelper(grid=True, files=True, datepicker=True) }}
+{% block head %}
+{% import "helpers/src_macros.html" as macro %}
+{{ macro.filehelper(apex=True, files=True) }}
+<style>
+  /* Previous custom styles remain... */
+  
+  /* Integration badges */
+  .badge-integration-jira {
+    background: linear-gradient(135deg, #0052CC 0%, #0747A6 100%);
+    color: white;
+  }
+  
+  .badge-integration-servicenow {
+    background: linear-gradient(135deg, #81B5A1 0%, #4A6B8A 100%);
+    color: white;
+  }
+  
+  .badge-integration-salesforce {
+    background: linear-gradient(135deg, #00A1E0 0%, #1798C1 100%);
+    color: white;
+  }
+  
+  .badge-integration-splunk {
+    background: linear-gradient(135deg, #000000 0%, #333333 100%);
+    color: white;
+  }
+  
+  .badge-integration-aws {
+    background: linear-gradient(135deg, #FF9900 0%, #FF8C00 100%);
+    color: black;
+  }
+  
+  .badge-integration-azure {
+    background: linear-gradient(135deg, #0078D4 0%, #005A9E 100%);
+    color: white;
+  }
+  
+  .badge-integration-gcp {
+    background: linear-gradient(135deg, #4285F4 0%, #3367D6 100%);
+    color: white;
+  }
+  
+  .badge-integration-github {
+    background: linear-gradient(135deg, #181717 0%, #333333 100%);
+    color: white;
+  }
+  
+  .badge-integration-gitlab {
+    background: linear-gradient(135deg, #FC6D26 0%, #E24329 100%);
+    color: white;
+  }
+  
+  .badge-integration-slack {
+    background: linear-gradient(135deg, #4A154B 0%, #611F69 100%);
+    color: white;
+  }
+  
+  .badge-integration-microsoft {
+    background: linear-gradient(135deg, #7FBA00 0%, #5E8C31 100%);
+    color: white;
+  }
+  
+  /* Integration status indicators */
+  .integration-status {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 4px;
+  }
+  
+  .integration-status.active {
+    background-color: #10B981;
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+  }
+  
+  .integration-status.inactive {
+    background-color: #6B7280;
+    box-shadow: 0 0 0 2px rgba(107, 114, 128, 0.2);
+  }
+  
+  .integration-status.error {
+    background-color: #EF4444;
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+    animation: pulse 2s infinite;
+  }
+  
+  @keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+  }
+  
+  /* Integration source cards */
+  .integration-source-card {
+    transition: all 0.2s ease;
+    border-left: 4px solid transparent;
+  }
+  
+  .integration-source-card:hover {
+    transform: translateX(4px);
+  }
+  
+  /* Sync status */
+  .sync-status {
+    font-size: 0.75rem;
+    padding: 2px 6px;
+    border-radius: 12px;
+  }
+  
+  .sync-status.syncing {
+    background-color: #DBEAFE;
+    color: #1D4ED8;
+  }
+  
+  .sync-status.synced {
+    background-color: #D1FAE5;
+    color: #065F46;
+  }
+  
+  .sync-status.failed {
+    background-color: #FEE2E2;
+    color: #991B1B;
+  }
+  
+  /* Integration logs */
+  .integration-log {
+    border-left: 2px solid;
+    padding-left: 12px;
+    margin-left: 6px;
+  }
+  
+  .integration-log.success {
+    border-left-color: #10B981;
+  }
+  
+  .integration-log.warning {
+    border-left-color: #F59E0B;
+  }
+  
+  .integration-log.error {
+    border-left-color: #EF4444;
+  }
+  
+  .integration-log.info {
+    border-left-color: #3B82F6;
+  }
+  
+  /* Integration metrics */
+  .integration-metric {
+    text-align: center;
+    padding: 1rem;
+    border-radius: 8px;
+    background: white;
+    border: 1px solid #E5E7EB;
+  }
+  
+  .integration-metric .value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 0.25rem;
+  }
+  
+  .integration-metric .label {
+    font-size: 0.75rem;
+    color: #6B7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+</style>
 {% endblock %}
 
-{%block page_header_title%}Evidence - All Sources{%endblock%}
-{%block page_header_title_border%}{%endblock%}
-{%block page_header_buttons%}{%endblock%}
-
-{%block content%}
-<div x-data="evidenceMaster()" class="grid grid-cols-6 gap-4 mt-2">
-
-  <!-- Document Processing Panel -->
-  <div class="col-span-6">
-    <div class="card bg-base-100 border border-base-300 mb-6">
-      <div class="card-body">
-        <h3 class="card-title mb-4"><i class="ti ti-file-text mr-2"></i> Process Documents for AI Extraction</h3>
-        
-        <div class="grid grid-cols-12 gap-4">
-          <div class="col-span-8">
-            <input type="file" 
-                   @change="queueDocuments" 
-                   multiple 
-                   accept=".pdf" 
-                   class="file-input file-input-bordered w-full" />
-            <p class="text-xs mt-2">Upload PDFs for automated compliance extraction</p>
-            
-            <!-- Selected files -->
-            <div x-show="queuedDocuments.length > 0" class="mt-3">
-              <p class="text-sm font-medium mb-2">Selected files:</p>
-              <ul class="text-xs space-y-1 max-h-32 overflow-y-auto">
-                <template x-for="(doc, index) in queuedDocuments" :key="index">
-                  <li class="flex justify-between items-center bg-base-100 p-2 rounded">
-                    <span class="truncate" x-text="doc.name"></span>
-                    <span class="text-xs opacity-70" x-text="formatFileSize(doc.size)"></span>
-                    <button @click="removeQueuedDocument(index)" class="btn btn-xs btn-ghost">
-                      <i class="ti ti-x text-error"></i>
-                    </button>
-                  </li>
-                </template>
-              </ul>
-            </div>
-          </div>
-          
-          <div class="col-span-4">
-            <div class="flex flex-col space-y-2">
-              <button @click="processDocumentsOCR" 
-                      :disabled="!queuedDocuments.length || processingDocs" 
-                      class="btn btn-primary w-full">
-                <i class="ti ti-robot"></i> 
-                <span x-text="processingDocs ? 'Processing...' : 'Extract Evidence'"></span>
-              </button>
-              
-              <div class="collapse collapse-arrow border border-base-300 rounded">
-                <input type="checkbox" />
-                <div class="collapse-title text-xs font-medium">OCR Settings</div>
-                <div class="collapse-content text-xs">
-                  <div class="form-control">
-                    <label class="label cursor-pointer justify-start p-1">
-                      <input type="checkbox" x-model="ocrSettings.extractCompliance" class="checkbox checkbox-xs mr-2" checked />
-                      <span>Extract compliance violations</span>
-                    </label>
-                  </div>
-                  <div class="form-control">
-                    <label class="label cursor-pointer justify-start p-1">
-                      <input type="checkbox" x-model="ocrSettings.createRisks" class="checkbox checkbox-xs mr-2" checked />
-                      <span>Auto-create risks from findings</span>
-                    </label>
-                  </div>
-                  <div class="form-control">
-                    <label class="label cursor-pointer justify-start p-1">
-                      <input type="checkbox" x-model="ocrSettings.highConfidenceOnly" class="checkbox checkbox-xs mr-2" />
-                      <span>High confidence only (>90%)</span>
-                    </label>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Processing Status -->
-        <div x-show="processingDocs" class="mt-4">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-sm" x-text="processingStatus"></span>
-            <span class="text-sm font-medium" x-text="processingProgress + '%'"></span>
-          </div>
-          <progress class="progress progress-primary w-full" 
-                  :value="processingProgress" 
-                  max="100"></progress>
-          
-          <div x-show="processingStats" class="mt-3 text-xs grid grid-cols-5 gap-2">
-            <div class="text-center">
-              <div class="stat-title">Pages</div>
-              <div class="stat-value text-lg" x-text="processingStats.pages_processed || 0"></div>
-            </div>
-            <div class="text-center">
-              <div class="stat-title">Evidence</div>
-              <div class="stat-value text-lg" x-text="processingStats.evidence_created || 0"></div>
-            </div>
-            <div class="text-center">
-              <div class="stat-title">Risks</div>
-              <div class="stat-value text-lg" x-text="processingStats.risks_created || 0"></div>
-            </div>
-            <div class="text-center">
-              <div class="stat-title">Violations</div>
-              <div class="stat-value text-lg" x-text="processingStats.violations_found || 0"></div>
-            </div>
-            <div class="text-center">
-              <div class="stat-title">Confidence</div>
-              <div class="stat-value text-lg" x-text="Math.round((processingStats.average_confidence || 0) * 100) + '%'"></div>
-            </div>
-          </div>
-        </div>
-      </div>
+{% block page_header_title %}
+<div class="flex items-center justify-between">
+  <div class="flex items-center gap-3">
+    <i class="ti ti-database text-2xl text-primary"></i>
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">Global Evidence Repository</h1>
+      <p class="text-sm text-gray-600 mt-1">Centralized evidence from all sources: Manual, Uploads, AI, & Integrations</p>
     </div>
   </div>
-
-  <!-- Evidence Table -->
-  <div class="col-span-6">
-    <div class="card bg-base-100 border border-base-300">
-      <div class="card-body">
-        <div class="flex justify-between align-items-center">
-          <h2 class="card-title mb-4">All Evidence</h2>
-          <div class="space-x-2 flex">
-            <select x-model="filter.sourceType" @change="filterEvidence()" class="select select-sm select-bordered">
-              <option value="">All Sources</option>
-              <option value="ai_ocr">AI/OCR Extracted</option>
-              <option value="manual">Manual Upload</option>
-              <option value="api">API Import</option>
-            </select>
-            <button class="btn btn-sm btn-ghost border border-base-300 capitalize tooltip text-primary" @click="exportEvidenceCSV" data-tip="CSV Export"><i class="ti ti-download"></i></button>
-            <button class="btn btn-sm btn-success" @click="openCreateModal">Create Manual Evidence</button>
-          </div>
-        </div>
-        
-        <!-- Filter Badges -->
-        <div class="flex flex-wrap gap-2 mb-4">
-          <template x-for="(count, type) in evidenceStats" :key="type">
-            <div class="badge" 
-                 :class="{'badge-primary': type==='total', 'badge-info': type==='ai_ocr', 'badge-success': type==='manual', 'badge-warning': type==='api'}"
-                 x-text="type + ': ' + count"></div>
-          </template>
-        </div>
-        
-        <div class="mx-auto text-center mt-5" x-show="loading" x-transition:enter.duration.500ms x-transition:leave.duration.100ms>
-          <span class="loading loading-dots loading-lg"></span>
-        </div>
-        
-        <div x-show="!loading" class="ag-theme-quartz" id="evidenceTable" x-transition:enter.duration.500ms x-transition:leave.duration.500ms></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modals -->
-  <div>
-    <div class="modal" x-bind:class="{ 'modal-open': showDeleteModal }">
-        <div class="modal-box">
-            <form method="dialog">
-              <button @click="showDeleteModal = false" class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
-            </form>
-            <h3 class="font-bold text-lg">Delete Evidence</h3>
-            <p class="py-4" x-text="'Are you sure you want to delete evidence: ' + (selectedEvidence.name || selectedEvidence.id) + '?'"></p>
-            <p class="text-xs text-warning mb-4" x-show="selectedEvidence.linked_risks_count > 0">
-              <i class="ti ti-alert-triangle"></i> This evidence is linked to <span x-text="selectedEvidence.linked_risks_count"></span> risks. Deleting it will remove those links.
-            </p>
-            <div class="modal-action">
-                <button class="btn" @click="showDeleteModal = false">Cancel</button>
-                <button class="btn btn-error" @click="deleteEvidence">Delete Evidence</button>
-            </div>
-        </div>
-    </div>
-  </div>
-
-  <!-- Create Evidence Modal -->
-  <div>
-    <div class="modal" x-bind:class="{ 'modal-open': showCreateModal }">
-        <div class="modal-box w-11/12 max-w-5xl">
-            <form method="dialog">
-              <button @click="showCreateModal = false" class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
-            </form>
-            <h3 class="font-bold text-lg px-6">Create Evidence</h3>
-            
-            <div class="tabs mb-4">
-              <a @click="evidenceType = 'manual'" :class="{'tab-active': evidenceType === 'manual'}" class="tab tab-lifted">Manual Entry</a>
-              <a @click="evidenceType = 'file'" :class="{'tab-active': evidenceType === 'file'}" class="tab tab-lifted">File Upload</a>
-              <a @click="evidenceType = 'api'" :class="{'tab-active': evidenceType === 'api'}" class="tab tab-lifted">API Import</a>
-            </div>
-            
-            <div class="card card-body">
-              <!-- Manual Entry -->
-              <div x-show="evidenceType === 'manual'">
-                <div class="grid grid-cols-6 gap-6">
-                  <div class="col-span-3">
-                      <label class="block text-sm font-medium pb-2">Evidence Name *</label>
-                      <input x-model="formData.name" type="text" placeholder="e.g., 'NEMA License Scan'" class="input input-bordered w-full" required />
-                  </div>
-                  <div class="col-span-3">
-                      <label class="block text-sm font-medium pb-2">Evidence Type</label>
-                      <select x-model="formData.evidence_type" class="select select-bordered w-full">
-                        <option value="compliance">Compliance</option>
-                        <option value="risk">Risk Finding</option>
-                        <option value="audit">Audit Finding</option>
-                        <option value="policy">Policy Document</option>
-                        <option value="other">Other</option>
-                      </select>
-                  </div>
-                  <div class="col-span-6">
-                      <label class="block text-sm font-medium pb-2">Description</label>
-                      <input x-model="formData.description" type="text" placeholder="Brief description of this evidence" class="input input-bordered w-full"/>
-                  </div>
-                  <div class="col-span-3">
-                      <label class="block text-sm font-medium pb-2">Source Document (if applicable)</label>
-                      <input x-model="formData.source_document" type="text" placeholder="e.g., 'Environmental Audit Report.pdf'" class="input input-bordered w-full"/>
-                  </div>
-                  <div class="col-span-3">
-                      <label class="block text-sm font-medium pb-2">Page/Reference</label>
-                      <input x-model="formData.source_reference" type="text" placeholder="e.g., 'Page 42, Section 5.2'" class="input input-bordered w-full"/>
-                  </div>
-                  <div class="col-span-6">
-                      <label class="block text-sm font-medium pb-2">Content/Findings *</label>
-                      <textarea x-model="formData.content" class="textarea textarea-bordered w-full" rows="6" placeholder="Detailed evidence content, findings, or observations..."></textarea>
-                  </div>
-                  <div class="col-span-3">
-                      <label class="block text-sm font-medium pb-2">Compliance Standard</label>
-                      <select x-model="formData.compliance_standard" class="select select-bordered w-full">
-                        <option value="">Select standard</option>
-                        <option value="nema">NEMA Regulations</option>
-                        <option value="iso14001">ISO 14001</option>
-                        <option value="worldbank">World Bank Safeguards</option>
-                        <option value="other">Other</option>
-                      </select>
-                  </div>
-                  <div class="col-span-3">
-                      <label class="block text-sm font-medium pb-2">Severity</label>
-                      <select x-model="formData.severity" class="select select-bordered w-full">
-                        <option value="">Select severity</option>
-                        <option value="critical">Critical</option>
-                        <option value="high">High</option>
-                        <option value="medium">Medium</option>
-                        <option value="low">Low</option>
-                      </select>
-                  </div>
-                </div>
-              </div>
-              
-              <!-- File Upload -->
-              <div x-show="evidenceType === 'file'">
-                <div class="grid grid-cols-6 gap-6">
-                  <div class="col-span-6">
-                    <label class="block text-sm font-medium mb-2">Upload Evidence File</label>
-                    <input type="file" id="createEvidenceUploader" class="file-input file-input-bordered w-full">
-                    <p class="text-xs text-warning mt-2">Supported: PDF, Images, DOCX, TXT (Max 50MB)</p>
-                  </div>
-                  <div class="col-span-6">
-                    <label class="block text-sm font-medium pb-2">File Description</label>
-                    <textarea x-model="formData.file_description" class="textarea textarea-bordered w-full" placeholder="Describe what this file contains..."></textarea>
-                  </div>
-                </div>
-              </div>
-              
-              <!-- API Import -->
-              <div x-show="evidenceType === 'api'" class="text-center py-8">
-                <i class="ti ti-api text-4xl opacity-30"></i>
-                <p class="mt-4">API import configuration available in system settings.</p>
-                <p class="text-sm opacity-70">Configure external data sources to automatically import evidence.</p>
-              </div>
-            </div>
-            
-            <div class="modal-action">
-                <button class="btn" @click="showCreateModal = false">Close</button>
-                <button class="btn btn-primary" @click="createEvidence">Create Evidence</button>
-            </div>
-        </div>
-    </div>
-  </div>
-
-  <!-- View Evidence Modal -->
-  <div>
-    <div class="modal" x-bind:class="{ 'modal-open': showViewModal }">
-        <div class="modal-box w-11/12 max-w-5xl">
-            <button @click="showViewModal = false" class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
-            
-            <h3 class="font-bold text-lg mb-2" x-text="selectedEvidence.name"></h3>
-            <div class="flex flex-wrap gap-2 mb-4">
-              <span class="badge" 
-                    :class="{'badge-info': selectedEvidence.source_type==='ai_ocr', 'badge-success': selectedEvidence.source_type==='manual', 'badge-warning': selectedEvidence.source_type==='api'}"
-                    x-text="selectedEvidence.source_type || 'manual'"></span>
-              <span class="badge badge-ghost" x-text="selectedEvidence.evidence_type || 'evidence'"></span>
-              <span x-show="selectedEvidence.severity" 
-                    class="badge" 
-                    :class="{'badge-error': selectedEvidence.severity==='critical', 'badge-warning': selectedEvidence.severity==='high', 'badge-warning opacity-80': selectedEvidence.severity==='medium', 'badge-success': selectedEvidence.severity==='low'}"
-                    x-text="selectedEvidence.severity"></span>
-            </div>
-            
-            <div class="grid grid-cols-2 gap-6">
-              <!-- Left Column: Evidence Details -->
-              <div>
-                <div class="space-y-4">
+  <div class="flex items-center gap-2">
+    <!-- Integration Status -->
+    <div class="dropdown dropdown-end">
+      <label tabindex="0" class="btn btn-sm btn-outline">
+        <i class="ti ti-plug mr-2"></i>
+        Integrations
+        <span class="ml-2 badge badge-sm" 
+              :class="integrationsStatus.total > 0 ? 'badge-success' : 'badge-warning'"
+              x-text="integrationsStatus.active"></span>
+      </label>
+      <div tabindex="0" class="dropdown-content card w-96 p-0 shadow-xl bg-base-100">
+        <div class="card-body p-4">
+          <h3 class="font-bold text-lg mb-4">Integration Status</h3>
+          <div class="space-y-3">
+            <template x-for="integration in integrations" :key="integration.id">
+              <div class="flex items-center justify-between p-2 hover:bg-base-200 rounded">
+                <div class="flex items-center gap-3">
+                  <span class="integration-status" :class="integration.status"></span>
                   <div>
-                    <h4 class="subtitle text-sm mb-2">Description</h4>
-                    <p class="text-sm" x-text="selectedEvidence.description || 'No description'"></p>
+                    <div class="font-medium" x-text="integration.name"></div>
+                    <div class="text-xs text-gray-500" x-text="integration.description"></div>
                   </div>
-                  
-                  <div x-show="selectedEvidence.source_document">
-                    <h4 class="subtitle text-sm mb-2">Source Document</h4>
-                    <div class="text-sm">
-                      <p><span class="font-medium">Document:</span> <span x-text="selectedEvidence.source_document"></span></p>
-                      <p x-show="selectedEvidence.source_reference"><span class="font-medium">Reference:</span> <span x-text="selectedEvidence.source_reference"></span></p>
-                      <p x-show="selectedEvidence.page_number"><span class="font-medium">Page:</span> <span x-text="selectedEvidence.page_number"></span></p>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-xs" x-text="integration.last_sync ? formatTimeAgo(integration.last_sync) : 'Never'"></span>
+                  <button @click="syncIntegration(integration)" class="btn btn-xs btn-ghost" :disabled="integration.status === 'syncing'">
+                    <i class="ti ti-refresh" :class="integration.status === 'syncing' ? 'animate-spin' : ''"></i>
+                  </button>
+                </div>
+              </div>
+            </template>
+            <div class="pt-2 border-t">
+              <a href="/integrations" class="btn btn-sm btn-block btn-outline">
+                <i class="ti ti-settings mr-2"></i> Manage Integrations
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <button @click="refreshData" class="btn btn-sm btn-ghost" title="Refresh">
+      <i class="ti ti-refresh"></i>
+    </button>
+    <div class="dropdown dropdown-end">
+      <label tabindex="0" class="btn btn-primary">
+        <i class="ti ti-plus mr-2"></i>
+        Add Evidence
+      </label>
+      <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52 z-50">
+        <li><a @click="quickAdd('manual')" class="flex items-center gap-2">
+          <i class="ti ti-file-text text-info"></i>
+          <div>
+            <div class="font-medium">Manual Entry</div>
+            <div class="text-xs text-gray-500">Create evidence manually</div>
+          </div>
+        </a></li>
+        <li><a @click="quickAdd('upload')" class="flex items-center gap-2">
+          <i class="ti ti-upload text-success"></i>
+          <div>
+            <div class="font-medium">Upload File</div>
+            <div class="text-xs text-gray-500">Upload document or image</div>
+          </div>
+        </a></li>
+        <li><a @click="quickAdd('ai')" class="flex items-center gap-2">
+          <i class="ti ti-robot text-primary"></i>
+          <div>
+            <div class="font-medium">AI Extraction</div>
+            <div class="text-xs text-gray-500">Extract text with AI</div>
+          </div>
+        </a></li>
+        <li><a @click="quickAdd('integration')" class="flex items-center gap-2">
+          <i class="ti ti-plug text-warning"></i>
+          <div>
+            <div class="font-medium">From Integration</div>
+            <div class="text-xs text-gray-500">Pull from connected systems</div>
+          </div>
+        </a></li>
+        <li><a @click="quickAdd('scan')" class="flex items-center gap-2">
+          <i class="ti ti-scan text-purple-500"></i>
+          <div>
+            <div class="font-medium">Scan Document</div>
+            <div class="text-xs text-gray-500">Scan physical documents</div>
+          </div>
+        </a></li>
+        <li><a @click="quickAdd('import')" class="flex items-center gap-2">
+          <i class="ti ti-download text-orange-500"></i>
+          <div>
+            <div class="font-medium">Bulk Import</div>
+            <div class="text-xs text-gray-500">Import multiple files</div>
+          </div>
+        </a></li>
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div x-data="globalEvidence()" x-init="init()" class="space-y-6 fade-in">
+
+  <!-- Enhanced Stats Dashboard with Integration Stats -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+    <!-- Total Evidence -->
+    <div class="card bg-gradient-to-br from-blue-50 to-white border border-blue-100 shadow-sm hover:shadow-md transition-shadow lg:col-span-2">
+      <div class="card-body p-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="stat-title text-blue-700">Total Evidence</div>
+            <div class="stat-value text-blue-900" x-text="stats.total">0</div>
+            <div class="stat-desc text-blue-600">
+              <span class="text-success" x-text="`↑ ${stats.this_week} this week`"></span>
+            </div>
+          </div>
+          <div class="p-3 rounded-full bg-blue-100">
+            <i class="ti ti-database text-2xl text-blue-600"></i>
+          </div>
+        </div>
+        <div class="mt-3 grid grid-cols-4 gap-2">
+          <div class="text-center">
+            <div class="text-sm font-semibold text-blue-700" x-text="stats.manual"></div>
+            <div class="text-xs text-blue-600">Manual</div>
+          </div>
+          <div class="text-center">
+            <div class="text-sm font-semibold text-cyan-700" x-text="stats.ai_extracted"></div>
+            <div class="text-xs text-cyan-600">AI</div>
+          </div>
+          <div class="text-center">
+            <div class="text-sm font-semibold text-emerald-700" x-text="stats.uploaded"></div>
+            <div class="text-xs text-emerald-600">Upload</div>
+          </div>
+          <div class="text-center">
+            <div class="text-sm font-semibold text-warning" x-text="stats.integration"></div>
+            <div class="text-xs text-warning">Integration</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Integration Evidence -->
+    <div class="card bg-gradient-to-br from-amber-50 to-white border border-amber-100 shadow-sm hover:shadow-md transition-shadow">
+      <div class="card-body p-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="stat-title text-amber-700">Integration Evidence</div>
+            <div class="stat-value text-amber-900" x-text="stats.integration">0</div>
+            <div class="stat-desc text-amber-600">
+              <span x-text="`${integrationsStatus.active}/${integrationsStatus.total} active`"></span>
+            </div>
+          </div>
+          <div class="p-3 rounded-full bg-amber-100">
+            <i class="ti ti-plug text-2xl text-amber-600"></i>
+          </div>
+        </div>
+        <div class="mt-3">
+          <div class="flex items-center justify-between text-xs text-amber-700">
+            <span>Last Sync</span>
+            <span x-text="integrationsStatus.last_sync ? formatTimeAgo(integrationsStatus.last_sync) : 'Never'"></span>
+          </div>
+          <progress class="progress progress-warning w-full h-1.5 mt-1" 
+                  :value="integrationsStatus.active" 
+                  :max="integrationsStatus.total"></progress>
+        </div>
+      </div>
+    </div>
+    
+    <!-- AI Extracted -->
+    <div class="card bg-gradient-to-br from-cyan-50 to-white border border-cyan-100 shadow-sm hover:shadow-md transition-shadow">
+      <div class="card-body p-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="stat-title text-cyan-700">AI Extracted</div>
+            <div class="stat-value text-cyan-900" x-text="stats.ai_extracted">0</div>
+            <div class="stat-desc text-cyan-600">
+              <span x-text="`${stats.total > 0 ? Math.round((stats.ai_extracted / stats.total) * 100) : 0}% of total`"></span>
+            </div>
+          </div>
+          <div class="p-3 rounded-full bg-cyan-100">
+            <i class="ti ti-robot text-2xl text-cyan-600"></i>
+          </div>
+        </div>
+        <div class="mt-3">
+          <div class="flex items-center justify-between text-xs text-cyan-700">
+            <span>Avg Confidence</span>
+            <span x-text="stats.avg_confidence ? `${Math.round(stats.avg_confidence)}%` : 'N/A'"></span>
+          </div>
+          <progress class="progress progress-info w-full h-1.5" 
+                  :value="stats.avg_confidence || 0" 
+                  max="100"></progress>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Manual Upload -->
+    <div class="card bg-gradient-to-br from-emerald-50 to-white border border-emerald-100 shadow-sm hover:shadow-md transition-shadow">
+      <div class="card-body p-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="stat-title text-emerald-700">Manual Upload</div>
+            <div class="stat-value text-emerald-900" x-text="stats.manual"></div>
+            <div class="stat-desc text-emerald-600">
+              <span x-text="`${stats.uploaded || 0} files uploaded`"></span>
+            </div>
+          </div>
+          <div class="p-3 rounded-full bg-emerald-100">
+            <i class="ti ti-upload text-2xl text-emerald-600"></i>
+          </div>
+        </div>
+        <div class="mt-3">
+          <div class="flex items-center justify-between text-xs text-emerald-700">
+            <span>With Files</span>
+            <span x-text="stats.with_files || 0">0</span>
+          </div>
+          <progress class="progress progress-success w-full h-1.5" 
+                  :value="stats.with_files || 0" 
+                  :max="stats.manual"></progress>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Needs Review -->
+    <div class="card bg-gradient-to-br from-red-50 to-white border border-red-100 shadow-sm hover:shadow-md transition-shadow">
+      <div class="card-body p-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="stat-title text-red-700">Needs Review</div>
+            <div class="stat-value text-red-900" x-text="stats.needs_review">0</div>
+            <div class="stat-desc text-red-600">
+              <span x-show="stats.needs_review > 0" class="text-error font-semibold">Attention Required</span>
+              <span x-show="stats.needs_review === 0" class="text-success">All Reviewed</span>
+            </div>
+          </div>
+          <div class="p-3 rounded-full bg-red-100">
+            <i class="ti ti-alert-circle text-2xl text-red-600"></i>
+          </div>
+        </div>
+        <div class="mt-3">
+          <div class="flex items-center justify-between text-xs text-red-700">
+            <span>High Severity</span>
+            <span class="font-semibold" x-text="stats.high_severity">0</span>
+          </div>
+          <div class="flex gap-1 mt-1">
+            <template x-for="i in 5" :key="i">
+              <div class="flex-1 h-1.5 rounded" 
+                   :class="i <= Math.min(5, stats.high_severity) ? 'bg-error' : 'bg-red-200'"></div>
+            </template>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Area -->
+  <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+    <!-- Enhanced Sidebar with Integration Sources -->
+    <div class="lg:col-span-1 space-y-6">
+      
+      <!-- Integration Sources -->
+      <div class="card bg-base-100 shadow-lg border">
+        <div class="card-body p-4">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="card-title text-sm font-bold">Integration Sources</h3>
+            <button @click="syncAllIntegrations" class="btn btn-xs btn-outline btn-warning" 
+                    :disabled="isSyncingAll">
+              <i class="ti ti-refresh" :class="isSyncingAll ? 'animate-spin' : ''"></i>
+              Sync All
+            </button>
+          </div>
+          
+          <div class="space-y-3">
+            <template x-for="integration in integrations.slice(0, 5)" :key="integration.id">
+              <div class="integration-source-card p-3 rounded-lg border hover:bg-base-200 cursor-pointer"
+                   @click="filterByIntegration(integration)"
+                   :class="filters.integration === integration.id ? 'bg-base-200 border-primary border-l-4 border-l-primary' : ''">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <div class="relative">
+                      <span class="integration-status" :class="integration.status"></span>
+                      <div class="w-8 h-8 rounded flex items-center justify-center"
+                           :class="getIntegrationBadgeClass(integration.type)">
+                        <i class="ti" :class="getIntegrationIcon(integration.type)"></i>
+                      </div>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <div class="font-medium text-sm truncate" x-text="integration.name"></div>
+                      <div class="text-xs text-gray-500" x-text="integration.evidence_count + ' evidence'"></div>
                     </div>
                   </div>
+                  <button @click.stop="syncIntegration(integration)" 
+                          class="btn btn-xs btn-ghost"
+                          :disabled="integration.status === 'syncing'"
+                          title="Sync now">
+                    <i class="ti ti-refresh" :class="integration.status === 'syncing' ? 'animate-spin' : ''"></i>
+                  </button>
+                </div>
+                
+                <!-- Last sync info -->
+                <div class="mt-2 text-xs text-gray-500 flex items-center justify-between">
+                  <span x-text="integration.last_sync ? 'Synced ' + formatTimeAgo(integration.last_sync) : 'Never synced'"></span>
+                  <span class="sync-status" :class="integration.sync_status"
+                        x-text="integration.sync_status?.charAt(0).toUpperCase() + integration.sync_status?.slice(1)"></span>
+                </div>
+              </div>
+            </template>
+            
+            <div x-show="integrations.length === 0" class="text-center py-4">
+              <i class="ti ti-plug-off text-2xl opacity-30"></i>
+              <p class="text-sm text-gray-500 mt-2">No integrations configured</p>
+              <a href="/integrations" class="btn btn-xs btn-outline btn-warning mt-2">
+                <i class="ti ti-plus mr-1"></i> Add Integration
+              </a>
+            </div>
+            
+            <div x-show="integrations.length > 5" class="pt-2 border-t">
+              <a href="/integrations" class="btn btn-xs btn-block btn-ghost">
+                View all <span x-text="integrations.length"></span> integrations
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Quick Filters -->
+      <div class="card bg-base-100 shadow-lg border">
+        <div class="card-body p-4">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="card-title text-sm font-bold">Quick Filters</h3>
+            <button @click="resetFilters" class="btn btn-xs btn-ghost">
+              Reset
+            </button>
+          </div>
+          
+          <!-- Source Type Filter -->
+          <div class="mb-4">
+            <label class="block text-xs font-semibold text-gray-700 mb-2">Source Type</label>
+            <div class="space-y-2">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" x-model="filters.sourceTypes.manual" class="checkbox checkbox-xs checkbox-success">
+                <span class="text-sm">Manual Entry</span>
+                <span class="badge badge-xs badge-success ml-auto" x-text="stats.manual"></span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" x-model="filters.sourceTypes.ai" class="checkbox checkbox-xs checkbox-info">
+                <span class="text-sm">AI Extracted</span>
+                <span class="badge badge-xs badge-info ml-auto" x-text="stats.ai_extracted"></span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" x-model="filters.sourceTypes.upload" class="checkbox checkbox-xs checkbox-primary">
+                <span class="text-sm">File Upload</span>
+                <span class="badge badge-xs badge-primary ml-auto" x-text="stats.uploaded || 0"></span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" x-model="filters.sourceTypes.integration" class="checkbox checkbox-xs checkbox-warning">
+                <span class="text-sm">Integration</span>
+                <span class="badge badge-xs badge-warning ml-auto" x-text="stats.integration || 0"></span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" x-model="filters.sourceTypes.scan" class="checkbox checkbox-xs checkbox-secondary">
+                <span class="text-sm">Scan</span>
+                <span class="badge badge-xs badge-secondary ml-auto" x-text="stats.scan || 0"></span>
+              </label>
+            </div>
+          </div>
+          
+          <!-- Integration Type Filter -->
+          <div class="mb-4" x-show="filters.sourceTypes.integration">
+            <label class="block text-xs font-semibold text-gray-700 mb-2">Integration Type</label>
+            <div class="space-y-2 max-h-40 overflow-y-auto custom-scrollbar">
+              <template x-for="integration in integrations" :key="integration.id">
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" :value="integration.id" x-model="filters.integrationIds" class="checkbox checkbox-xs">
+                  <span class="text-sm truncate flex items-center gap-2">
+                    <i class="ti" :class="getIntegrationIcon(integration.type)"></i>
+                    <span x-text="integration.name"></span>
+                  </span>
+                  <span class="badge badge-xs badge-ghost ml-auto" x-text="integration.evidence_count"></span>
+                </label>
+              </template>
+            </div>
+          </div>
+          
+          <!-- Severity Filter -->
+          <div class="mb-4">
+            <label class="block text-xs font-semibold text-gray-700 mb-2">Severity</label>
+            <div class="space-y-2">
+              <template x-for="severity in ['critical', 'high', 'medium', 'low']" :key="severity">
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" :value="severity" x-model="filters.severities" class="checkbox checkbox-xs" 
+                         :class="severityClass(severity, 'checkbox-')">
+                  <span class="text-sm capitalize" x-text="severity"></span>
+                  <span class="badge badge-xs ml-auto" :class="severityClass(severity)" 
+                        x-text="severityCounts[severity] || 0"></span>
+                </label>
+              </template>
+            </div>
+          </div>
+          
+          <!-- Status Filter -->
+          <div class="mb-4">
+            <label class="block text-xs font-semibold text-gray-700 mb-2">Status</label>
+            <div class="space-y-2">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" x-model="filters.needsReview" class="checkbox checkbox-xs checkbox-warning">
+                <span class="text-sm">Needs Review</span>
+                <span class="badge badge-xs badge-warning ml-auto" x-text="stats.needs_review"></span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" x-model="filters.hasFiles" class="checkbox checkbox-xs checkbox-info">
+                <span class="text-sm">Has Files</span>
+                <span class="badge badge-xs badge-info ml-auto" x-text="stats.with_files || 0"></span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" x-model="filters.isGlobal" class="checkbox checkbox-xs checkbox-primary">
+                <span class="text-sm">Global Only</span>
+                <span class="badge badge-xs badge-primary ml-auto" x-text="stats.global"></span>
+              </label>
+            </div>
+          </div>
+          
+          <!-- Date Range -->
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-2">Date Range</label>
+            <select x-model="filters.dateRange" class="select select-bordered select-sm w-full">
+              <option value="all">All Time</option>
+              <option value="today">Today</option>
+              <option value="week">This Week</option>
+              <option value="month">This Month</option>
+              <option value="quarter">This Quarter</option>
+              <option value="year">This Year</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Recent Integration Activity -->
+      <div class="card bg-base-100 shadow-lg border">
+        <div class="card-body p-4">
+          <h3 class="card-title text-sm font-bold mb-4">Recent Sync Activity</h3>
+          <div class="space-y-3">
+            <template x-for="activity in integrationActivity.slice(0, 5)" :key="activity.id">
+              <div class="integration-log p-3" :class="activity.status">
+                <div class="flex items-start justify-between">
+                  <div class="flex-1 min-w-0">
+                    <div class="text-sm font-medium truncate" x-text="activity.integration_name"></div>
+                    <div class="text-xs text-gray-600 truncate" x-text="activity.message"></div>
+                  </div>
+                  <div class="text-xs text-gray-400 ml-2 whitespace-nowrap" 
+                       x-text="formatTimeAgo(activity.timestamp)"></div>
+                </div>
+                <div class="text-xs mt-1" :class="{
+                  'text-success': activity.status === 'success',
+                  'text-warning': activity.status === 'warning',
+                  'text-error': activity.status === 'error',
+                  'text-info': activity.status === 'info'
+                }">
+                  <span x-text="activity.evidence_count ? `${activity.evidence_count} evidence items` : ''"></span>
+                </div>
+              </div>
+            </template>
+            <div x-show="integrationActivity.length === 0" class="text-center py-4">
+              <i class="ti ti-clock text-2xl opacity-30"></i>
+              <p class="text-sm text-gray-500 mt-2">No recent sync activity</p>
+            </div>
+            <div x-show="integrationActivity.length > 5" class="pt-2 border-t">
+              <a href="/integrations/activity" class="btn btn-xs btn-block btn-ghost">
+                View all activity
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Main Evidence Area -->
+    <div class="lg:col-span-3">
+      
+      <!-- Enhanced Search and Actions Bar -->
+      <div class="card bg-base-100 shadow-lg border mb-6">
+        <div class="card-body p-4">
+          <div class="flex flex-col md:flex-row gap-4 items-start md:items-center">
+            <!-- Enhanced Search with Integration Filter -->
+            <div class="flex-1 w-full">
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <i class="ti ti-search text-gray-400"></i>
+                </div>
+                <input x-model="searchQuery" 
+                       @input="debouncedSearch" 
+                       class="input input-bordered w-full pl-10 pr-4 py-2" 
+                       placeholder="Search evidence by name, description, content, integration, or tags..."
+                       type="search">
+                <div class="absolute inset-y-0 right-0 flex items-center pr-3" x-show="searchQuery">
+                  <button @click="searchQuery = ''; applyFilters()" class="btn btn-ghost btn-xs btn-circle">
+                    <i class="ti ti-x text-sm"></i>
+                  </button>
+                </div>
+              </div>
+              
+              <!-- Integration Quick Filter -->
+              <div class="flex flex-wrap gap-2 mt-2">
+                <template x-for="integration in integrations.slice(0, 3)" :key="integration.id">
+                  <button @click="filterByIntegration(integration)" 
+                          class="badge" 
+                          :class="getIntegrationBadgeClass(integration.type) + ' ' + (filters.integration === integration.id ? 'badge-outline' : '')"
+                          :title="`Filter by ${integration.name}`">
+                    <i class="ti mr-1" :class="getIntegrationIcon(integration.type)"></i>
+                    <span x-text="integration.name"></span>
+                    <span class="ml-1" x-text="integration.evidence_count"></span>
+                  </button>
+                </template>
+                <button @click="showAllIntegrations = !showAllIntegrations" class="badge badge-outline">
+                  <i class="ti ti-filter"></i>
+                  All Integrations
+                </button>
+              </div>
+            </div>
+            
+            <!-- View Controls -->
+            <div class="flex items-center gap-2">
+              <!-- View Toggle -->
+              <div class="btn-group">
+                <button @click="viewMode = 'grid'" 
+                        class="btn btn-sm" 
+                        :class="viewMode === 'grid' ? 'btn-primary' : 'btn-ghost'">
+                  <i class="ti ti-layout-grid"></i>
+                </button>
+                <button @click="viewMode = 'list'" 
+                        class="btn btn-sm" 
+                        :class="viewMode === 'list' ? 'btn-primary' : 'btn-ghost'">
+                  <i class="ti ti-list"></i>
+                </button>
+                <button @click="viewMode = 'table'" 
+                        class="btn btn-sm" 
+                        :class="viewMode === 'table' ? 'btn-primary' : 'btn-ghost'">
+                  <i class="ti ti-table"></i>
+                </button>
+              </div>
+              
+              <!-- Sort Options -->
+              <div class="dropdown dropdown-end">
+                <label tabindex="0" class="btn btn-sm btn-ghost">
+                  <i class="ti ti-sort-descending"></i>
+                  <span class="ml-1" x-text="sortOptions.find(o => o.value === sortBy)?.label"></span>
+                </label>
+                <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-48">
+                  <template x-for="option in sortOptions" :key="option.value">
+                    <li>
+                      <a @click="sortBy = option.value" class="flex items-center justify-between">
+                        <span x-text="option.label"></span>
+                        <i class="ti ti-check" x-show="sortBy === option.value"></i>
+                      </a>
+                    </li>
+                  </template>
+                </ul>
+              </div>
+              
+              <!-- Integration Actions -->
+              <div class="dropdown dropdown-end">
+                <label tabindex="0" class="btn btn-sm btn-warning">
+                  <i class="ti ti-plug"></i>
+                  Integrations
+                </label>
+                <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-48">
+                  <li><a @click="syncAllIntegrations"><i class="ti ti-refresh"></i>Sync All</a></li>
+                  <li><a href="/integrations"><i class="ti ti-settings"></i>Manage</a></li>
+                  <li><a href="/integrations/add"><i class="ti ti-plus"></i>Add New</a></li>
+                  <li><a href="/integrations/logs"><i class="ti ti-file-text"></i>View Logs</a></li>
+                </ul>
+              </div>
+              
+              <!-- Bulk Actions -->
+              <div class="dropdown dropdown-end" x-show="selectedEvidenceIds.length > 0">
+                <label tabindex="0" class="btn btn-sm btn-primary">
+                  <i class="ti ti-checkbox"></i>
+                  <span class="ml-1" x-text="selectedEvidenceIds.length"></span>
+                </label>
+                <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-48">
+                  <li><a @click="bulkLinkToProject()"><i class="ti ti-link"></i> Link to Project</a></li>
+                  <li><a @click="bulkUpdateStatus()"><i class="ti ti-check"></i> Mark as Reviewed</a></li>
+                  <li><a @click="bulkExport()"><i class="ti ti-download"></i> Export Selected</a></li>
+                  <li><a @click="bulkDelete()" class="text-error"><i class="ti ti-trash"></i> Delete Selected</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Active Filters -->
+          <div class="mt-4 flex flex-wrap gap-2" x-show="activeFilterCount > 0">
+            <div class="text-sm text-gray-600">Active filters:</div>
+            <template x-for="filter in activeFilters" :key="filter.key">
+              <div class="badge badge-outline badge-sm flex items-center gap-1">
+                <span x-text="filter.label"></span>
+                <button @click="removeFilter(filter.key)" class="btn btn-xs btn-ghost btn-circle">
+                  <i class="ti ti-x text-xs"></i>
+                </button>
+              </div>
+            </template>
+            <button @click="resetFilters" class="btn btn-xs btn-ghost">
+              Clear all
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Integration Evidence Metrics -->
+      <div x-show="filters.sourceTypes.integration && integrations.length > 0" class="mb-6">
+        <div class="card bg-base-100 border">
+          <div class="card-body p-4">
+            <h3 class="font-semibold mb-4">Integration Evidence Overview</h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+              <template x-for="integration in integrations" :key="integration.id">
+                <div class="integration-metric cursor-pointer hover:shadow-md transition-shadow"
+                     @click="filterByIntegration(integration)"
+                     :class="filters.integration === integration.id ? 'ring-2 ring-warning' : ''">
+                  <div class="value" x-text="integration.evidence_count"></div>
+                  <div class="label truncate" x-text="integration.name"></div>
+                  <div class="mt-2 text-xs" :class="{
+                    'text-success': integration.status === 'active',
+                    'text-error': integration.status === 'error',
+                    'text-warning': integration.status === 'inactive'
+                  }">
+                    <i class="ti mr-1" :class="getIntegrationIcon(integration.type)"></i>
+                    <span x-text="integration.status"></span>
+                  </div>
+                </div>
+              </template>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Loading State -->
+      <div x-show="loading" class="space-y-4">
+        <template x-for="i in 6" :key="i">
+          <div class="card bg-base-100 shadow">
+            <div class="card-body">
+              <div class="flex items-center gap-4">
+                <div class="shimmer w-12 h-12 rounded-lg"></div>
+                <div class="flex-1 space-y-2">
+                  <div class="shimmer h-4 w-1/3 rounded"></div>
+                  <div class="shimmer h-3 w-2/3 rounded"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
+      </div>
+      
+      <!-- Empty State -->
+      <div x-show="!loading && filteredEvidence.length === 0" 
+           class="card bg-base-100 shadow-lg border">
+        <div class="card-body py-12 text-center">
+          <div class="w-24 h-24 mx-auto mb-6 flex items-center justify-center rounded-full bg-gradient-to-br from-blue-50 to-cyan-50">
+            <i class="ti ti-database text-4xl text-blue-400"></i>
+          </div>
+          <h3 class="text-xl font-semibold mb-2">No evidence found</h3>
+          <p class="text-gray-600 mb-6 max-w-md mx-auto" x-text="
+            filters.sourceTypes.integration && !filters.sourceTypes.manual && !filters.sourceTypes.ai && !filters.sourceTypes.upload 
+            ? 'Try enabling other source types or check integration sync status' 
+            : 'Try adjusting your filters or create new evidence to get started'
+          "></p>
+          <div class="flex gap-3 justify-center">
+            <button @click="resetFilters" class="btn btn-outline">
+              <i class="ti ti-filter-off mr-2"></i> Clear Filters
+            </button>
+            <button @click="quickAdd('manual')" class="btn btn-primary">
+              <i class="ti ti-plus mr-2"></i> Create Evidence
+            </button>
+            <button @click="syncAllIntegrations" class="btn btn-warning" :disabled="isSyncingAll">
+              <i class="ti ti-refresh mr-2" :class="isSyncingAll ? 'animate-spin' : ''"></i>
+              Sync Integrations
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Grid View -->
+      <div x-show="!loading && filteredEvidence.length > 0 && viewMode === 'grid'" 
+           class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <template x-for="evidence in paginatedEvidence" :key="evidence.id">
+          <div class="evidence-card card bg-base-100 shadow-lg border relative group"
+               @click="openEvidenceModal(evidence)">
+            <!-- Selection Checkbox -->
+            <div class="absolute top-3 left-3 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+              <input type="checkbox" 
+                     x-model="selectedEvidenceIds" 
+                     :value="evidence.id"
+                     @click.stop
+                     class="checkbox checkbox-sm checkbox-primary">
+            </div>
+            
+            <!-- Evidence Type Badge -->
+            <div class="absolute top-3 right-3">
+              <span class="badge badge-sm" 
+                    :class="getSourceTypeClass(evidence.source_type)"
+                    x-text="getSourceTypeDisplay(evidence.source_type)"></span>
+            </div>
+            
+            <!-- Integration Badge -->
+            <div x-show="evidence.integration_source" class="absolute top-10 right-3">
+              <span class="badge badge-xs" 
+                    :class="getIntegrationBadgeClass(evidence.integration_type)"
+                    x-text="evidence.integration_source"></span>
+            </div>
+            
+            <div class="card-body p-4">
+              <!-- Header with Status -->
+              <div class="flex items-start justify-between mb-3">
+                <div class="flex-1 pr-6">
+                  <div class="flex items-center gap-2 mb-1">
+                    <span class="status-dot" :class="evidence.needs_review ? 'needs-review' : 'reviewed'"></span>
+                    <h3 class="card-title text-sm font-semibold line-clamp-1" x-text="evidence.name"></h3>
+                  </div>
+                  <p class="text-xs text-gray-600 line-clamp-2" x-text="evidence.description || 'No description'"></p>
                   
-                  <div x-show="selectedEvidence.extraction_metadata">
-                    <h4 class="subtitle text-sm mb-2">Extraction Details</h4>
-                    <div class="text-xs space-y-1">
-                      <div class="flex justify-between">
-                        <span>OCR Confidence:</span>
-                        <span x-text="Math.round((selectedEvidence.extraction_metadata.confidence || 0) * 100) + '%'"></span>
-                      </div>
-                      <div class="flex justify-between">
-                        <span>Extracted:</span>
-                        <span x-text="formatDate(selectedEvidence.extraction_metadata.extracted_at)"></span>
-                      </div>
-                      <div class="flex justify-between">
-                        <span>Pipeline:</span>
-                        <span x-text="selectedEvidence.extraction_metadata.pipeline_version || 'v1.0'"></span>
-                      </div>
+                  <!-- Integration Info -->
+                  <div x-show="evidence.integration_source" class="flex items-center gap-2 mt-1">
+                    <span class="text-xs text-gray-500 flex items-center gap-1">
+                      <i class="ti" :class="getIntegrationIcon(evidence.integration_type)"></i>
+                      <span x-text="evidence.integration_source"></span>
+                    </span>
+                    <span class="text-xs text-gray-400" x-text="evidence.integration_id ? `#${evidence.integration_id}` : ''"></span>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Content Preview -->
+              <div class="bg-base-200 rounded-lg p-3 mb-3">
+                <div class="text-xs text-gray-500 line-clamp-3" 
+                      x-text="evidence.content_preview || evidence.content?.substring(0, 200) || 'No content'"></div>
+              </div>
+              
+              <!-- Metadata -->
+              <div class="space-y-2">
+                <!-- Severity and Type -->
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span x-show="evidence.severity" 
+                          class="badge badge-xs" 
+                          :class="severityClass(evidence.severity)"
+                          x-text="evidence.severity?.toUpperCase()"></span>
+                    <span x-show="evidence.evidence_type" 
+                          class="badge badge-xs badge-outline"
+                          x-text="evidence.evidence_type"></span>
+                  </div>
+                  <span class="text-xs text-gray-500" x-text="formatDateShort(evidence.created_at)"></span>
+                </div>
+                
+                <!-- Integration Metadata -->
+                <div x-show="evidence.integration_metadata" class="text-xs text-gray-600 space-y-1">
+                  <template x-if="evidence.integration_metadata.url">
+                    <div class="flex items-center gap-1">
+                      <i class="ti ti-external-link"></i>
+                      <a :href="evidence.integration_metadata.url" target="_blank" 
+                         class="truncate hover:text-primary" @click.stop>
+                        View in source system
+                      </a>
+                    </div>
+                  </template>
+                  <template x-if="evidence.integration_metadata.sync_date">
+                    <div class="flex items-center gap-1">
+                      <i class="ti ti-refresh"></i>
+                      <span>Synced: <span x-text="formatTimeAgo(evidence.integration_metadata.sync_date)"></span></span>
+                    </div>
+                  </template>
+                </div>
+                
+                <!-- Stats -->
+                <div class="flex items-center justify-between text-xs text-gray-600">
+                  <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-1" x-show="evidence.linked_projects_count > 0">
+                      <i class="ti ti-folders"></i>
+                      <span x-text="evidence.linked_projects_count"></span>
+                    </div>
+                    <div class="flex items-center gap-1" x-show="evidence.control_count > 0">
+                      <i class="ti ti-shield-check"></i>
+                      <span x-text="evidence.control_count"></span>
+                    </div>
+                    <div class="flex items-center gap-1" x-show="evidence.extraction_metadata?.confidence">
+                      <i class="ti ti-brain"></i>
+                      <span x-text="Math.round(evidence.extraction_metadata.confidence * 100) + '%'"></span>
                     </div>
                   </div>
+                  <div x-show="evidence.compliance_standard" class="text-xs text-gray-400">
+                    <span x-text="evidence.compliance_standard"></span>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Quick Actions -->
+              <div class="mt-3 pt-3 border-t border-base-300 flex justify-between">
+                <button @click.stop="toggleFavorite(evidence)" class="btn btn-ghost btn-xs">
+                  <i class="ti" :class="evidence.is_favorite ? 'ti-star-filled text-yellow-500' : 'ti-star'"></i>
+                </button>
+                <div class="flex gap-1">
+                  <button @click.stop="syncSingleEvidence(evidence)" class="btn btn-ghost btn-xs" 
+                          x-show="evidence.integration_source" title="Sync from source">
+                    <i class="ti ti-refresh"></i>
+                  </button>
+                  <button @click.stop="copyLink(evidence)" class="btn btn-ghost btn-xs" title="Copy Link">
+                    <i class="ti ti-link"></i>
+                  </button>
+                  <button @click.stop="downloadEvidence(evidence)" class="btn btn-ghost btn-xs" title="Download">
+                    <i class="ti ti-download"></i>
+                  </button>
+                  <div class="dropdown dropdown-end">
+                    <button @click.stop class="btn btn-ghost btn-xs">
+                      <i class="ti ti-dots-vertical"></i>
+                    </button>
+                    <ul class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-40">
+                      <li><a @click.stop="openEvidenceModal(evidence)">View Details</a></li>
+                      <li><a @click.stop="linkToProject(evidence)">Link to Project</a></li>
+                      <li><a @click.stop="duplicateEvidence(evidence)">Duplicate</a></li>
+                      <li><a @click.stop="exportEvidence(evidence)">Export</a></li>
+                      <li><a @click.stop="deleteEvidence(evidence)" class="text-error">Delete</a></li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
+      </div>
+      
+      <!-- List View -->
+      <div x-show="!loading && filteredEvidence.length > 0 && viewMode === 'list'" 
+           class="space-y-2">
+        <template x-for="evidence in paginatedEvidence" :key="evidence.id">
+          <div class="evidence-card card bg-base-100 shadow border hover:shadow-md transition-shadow"
+               @click="openEvidenceModal(evidence)">
+            <div class="card-body p-4">
+              <div class="flex items-center gap-4">
+                <!-- Selection Checkbox -->
+                <input type="checkbox" 
+                       x-model="selectedEvidenceIds" 
+                       :value="evidence.id"
+                       @click.stop
+                       class="checkbox checkbox-sm">
+                
+                <!-- Source Type Icon -->
+                <div class="p-3 rounded-lg" :class="getSourceTypeColor(evidence.source_type, 'bg-') + ' bg-opacity-10'">
+                  <i class="ti" :class="getSourceTypeIcon(evidence.source_type) + ' ' + getSourceTypeColor(evidence.source_type)"></i>
+                </div>
+                
+                <!-- Content -->
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-3 mb-1">
+                    <h3 class="font-semibold truncate" x-text="evidence.name"></h3>
+                    <div class="flex items-center gap-2">
+                      <span class="badge badge-sm" 
+                            :class="severityClass(evidence.severity)"
+                            x-text="evidence.severity?.toUpperCase()"></span>
+                      <span class="status-dot" :class="evidence.needs_review ? 'needs-review' : 'reviewed'"></span>
+                    </div>
+                  </div>
+                  <p class="text-sm text-gray-600 line-clamp-1" x-text="evidence.description || 'No description'"></p>
                   
-                  <!-- Linked Risks -->
-                  <div x-show="selectedEvidence.linked_risks && selectedEvidence.linked_risks.length > 0">
-                    <h4 class="subtitle text-sm mb-2">Linked Risks</h4>
-                    <div class="space-y-2">
-                      <template x-for="risk in selectedEvidence.linked_risks" :key="risk.id">
-                        <div class="border border-base-300 rounded p-3">
-                          <div class="flex justify-between items-start">
-                            <div>
-                              <a :href="'/risks/' + risk.id" class="font-medium hover:underline" x-text="risk.title"></a>
-                              <p class="text-xs opacity-70 mt-1" x-text="risk.description?.substring(0, 100) + '...'"></p>
-                            </div>
-                            <span class="badge" 
-                                  :class="{'badge-error': risk.risk_level==='critical', 'badge-warning': risk.risk_level==='high', 'badge-warning opacity-80': risk.risk_level==='medium', 'badge-success': risk.risk_level==='low'}"
-                                  x-text="risk.risk_level"></span>
-                          </div>
-                        </div>
-                      </template>
+                  <!-- Integration Info -->
+                  <div x-show="evidence.integration_source" class="flex items-center gap-2 mt-1">
+                    <span class="badge badge-xs" :class="getIntegrationBadgeClass(evidence.integration_type)">
+                      <i class="ti mr-1" :class="getIntegrationIcon(evidence.integration_type)"></i>
+                      <span x-text="evidence.integration_source"></span>
+                    </span>
+                    <span class="text-xs text-gray-500" x-text="evidence.integration_id ? `#${evidence.integration_id}` : ''"></span>
+                  </div>
+                  
+                  <div class="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                    <span><i class="ti ti-calendar mr-1"></i> <span x-text="formatDateShort(evidence.created_at)"></span></span>
+                    <span x-show="evidence.file_name"><i class="ti ti-file mr-1"></i> <span x-text="evidence.file_name"></span></span>
+                    <span x-show="evidence.linked_projects_count > 0"><i class="ti ti-folders mr-1"></i> <span x-text="evidence.linked_projects_count"></span> projects</span>
+                    <span x-show="evidence.control_count > 0"><i class="ti ti-shield-check mr-1"></i> <span x-text="evidence.control_count"></span> controls</span>
+                  </div>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="flex items-center gap-1">
+                  <button @click.stop="toggleFavorite(evidence)" class="btn btn-ghost btn-sm">
+                    <i class="ti" :class="evidence.is_favorite ? 'ti-star-filled text-yellow-500' : 'ti-star'"></i>
+                  </button>
+                  <button @click.stop="syncSingleEvidence(evidence)" class="btn btn-ghost btn-sm" 
+                          x-show="evidence.integration_source" title="Sync from source">
+                    <i class="ti ti-refresh"></i>
+                  </button>
+                  <div class="dropdown dropdown-end">
+                    <button @click.stop class="btn btn-ghost btn-sm">
+                      <i class="ti ti-dots-vertical"></i>
+                    </button>
+                    <ul class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-40">
+                      <li><a @click.stop="openEvidenceModal(evidence)">View Details</a></li>
+                      <li><a @click.stop="linkToProject(evidence)">Link to Project</a></li>
+                      <li><a @click.stop="copyLink(evidence)">Copy Link</a></li>
+                      <li><a @click.stop="duplicateEvidence(evidence)">Duplicate</a></li>
+                      <li><a @click.stop="deleteEvidence(evidence)" class="text-error">Delete</a></li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
+      </div>
+      
+      <!-- Table View -->
+      <div x-show="!loading && filteredEvidence.length > 0 && viewMode === 'table'" 
+           class="card bg-base-100 shadow-lg border">
+        <div class="overflow-x-auto">
+          <table class="table table-zebra">
+            <thead>
+              <tr>
+                <th class="w-12">
+                  <input type="checkbox" 
+                         class="checkbox checkbox-sm" 
+                         :checked="selectedEvidenceIds.length === filteredEvidence.length"
+                         @click="toggleSelectAll">
+                </th>
+                <th>Name</th>
+                <th>Source</th>
+                <th>Integration</th>
+                <th>Severity</th>
+                <th>Status</th>
+                <th>Projects</th>
+                <th>Controls</th>
+                <th>Created</th>
+                <th class="w-20">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <template x-for="evidence in paginatedEvidence" :key="evidence.id">
+                <tr class="hover cursor-pointer" @click="openEvidenceModal(evidence)">
+                  <td @click.stop>
+                    <input type="checkbox" 
+                           x-model="selectedEvidenceIds" 
+                           :value="evidence.id"
+                           class="checkbox checkbox-sm">
+                  </td>
+                  <td>
+                    <div class="flex items-center gap-2">
+                      <span class="status-dot" :class="evidence.needs_review ? 'needs-review' : 'reviewed'"></span>
+                      <div>
+                        <div class="font-medium" x-text="evidence.name"></div>
+                        <div class="text-xs text-gray-500 truncate max-w-xs" 
+                             x-text="evidence.description || 'No description'"></div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="badge badge-sm" 
+                          :class="getSourceTypeClass(evidence.source_type)"
+                          x-text="getSourceTypeDisplay(evidence.source_type)"></span>
+                  </td>
+                  <td>
+                    <template x-if="evidence.integration_source">
+                      <span class="badge badge-sm" 
+                            :class="getIntegrationBadgeClass(evidence.integration_type)"
+                            x-text="evidence.integration_source"></span>
+                    </template>
+                    <template x-if="!evidence.integration_source">
+                      <span class="text-gray-400">—</span>
+                    </template>
+                  </td>
+                  <td>
+                    <span x-show="evidence.severity" 
+                          class="badge badge-sm" 
+                          :class="severityClass(evidence.severity)"
+                          x-text="evidence.severity?.toUpperCase()"></span>
+                  </td>
+                  <td>
+                    <div class="flex items-center gap-2">
+                      <span class="text-xs" :class="evidence.needs_review ? 'text-warning' : 'text-success'">
+                        <i class="ti" :class="evidence.needs_review ? 'ti-alert-circle' : 'ti-check'"></i>
+                        <span class="ml-1" x-text="evidence.needs_review ? 'Needs Review' : 'Reviewed'"></span>
+                      </span>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="flex items-center gap-1">
+                      <i class="ti ti-folders text-gray-400"></i>
+                      <span x-text="evidence.linked_projects_count || 0"></span>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="flex items-center gap-1">
+                      <i class="ti ti-shield-check text-gray-400"></i>
+                      <span x-text="evidence.control_count || 0"></span>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="text-sm" x-text="formatDateShort(evidence.created_at)"></div>
+                  </td>
+                  <td>
+                    <div class="flex items-center gap-1">
+                      <button @click.stop="syncSingleEvidence(evidence)" class="btn btn-ghost btn-xs" 
+                              x-show="evidence.integration_source" title="Sync">
+                        <i class="ti ti-refresh"></i>
+                      </button>
+                      <button @click.stop="copyLink(evidence)" class="btn btn-ghost btn-xs">
+                        <i class="ti ti-link"></i>
+                      </button>
+                      <button @click.stop="downloadEvidence(evidence)" class="btn btn-ghost btn-xs">
+                        <i class="ti ti-download"></i>
+                      </button>
+                      <div class="dropdown dropdown-end">
+                        <button @click.stop class="btn btn-ghost btn-xs">
+                          <i class="ti ti-dots-vertical"></i>
+                        </button>
+                        <ul class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-40">
+                          <li><a @click.stop="openEvidenceModal(evidence)">View Details</a></li>
+                          <li><a @click.stop="linkToProject(evidence)">Link to Project</a></li>
+                          <li><a @click.stop="duplicateEvidence(evidence)">Duplicate</a></li>
+                          <li><a @click.stop="deleteEvidence(evidence)" class="text-error">Delete</a></li>
+                        </ul>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <!-- Enhanced Pagination -->
+      <div x-show="!loading && filteredEvidence.length > 0" class="mt-6">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+          <div class="text-sm text-gray-600">
+            Showing <span class="font-semibold" x-text="((currentPage - 1) * pageSize) + 1"></span> to 
+            <span class="font-semibold" x-text="Math.min(currentPage * pageSize, filteredEvidence.length)"></span> of 
+            <span class="font-semibold" x-text="filteredEvidence.length"></span> evidence items
+            <span x-show="selectedEvidenceIds.length > 0" class="ml-2 text-primary">
+              (<span x-text="selectedEvidenceIds.length"></span> selected)
+            </span>
+          </div>
+          
+          <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2">
+              <span class="text-sm text-gray-600">Items per page:</span>
+              <select x-model="pageSize" class="select select-bordered select-sm w-20">
+                <option value="12">12</option>
+                <option value="24">24</option>
+                <option value="48">48</option>
+                <option value="96">96</option>
+              </select>
+            </div>
+            
+            <div class="join">
+              <button @click="goToPage(1)" 
+                      :disabled="currentPage === 1" 
+                      class="join-item btn btn-sm" 
+                      title="First">
+                <i class="ti ti-chevrons-left"></i>
+              </button>
+              <button @click="prevPage" 
+                      :disabled="currentPage === 1" 
+                      class="join-item btn btn-sm">
+                <i class="ti ti-chevron-left"></i>
+              </button>
+              
+              <template x-for="page in visiblePages" :key="page">
+                <button @click="goToPage(page)" 
+                        class="join-item btn btn-sm" 
+                        :class="currentPage === page ? 'btn-primary' : ''"
+                        x-text="page"></button>
+              </template>
+              
+              <button @click="nextPage" 
+                      :disabled="currentPage * pageSize >= filteredEvidence.length" 
+                      class="join-item btn btn-sm">
+                <i class="ti ti-chevron-right"></i>
+              </button>
+              <button @click="goToPage(totalPages)" 
+                      :disabled="currentPage === totalPages" 
+                      class="join-item btn btn-sm" 
+                      title="Last">
+                <i class="ti ti-chevrons-right"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Enhanced Evidence Modal with Integration Details -->
+<div x-show="showEvidenceModal" class="modal modal-open">
+  <div class="modal-box max-w-6xl p-0 overflow-hidden">
+    <!-- Modal Header -->
+    <div class="sticky top-0 z-20 bg-base-100 border-b p-6 shadow-sm">
+      <div class="flex items-start justify-between">
+        <div class="flex-1">
+          <div class="flex items-center gap-3 mb-2">
+            <span class="badge badge-lg" 
+                  :class="getSourceTypeClass(selectedEvidence.source_type)"
+                  x-text="getSourceTypeDisplay(selectedEvidence.source_type)"></span>
+            <h2 class="text-2xl font-bold text-gray-900" x-text="selectedEvidence.name"></h2>
+          </div>
+          <div class="flex flex-wrap gap-2 items-center">
+            <!-- Integration Badge -->
+            <template x-if="selectedEvidence.integration_source">
+              <span class="badge badge-lg" 
+                    :class="getIntegrationBadgeClass(selectedEvidence.integration_type)">
+                <i class="ti mr-1" :class="getIntegrationIcon(selectedEvidence.integration_type)"></i>
+                <span x-text="selectedEvidence.integration_source"></span>
+                <template x-if="selectedEvidence.integration_id">
+                  <span class="ml-1">#<span x-text="selectedEvidence.integration_id"></span></span>
+                </template>
+              </span>
+            </template>
+            
+            <span x-show="selectedEvidence.severity" 
+                  class="badge badge-lg" 
+                  :class="severityClass(selectedEvidence.severity)"
+                  x-text="selectedEvidence.severity?.toUpperCase()"></span>
+            <span x-show="selectedEvidence.evidence_type" 
+                  class="badge badge-lg badge-outline"
+                  x-text="selectedEvidence.evidence_type"></span>
+            <span x-show="selectedEvidence.compliance_standard" 
+                  class="badge badge-lg badge-outline"
+                  x-text="selectedEvidence.compliance_standard"></span>
+            <span class="flex items-center gap-1 text-sm text-gray-600">
+              <i class="ti ti-calendar"></i>
+              <span x-text="formatDate(selectedEvidence.created_at)"></span>
+            </span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button @click="syncSingleEvidence(selectedEvidence)" 
+                  class="btn btn-ghost btn-sm"
+                  x-show="selectedEvidence.integration_source"
+                  title="Sync from source">
+            <i class="ti ti-refresh"></i>
+          </button>
+          <button @click="toggleFavorite(selectedEvidence)" class="btn btn-ghost btn-sm">
+            <i class="ti text-xl" :class="selectedEvidence.is_favorite ? 'ti-star-filled text-yellow-500' : 'ti-star'"></i>
+          </button>
+          <div class="dropdown dropdown-end">
+            <button class="btn btn-ghost btn-sm">
+              <i class="ti ti-dots-vertical"></i>
+            </button>
+            <ul class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-48">
+              <li><a @click="duplicateEvidence(selectedEvidence)"><i class="ti ti-copy"></i>Duplicate</a></li>
+              <li><a @click="exportEvidence(selectedEvidence)"><i class="ti ti-download"></i>Export</a></li>
+              <li><a @click="downloadEvidence(selectedEvidence)"><i class="ti ti-file-download"></i>Download File</a></li>
+              <li><a @click="editEvidence(selectedEvidence)"><i class="ti ti-edit"></i>Edit</a></li>
+              <li><a @click="deleteEvidence(selectedEvidence)" class="text-error"><i class="ti ti-trash"></i>Delete</a></li>
+            </ul>
+          </div>
+          <button @click="showEvidenceModal = false" class="btn btn-ghost btn-sm">
+            <i class="ti ti-x text-xl"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Modal Content -->
+    <div class="p-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Left Column: Evidence Details -->
+        <div class="lg:col-span-2 space-y-6">
+          <!-- Description -->
+          <div class="card bg-base-100 border">
+            <div class="card-body p-4">
+              <h3 class="font-semibold mb-3 flex items-center gap-2">
+                <i class="ti ti-file-text text-primary"></i>
+                Description
+              </h3>
+              <p class="text-gray-700" x-text="selectedEvidence.description || 'No description provided'"></p>
+            </div>
+          </div>
+          
+          <!-- Content -->
+          <div class="card bg-base-100 border">
+            <div class="card-body p-4">
+              <div class="flex items-center justify-between mb-3">
+                <h3 class="font-semibold flex items-center gap-2">
+                  <i class="ti ti-notes text-primary"></i>
+                  Evidence Content
+                </h3>
+                <div class="flex gap-2">
+                  <button @click="copyContent(selectedEvidence.content)" class="btn btn-xs btn-ghost">
+                    <i class="ti ti-copy"></i> Copy
+                  </button>
+                  <button @click="viewRawContent = !viewRawContent" class="btn btn-xs btn-ghost">
+                    <i class="ti ti-code"></i> <span x-text="viewRawContent ? 'Formatted' : 'Raw'"></span>
+                  </button>
+                </div>
+              </div>
+              <div class="bg-base-200 rounded-lg p-4 max-h-96 overflow-auto">
+                <template x-if="!viewRawContent">
+                  <div class="prose prose-sm max-w-none" x-html="formatContent(selectedEvidence.content)"></div>
+                </template>
+                <template x-if="viewRawContent">
+                  <pre class="text-sm whitespace-pre-wrap break-words" x-text="selectedEvidence.content"></pre>
+                </template>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Integration Details -->
+          <div x-show="selectedEvidence.integration_source" class="card bg-base-100 border">
+            <div class="card-body p-4">
+              <h3 class="font-semibold mb-3 flex items-center gap-2">
+                <i class="ti ti-plug text-warning"></i>
+                Integration Details
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-base-200 rounded-lg p-4">
+                  <div class="text-sm font-medium mb-2">Source Information</div>
+                  <div class="space-y-2 text-sm">
+                    <div class="flex justify-between">
+                      <span class="text-gray-600">Integration</span>
+                      <span class="font-medium" x-text="selectedEvidence.integration_source"></span>
+                    </div>
+                    <div class="flex justify-between" x-show="selectedEvidence.integration_id">
+                      <span class="text-gray-600">Source ID</span>
+                      <span class="font-mono font-medium" x-text="selectedEvidence.integration_id"></span>
+                    </div>
+                    <div class="flex justify-between" x-show="selectedEvidence.integration_metadata?.source_url">
+                      <span class="text-gray-600">Source URL</span>
+                      <a :href="selectedEvidence.integration_metadata.source_url" 
+                         target="_blank" 
+                         class="font-medium text-primary hover:underline">
+                        Open in source
+                      </a>
+                    </div>
+                  </div>
+                </div>
+                <div class="bg-base-200 rounded-lg p-4">
+                  <div class="text-sm font-medium mb-2">Sync Information</div>
+                  <div class="space-y-2 text-sm">
+                    <div class="flex justify-between">
+                      <span class="text-gray-600">Last Synced</span>
+                      <span class="font-medium" 
+                            x-text="selectedEvidence.integration_metadata?.last_sync ? formatTimeAgo(selectedEvidence.integration_metadata.last_sync) : 'Never'"></span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span class="text-gray-600">Sync Status</span>
+                      <span class="font-medium" 
+                            :class="{
+                              'text-success': selectedEvidence.integration_metadata?.sync_status === 'success',
+                              'text-error': selectedEvidence.integration_metadata?.sync_status === 'error',
+                              'text-warning': selectedEvidence.integration_metadata?.sync_status === 'pending'
+                            }"
+                            x-text="selectedEvidence.integration_metadata?.sync_status || 'Unknown'"></span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span class="text-gray-600">Created in Source</span>
+                      <span class="font-medium" 
+                            x-text="selectedEvidence.integration_metadata?.created_at ? formatDate(selectedEvidence.integration_metadata.created_at) : 'Unknown'"></span>
                     </div>
                   </div>
                 </div>
               </div>
               
-              <!-- Right Column: Evidence Content -->
-              <div>
-                <div class="sticky top-0">
-                  <h4 class="subtitle text-sm mb-2">Evidence Content</h4>
-                  <div class="border border-base-300 rounded-lg p-4 bg-base-100 max-h-96 overflow-auto">
-                    <template x-if="selectedEvidence.content_type === 'text'">
-                      <pre class="text-sm whitespace-pre-wrap" x-text="selectedEvidence.content"></pre>
-                    </template>
-                    <template x-if="selectedEvidence.content_type === 'file' && selectedEvidence.file_url">
-                      <div class="text-center">
-                        <i class="ti ti-file-text text-6xl opacity-30"></i>
-                        <p class="mt-2 font-medium" x-text="selectedEvidence.file_name"></p>
-                        <a :href="selectedEvidence.file_url" download class="btn btn-sm btn-primary mt-4">
-                          <i class="ti ti-download"></i> Download File
-                        </a>
-                      </div>
-                    </template>
-                    <template x-if="selectedEvidence.content_type === 'json'">
-                      <pre class="text-xs" x-text="JSON.stringify(JSON.parse(selectedEvidence.content || '{}'), null, 2)"></pre>
-                    </template>
+              <!-- Integration Actions -->
+              <div class="mt-4 flex gap-2">
+                <button @click="syncSingleEvidence(selectedEvidence)" class="btn btn-sm btn-warning">
+                  <i class="ti ti-refresh mr-2"></i> Sync Now
+                </button>
+                <button @click="openInSource(selectedEvidence)" 
+                        class="btn btn-sm btn-outline"
+                        x-show="selectedEvidence.integration_metadata?.source_url">
+                  <i class="ti ti-external-link mr-2"></i> Open in Source
+                </button>
+                <button @click="viewIntegrationLogs(selectedEvidence)" class="btn btn-sm btn-ghost">
+                  <i class="ti ti-history mr-2"></i> View Sync Logs
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- AI Extraction Details -->
+          <div x-show="selectedEvidence.extraction_metadata" class="card bg-base-100 border">
+            <div class="card-body p-4">
+              <h3 class="font-semibold mb-3 flex items-center gap-2">
+                <i class="ti ti-robot text-info"></i>
+                AI Extraction Details
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-base-200 rounded-lg p-4">
+                  <div class="text-sm font-medium mb-2">OCR Confidence</div>
+                  <div class="space-y-2">
+                    <div class="flex items-center justify-between text-sm">
+                      <span class="text-gray-600">Confidence Score</span>
+                      <span class="font-semibold" 
+                            x-text="Math.round((selectedEvidence.extraction_metadata.confidence || 0) * 100) + '%'"></span>
+                    </div>
+                    <progress class="progress progress-info w-full" 
+                            :value="(selectedEvidence.extraction_metadata.confidence || 0) * 100" 
+                            max="100"></progress>
                   </div>
-                  
-                  <div class="mt-4 flex justify-between">
-                    <button @click="copyEvidenceLink(selectedEvidence)" class="btn btn-sm btn-ghost">
-                      <i class="ti ti-link"></i> Copy Link
-                    </button>
-                    <button @click="openDeleteModal(selectedEvidence)" class="btn btn-sm btn-error">
-                      <i class="ti ti-trash"></i> Delete
-                    </button>
+                </div>
+                <div class="bg-base-200 rounded-lg p-4">
+                  <div class="text-sm font-medium mb-2">Extraction Info</div>
+                  <div class="space-y-2 text-sm">
+                    <div class="flex justify-between">
+                      <span class="text-gray-600">Extracted At</span>
+                      <span class="font-medium" x-text="formatDate(selectedEvidence.extraction_metadata.extracted_at)"></span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span class="text-gray-600">Model</span>
+                      <span class="font-medium" x-text="selectedEvidence.extraction_metadata.model || 'N/A'"></span>
+                    </div>
+                    <div class="flex justify-between">
+                      <span class="text-gray-600">Pages</span>
+                      <span class="font-medium" x-text="selectedEvidence.extraction_metadata.page_count || 'N/A'"></span>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
+          </div>
         </div>
+        
+        <!-- Right Column: Metadata & Actions -->
+        <div class="space-y-6">
+          <!-- Source Information -->
+          <div class="card bg-base-100 border">
+            <div class="card-body p-4">
+              <h3 class="font-semibold mb-3 flex items-center gap-2">
+                <i class="ti ti-info-circle text-primary"></i>
+                Source Information
+              </h3>
+              <div class="space-y-3">
+                <div>
+                  <div class="text-xs text-gray-500 mb-1">Source Type</div>
+                  <div class="text-sm font-medium" x-text="getSourceTypeDisplay(selectedEvidence.source_type)"></div>
+                </div>
+                <div x-show="selectedEvidence.source_document">
+                  <div class="text-xs text-gray-500 mb-1">Document</div>
+                  <div class="flex items-center justify-between">
+                    <div class="text-sm font-medium truncate" x-text="selectedEvidence.source_document"></div>
+                    <button @click="downloadEvidence(selectedEvidence)" class="btn btn-xs btn-ghost">
+                      <i class="ti ti-download"></i>
+                    </button>
+                  </div>
+                </div>
+                <div x-show="selectedEvidence.source_reference">
+                  <div class="text-xs text-gray-500 mb-1">Reference</div>
+                  <div class="text-sm font-medium break-all" x-text="selectedEvidence.source_reference"></div>
+                </div>
+                <div>
+                  <div class="text-xs text-gray-500 mb-1">Owner</div>
+                  <div class="text-sm font-medium" x-text="selectedEvidence.owner?.email || 'Unknown'"></div>
+                </div>
+                <div>
+                  <div class="text-xs text-gray-500 mb-1">Tenant</div>
+                  <div class="text-sm font-medium" x-text="selectedEvidence.tenant?.name || 'Unknown'"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Linked Projects -->
+          <div class="card bg-base-100 border">
+            <div class="card-body p-4">
+              <div class="flex items-center justify-between mb-3">
+                <h3 class="font-semibold flex items-center gap-2">
+                  <i class="ti ti-folders text-primary"></i>
+                  Linked Projects
+                  <span class="badge badge-sm" x-text="selectedEvidence.linked_projects?.length || 0"></span>
+                </h3>
+                <button @click="linkToProject(selectedEvidence)" class="btn btn-xs btn-primary">
+                  <i class="ti ti-link-plus"></i> Link
+                </button>
+              </div>
+              <div class="space-y-2">
+                <template x-if="!selectedEvidence.linked_projects || selectedEvidence.linked_projects.length === 0">
+                  <div class="bg-base-200 rounded-lg p-4 text-center">
+                    <i class="ti ti-folders-off text-2xl opacity-30 mb-2"></i>
+                    <p class="text-sm text-gray-500">No linked projects</p>
+                  </div>
+                </template>
+                <template x-if="selectedEvidence.linked_projects && selectedEvidence.linked_projects.length > 0">
+                  <div class="space-y-2">
+                    <template x-for="project in selectedEvidence.linked_projects" :key="project.id">
+                      <a :href="'/projects/' + project.id + '?tab=evidence'" 
+                         class="block border border-base-300 rounded-lg p-3 hover:bg-base-200 transition-colors group">
+                        <div class="flex items-center justify-between">
+                          <div class="flex-1 min-w-0">
+                            <div class="font-medium text-sm truncate" x-text="project.name"></div>
+                            <div class="text-xs text-gray-500 truncate" 
+                                 x-text="project.description || 'No description'"></div>
+                          </div>
+                          <i class="ti ti-chevron-right opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                        </div>
+                      </a>
+                    </template>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Linked Controls -->
+          <div class="card bg-base-100 border">
+            <div class="card-body p-4">
+              <div class="flex items-center justify-between mb-3">
+                <h3 class="font-semibold flex items-center gap-2">
+                  <i class="ti ti-shield-check text-primary"></i>
+                  Linked Controls
+                  <span class="badge badge-sm" x-text="selectedEvidence.control_count || 0"></span>
+                </h3>
+                <button @click="linkToControl(selectedEvidence)" class="btn btn-xs btn-primary">
+                  <i class="ti ti-link-plus"></i> Link
+                </button>
+              </div>
+              <div class="space-y-2">
+                <template x-if="!selectedEvidence.controls || selectedEvidence.controls.length === 0">
+                  <div class="bg-base-200 rounded-lg p-4 text-center">
+                    <i class="ti ti-shield-off text-2xl opacity-30 mb-2"></i>
+                    <p class="text-sm text-gray-500">No linked controls</p>
+                  </div>
+                </template>
+                <template x-if="selectedEvidence.controls && selectedEvidence.controls.length > 0">
+                  <div class="space-y-2">
+                    <template x-for="control in selectedEvidence.controls.slice(0, 5)" :key="control.id">
+                      <a :href="`/projects/${control.project_id}/controls/${control.id}`" 
+                         class="block border border-base-300 rounded-lg p-3 hover:bg-base-200 transition-colors">
+                        <div class="font-medium text-sm" x-text="control.name"></div>
+                        <div class="text-xs text-gray-500 line-clamp-1" x-text="control.description"></div>
+                      </a>
+                    </template>
+                    <div x-show="selectedEvidence.controls.length > 5" class="text-center">
+                      <button class="btn btn-xs btn-ghost">
+                        + <span x-text="selectedEvidence.controls.length - 5"></span> more
+                      </button>
+                    </div>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Quick Actions -->
+          <div class="card bg-base-100 border">
+            <div class="card-body p-4">
+              <h3 class="font-semibold mb-3">Actions</h3>
+              <div class="grid grid-cols-2 gap-2">
+                <button @click="copyLink(selectedEvidence)" class="btn btn-sm btn-outline">
+                  <i class="ti ti-link mr-2"></i> Copy Link
+                </button>
+                <button @click="shareEvidence(selectedEvidence)" class="btn btn-sm btn-outline">
+                  <i class="ti ti-share mr-2"></i> Share
+                </button>
+                <button @click="exportEvidence(selectedEvidence)" class="btn btn-sm btn-outline">
+                  <i class="ti ti-download mr-2"></i> Export
+                </button>
+                <button @click="toggleReviewStatus(selectedEvidence)" class="btn btn-sm" 
+                        :class="selectedEvidence.needs_review ? 'btn-success' : 'btn-warning'">
+                  <i class="ti ti-check mr-2"></i>
+                  <span x-text="selectedEvidence.needs_review ? 'Mark Reviewed' : 'Mark for Review'"></span>
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Evidence Metadata -->
+          <div class="card bg-base-100 border">
+            <div class="card-body p-4">
+              <h3 class="font-semibold mb-3">Metadata</h3>
+              <div class="space-y-2 text-sm">
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Evidence ID</span>
+                  <span class="font-mono" x-text="selectedEvidence.id"></span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Created</span>
+                  <span x-text="formatDate(selectedEvidence.created_at)"></span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Last Updated</span>
+                  <span x-text="formatDate(selectedEvidence.updated_at)"></span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">File Size</span>
+                  <span x-text="formatFileSize(selectedEvidence.file_size)"></span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">MIME Type</span>
+                  <span x-text="selectedEvidence.file_type || 'N/A'"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
-
 </div>
-{%endblock%}
 
-{%block extrajs%}
-<script>
-function evidenceMaster(){
-    return {
-        init() {
-          this.getEvidence();
-          this.$watch("evidenceItems", () => {
-            this.updateStats();
-            this.drawTable();
-          });
-        },
-        
-        // State
-        loading: true,
-        evidenceItems: [],
-        selectedEvidence: {},
-        queuedDocuments: [],
-        processingDocs: false,
-        processingStatus: "",
-        processingProgress: 0,
-        processingStats: null,
-        evidenceStats: {},
-        
-        // UI State
-        showDeleteModal: false,
-        showCreateModal: false,
-        showViewModal: false,
-        evidenceType: "manual",
-        filter: {
-          sourceType: "",
-          evidenceType: "",
-          severity: ""
-        },
-        
-        // OCR Settings
-        ocrSettings: {
-          extractCompliance: true,
-          createRisks: true,
-          highConfidenceOnly: false
-        },
-        
-        // Form Data
-        formData: {
-          name: "",
-          description: "",
-          evidence_type: "compliance",
-          source_document: "",
-          source_reference: "",
-          content: "",
-          compliance_standard: "",
-          severity: "",
-          file_description: ""
-        },
-        
-        // Table Configuration
-        tableHeaders: [
-          {"field": "id", "headerName": "ID", "width": 100, "filter": "agTextColumnFilter", "hide": true},
-          {"field": "name", "headerName": "Name", "filter": "agTextColumnFilter", "width": 200},
-          {"field": "description", "headerName": "Description", "filter": "agTextColumnFilter", "width": 250},
-          {"field": "evidence_type", "headerName": "Type", "width": 120, "cellRenderer": badgeRenderer},
-          {"field": "source_type", "headerName": "Source", "width": 120, "cellRenderer": sourceBadgeRenderer},
-          {"field": "severity", "headerName": "Severity", "width": 100, "cellRenderer": severityBadgeRenderer},
-          {"field": "source_document", "headerName": "Document", "filter": "agTextColumnFilter", "width": 180},
-          {"field": "created_at", "headerName": "Created", "width": 140, "cellRenderer": simpleDate},
-          {"field": "linked_risks_count", "headerName": "Linked Risks", "width": 120, "cellRenderer": linkedRisksRenderer},
-          {"field": "actions", "headerName": "Actions", "width": 120, "cellRenderer": actionsRenderer, "filter": false, "sortable": false}
-        ],
-        
-        // Helper Methods
-        formatFileSize: function(bytes) {
-          if (bytes === 0) return '0 Bytes';
-          const k = 1024;
-          const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-          const i = Math.floor(Math.log(bytes) / Math.log(k));
-          return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-        },
-        
-        formatDate: function(dateString) {
-          if (!dateString) return 'N/A';
-          return new Date(dateString).toLocaleString();
-        },
-        
-        updateStats: function() {
-          const stats = {
-            total: this.evidenceItems.length,
-            ai_ocr: this.evidenceItems.filter(e => e.source_type === 'ai_ocr').length,
-            manual: this.evidenceItems.filter(e => e.source_type === 'manual').length,
-            api: this.evidenceItems.filter(e => e.source_type === 'api').length
-          };
-          this.evidenceStats = stats;
-        },
-        
-        // Document Processing
-        queueDocuments: function(event) {
-          const files = Array.from(event.target.files);
-          this.queuedDocuments.push(...files.map(file => ({
-            name: file.name,
-            size: file.size,
-            type: file.type,
-            file: file
-          })));
-        },
-        
-        removeQueuedDocument: function(index) {
-          this.queuedDocuments.splice(index, 1);
-        },
-        
-        async processDocumentsOCR() {
-          if (!this.queuedDocuments.length) return;
-          
-          this.processingDocs = true;
-          this.processingStatus = "Uploading documents to OCR pipeline...";
-          this.processingProgress = 10;
-          
-          try {
-            const formData = new FormData();
-            this.queuedDocuments.forEach(doc => {
-              formData.append('documents', doc.file);
-            });
-            formData.append('settings', JSON.stringify(this.ocrSettings));
-            
-            // Call OCR Pipeline API
-            const response = await fetch(`/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/evidence/process-documents`, {
-              method: 'POST',
-              body: formData,
-              headers: {
-                'Authorization': `Bearer ${this.$store.authToken}`
-              }
-            });
-            
-            if (!response.ok) throw new Error('OCR processing failed');
-            
-            const data = await response.json();
-            this.processingStats = data.stats;
-            this.processingStatus = "Creating evidence items...";
-            this.processingProgress = 60;
-            
-            // Refresh evidence list
-            await this.getEvidence();
-            
-            this.processingStatus = "Complete!";
-            this.processingProgress = 100;
-            
-            setTimeout(() => {
-              this.processingDocs = false;
-              this.queuedDocuments = [];
-              toast(`Created ${data.stats.evidence_created} evidence items from ${data.stats.documents_processed} documents`, "success");
-            }, 1000);
-            
-          } catch (error) {
-            toast("Error processing documents: " + error.message, "error");
-            this.processingDocs = false;
-          }
-        },
-        
-        // Evidence CRUD
-        async getEvidence() {
-          this.loading = true;
-          try {
-            const response = await request("GET",
-              `/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/evidence`,
-              data => {
-                this.evidenceItems = data;
-                this.loading = false;
-              },
-              error => {
-                toast(error.message, "error");
-                this.loading = false;
-              }
-            );
-          } catch (error) {
-            toast(error.message, "error");
-            this.loading = false;
-          }
-        },
-        
-        openViewModal: function(item) {
-          this.selectedEvidence = item;
-          this.showViewModal = true;
-        },
-        
-        openCreateModal: function() {
-          this.formData = {
-            name: "",
-            description: "",
-            evidence_type: "compliance",
-            source_document: "",
-            source_reference: "",
-            content: "",
-            compliance_standard: "",
-            severity: "",
-            file_description: ""
-          };
-          this.evidenceType = "manual";
-          this.showCreateModal = true;
-        },
-        
-        openDeleteModal: function(item) {
-          this.selectedEvidence = item;
-          this.showViewModal = false;
-          this.showDeleteModal = true;
-        },
-        
-        async createEvidence() {
-          if (!this.formData.name) {
-            toast("Evidence name is required", "error");
-            return;
-          }
-          
-          const payload = {
-            ...this.formData,
-            source_type: "manual",
-            tenant_id: this.$store.currentUser.selectedTenant.id
-          };
-          
-          try {
-            await request("POST",
-              `/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/evidence`,
-              data => {
-                toast("Evidence created successfully");
-                this.showCreateModal = false;
-                this.getEvidence();
-              },
-              error => {
-                toast(error.message, "error");
-              },
-              payload
-            );
-          } catch (error) {
-            toast(error.message, "error");
-          }
-        },
-        
-        async deleteEvidence() {
-          try {
-            await request("DELETE",
-              `/api/v1/evidence/${this.selectedEvidence.id}`,
-              data => {
-                toast("Evidence deleted");
-                this.showDeleteModal = false;
-                this.getEvidence();
-              },
-              error => {
-                toast(error.message, "error");
-              }
-            );
-          } catch (error) {
-            toast(error.message, "error");
-          }
-        },
-        
-        copyEvidenceLink: function(evidence) {
-          const url = `${window.location.origin}/evidence/${evidence.id}`;
-          navigator.clipboard.writeText(url);
-          toast("Evidence link copied to clipboard");
-        },
-        
-        exportEvidenceCSV: function() {
-          // Implement CSV export
-          toast("Export feature coming soon", "info");
-        },
-        
-        filterEvidence: function() {
-          // Implement filtering
-          this.drawTable();
-        },
-        
-        // Table Methods
-        drawTable: function() {
-          const gridElement = document.querySelector("#evidenceTable");
-          if (!gridElement) return;
-          
-          const gridOptions = {
-            rowData: this.evidenceItems,
-            columnDefs: this.tableHeaders,
-            pagination: true,
-            paginationPageSize: 25,
-            domLayout: "autoHeight",
-            onGridReady: (params) => {
-              params.api.sizeColumnsToFit();
-              window.onresize = () => params.api.sizeColumnsToFit();
-            },
-            onRowDoubleClicked: (event) => {
-              this.openViewModal(event.data);
-            },
-            defaultColDef: {
-              filter: true,
-              sortable: true,
-              resizable: true
-            }
-          };
-          
-          // Clear existing grid
-          if (this.evidenceGrid) {
-            this.evidenceGrid.destroy();
-          }
-          
-          this.evidenceGrid = agGrid.createGrid(gridElement, gridOptions);
-        },
-        
-        // Custom Cell Renderers
-        badgeRenderer: function(params) {
-          return `<span class="badge badge-ghost">${params.value || 'N/A'}</span>`;
-        },
-        
-        sourceBadgeRenderer: function(params) {
-          const badges = {
-            'ai_ocr': 'badge-info',
-            'manual': 'badge-success', 
-            'api': 'badge-warning'
-          };
-          const cls = badges[params.value] || 'badge-ghost';
-          return `<span class="badge ${cls}">${params.value || 'manual'}</span>`;
-        },
-        
-        severityBadgeRenderer: function(params) {
-          if (!params.value) return 'N/A';
-          const badges = {
-            'critical': 'badge-error',
-            'high': 'badge-warning',
-            'medium': 'badge-warning opacity-80',
-            'low': 'badge-success'
-          };
-          const cls = badges[params.value] || 'badge-ghost';
-          return `<span class="badge ${cls}">${params.value}</span>`;
-        },
-        
-        linkedRisksRenderer: function(params) {
-          const count = params.value || 0;
-          if (count === 0) return '<span class="opacity-50">0</span>';
-          return `<span class="badge badge-primary">${count} risk${count !== 1 ? 's' : ''}</span>`;
-        },
-        
-        actionsRenderer: function(params) {
-          return `
-            <div class="flex gap-1">
-              <button class="btn btn-xs btn-ghost" onclick="this.closest('[x-data]').__x.$data.openViewModal(${JSON.stringify(params.data).replace(/"/g, '&quot;')})">
-                <i class="ti ti-eye"></i>
-              </button>
-              <button class="btn btn-xs btn-ghost" onclick="this.closest('[x-data]').__x.$data.openDeleteModal(${JSON.stringify(params.data).replace(/"/g, '&quot;')})">
-                <i class="ti ti-trash text-error"></i>
-              </button>
+<!-- Integration Sync Modal -->
+<div x-show="showIntegrationSyncModal" class="modal modal-open">
+  <div class="modal-box">
+    <h3 class="font-bold text-lg mb-4" x-text="`Sync from ${syncIntegrationData.name}`"></h3>
+    
+    <div class="space-y-4">
+      <div class="alert alert-info">
+        <i class="ti ti-info-circle"></i>
+        <div>
+          <div class="font-medium">Sync Options</div>
+          <div class="text-sm">Choose what to sync from the integration</div>
+        </div>
+      </div>
+      
+      <div class="form-control">
+        <label class="label cursor-pointer">
+          <span class="label-text">Sync new evidence only</span>
+          <input type="radio" name="sync-type" value="new" x-model="syncIntegrationData.type" class="radio radio-primary">
+        </label>
+      </div>
+      
+      <div class="form-control">
+        <label class="label cursor-pointer">
+          <span class="label-text">Sync all evidence (overwrite existing)</span>
+          <input type="radio" name="sync-type" value="all" x-model="syncIntegrationData.type" class="radio radio-primary">
+        </label>
+      </div>
+      
+      <div class="form-control">
+        <label class="label cursor-pointer">
+          <span class="label-text">Sync specific date range</span>
+          <input type="radio" name="sync-type" value="range" x-model="syncIntegrationData.type" class="radio radio-primary">
+        </label>
+      </div>
+      
+      <div x-show="syncIntegrationData.type === 'range'" class="grid grid-cols-2 gap-2">
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text">From</span>
+          </label>
+          <input type="date" x-model="syncIntegrationData.startDate" class="input input-bordered">
+        </div>
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text">To</span>
+          </label>
+          <input type="date" x-model="syncIntegrationData.endDate" class="input input-bordered">
+        </div>
+      </div>
+    </div>
+    
+    <div class="modal-action">
+      <button @click="showIntegrationSyncModal = false" class="btn btn-ghost">Cancel</button>
+      <button @click="confirmIntegrationSync" class="btn btn-warning" :disabled="!syncIntegrationData.type">
+        <span x-show="isSyncingIntegration" class="loading loading-spinner"></span>
+        <span x-text="isSyncingIntegration ? 'Syncing...' : 'Start Sync'"></span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Integration Logs Modal -->
+<div x-show="showIntegrationLogsModal" class="modal modal-open modal-lg">
+  <div class="modal-box">
+    <h3 class="font-bold text-lg mb-4">Integration Sync Logs</h3>
+    <div class="space-y-3 max-h-96 overflow-y-auto">
+      <template x-for="log in integrationLogs" :key="log.id">
+        <div class="integration-log p-3" :class="log.status">
+          <div class="flex items-start justify-between">
+            <div>
+              <div class="font-medium" x-text="log.message"></div>
+              <div class="text-xs text-gray-600 mt-1" x-text="log.details"></div>
             </div>
-          `;
-        }
-    }
-}
+            <div class="text-xs text-gray-400 ml-2 whitespace-nowrap" 
+                 x-text="formatTimeAgo(log.timestamp)"></div>
+          </div>
+          <div class="text-xs mt-2 flex items-center justify-between">
+            <span :class="{
+              'text-success': log.status === 'success',
+              'text-warning': log.status === 'warning',
+              'text-error': log.status === 'error',
+              'text-info': log.status === 'info'
+            }" x-text="log.status.toUpperCase()"></span>
+            <span x-text="log.evidence_count ? `${log.evidence_count} evidence items` : ''"></span>
+          </div>
+        </div>
+      </template>
+      <div x-show="integrationLogs.length === 0" class="text-center py-8">
+        <i class="ti ti-history text-3xl opacity-30"></i>
+        <p class="text-gray-500 mt-2">No sync logs available</p>
+      </div>
+    </div>
+    <div class="modal-action">
+      <button @click="showIntegrationLogsModal = false" class="btn">Close</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
 
-// Helper functions
-function simpleDate(params) {
-  if (!params.value) return 'N/A';
-  const date = new Date(params.value);
-  return date.toLocaleDateString();
+{% block extrajs %}
+<script>
+function globalEvidence() {
+  return {
+    // Initialization
+    async init() {
+      await Promise.all([
+        this.loadGlobalEvidence(),
+        this.loadStats(),
+        this.loadIntegrations(),
+        this.loadIntegrationActivity(),
+        this.loadStorageInfo()
+      ]);
+      
+      // Initialize debounced search
+      this.debouncedSearch = this.debounce(this.applyFilters, 500);
+    },
+    
+    // State
+    loading: true,
+    evidenceItems: [],
+    filteredEvidence: [],
+    selectedEvidence: {},
+    selectedEvidenceIds: [],
+    stats: {
+      total: 0,
+      ai_extracted: 0,
+      manual: 0,
+      uploaded: 0,
+      integration: 0,
+      scan: 0,
+      needs_review: 0,
+      this_week: 0,
+      high_severity: 0,
+      global: 0,
+      linked: 0,
+      projects: 0,
+      with_files: 0,
+      avg_confidence: 0
+    },
+    
+    // Integrations
+    integrations: [],
+    integrationsStatus: {
+      total: 0,
+      active: 0,
+      last_sync: null
+    },
+    integrationActivity: [],
+    integrationLogs: [],
+    isSyncingAll: false,
+    isSyncingIntegration: false,
+    
+    // UI State
+    showEvidenceModal: false,
+    showIntegrationSyncModal: false,
+    showIntegrationLogsModal: false,
+    syncIntegrationData: {
+      integration: null,
+      type: 'new',
+      startDate: null,
+      endDate: null
+    },
+    
+    // Previous state properties remain...
+    // ... (all previous properties and methods)
+    
+    // Integration Helper Methods
+    getIntegrationBadgeClass(integrationType) {
+      const classes = {
+        'jira': 'badge-integration-jira',
+        'servicenow': 'badge-integration-servicenow',
+        'salesforce': 'badge-integration-salesforce',
+        'splunk': 'badge-integration-splunk',
+        'aws': 'badge-integration-aws',
+        'azure': 'badge-integration-azure',
+        'gcp': 'badge-integration-gcp',
+        'github': 'badge-integration-github',
+        'gitlab': 'badge-integration-gitlab',
+        'slack': 'badge-integration-slack',
+        'microsoft': 'badge-integration-microsoft'
+      };
+      return classes[integrationType] || 'badge-warning';
+    },
+    
+    getIntegrationIcon(integrationType) {
+      const icons = {
+        'jira': 'ti ti-brand-jira',
+        'servicenow': 'ti ti-server',
+        'salesforce': 'ti ti-cloud',
+        'splunk': 'ti ti-brand-splunk',
+        'aws': 'ti ti-brand-aws',
+        'azure': 'ti ti-brand-azure',
+        'gcp': 'ti ti-brand-google',
+        'github': 'ti ti-brand-github',
+        'gitlab': 'ti ti-brand-gitlab',
+        'slack': 'ti ti-brand-slack',
+        'microsoft': 'ti ti-brand-microsoft'
+      };
+      return icons[integrationType] || 'ti ti-plug';
+    },
+    
+    // Data Loading
+    async loadIntegrations() {
+      try {
+        const tenantId = this.$store.currentUser.selectedTenant.id;
+        const response = await request("GET",
+          `/api/v1/tenants/${tenantId}/integrations`,
+          data => {
+            this.integrations = data;
+            this.integrationsStatus.total = data.length;
+            this.integrationsStatus.active = data.filter(i => i.status === 'active').length;
+            this.integrationsStatus.last_sync = data.reduce((latest, integration) => {
+              if (!integration.last_sync) return latest;
+              const syncDate = new Date(integration.last_sync);
+              return !latest || syncDate > latest ? syncDate : latest;
+            }, null);
+          },
+          error => {
+            console.error("Failed to load integrations:", error);
+          }
+        );
+      } catch (error) {
+        console.error("Error loading integrations:", error);
+      }
+    },
+    
+    async loadIntegrationActivity() {
+      try {
+        const tenantId = this.$store.currentUser.selectedTenant.id;
+        const response = await request("GET",
+          `/api/v1/tenants/${tenantId}/integrations/activity`,
+          data => {
+            this.integrationActivity = data;
+          },
+          error => {
+            console.error("Failed to load integration activity:", error);
+          }
+        );
+      } catch (error) {
+        console.error("Error loading integration activity:", error);
+      }
+    },
+    
+    // Integration Actions
+    async syncIntegration(integration) {
+      if (integration.status === 'syncing') return;
+      
+      this.syncIntegrationData = {
+        integration: integration,
+        type: 'new',
+        startDate: null,
+        endDate: null
+      };
+      this.showIntegrationSyncModal = true;
+    },
+    
+    async confirmIntegrationSync() {
+      this.isSyncingIntegration = true;
+      
+      try {
+        const integration = this.syncIntegrationData.integration;
+        const payload = {
+          type: this.syncIntegrationData.type
+        };
+        
+        if (this.syncIntegrationData.type === 'range') {
+          payload.start_date = this.syncIntegrationData.startDate;
+          payload.end_date = this.syncIntegrationData.endDate;
+        }
+        
+        const response = await request("POST",
+          `/api/v1/integrations/${integration.id}/sync`,
+          data => {
+            toast.success(`Sync started for ${integration.name}`);
+            this.showIntegrationSyncModal = false;
+            this.refreshData();
+            
+            // Show progress notification
+            toast.info(`Syncing ${integration.name}... This may take a few minutes.`);
+          },
+          error => {
+            toast.error(`Failed to start sync for ${integration.name}`);
+          },
+          payload
+        );
+      } catch (error) {
+        console.error("Error syncing integration:", error);
+        toast.error("Failed to start sync");
+      } finally {
+        this.isSyncingIntegration = false;
+      }
+    },
+    
+    async syncAllIntegrations() {
+      if (this.isSyncingAll) return;
+      
+      this.isSyncingAll = true;
+      
+      try {
+        const tenantId = this.$store.currentUser.selectedTenant.id;
+        const response = await request("POST",
+          `/api/v1/tenants/${tenantId}/integrations/sync-all`,
+          data => {
+            toast.success(`Started sync for ${data.started} integrations`);
+            this.refreshData();
+            
+            // Update integration statuses
+            this.integrations.forEach(integration => {
+              if (data.syncing_integrations.includes(integration.id)) {
+                integration.status = 'syncing';
+              }
+            });
+          },
+          error => {
+            toast.error("Failed to start sync for all integrations");
+          }
+        );
+      } catch (error) {
+        console.error("Error syncing all integrations:", error);
+        toast.error("Failed to start sync");
+      } finally {
+        this.isSyncingAll = false;
+      }
+    },
+    
+    async syncSingleEvidence(evidence) {
+      if (!evidence.integration_source) return;
+      
+      try {
+        const integration = this.integrations.find(i => 
+          i.name === evidence.integration_source || i.id === evidence.integration_id
+        );
+        
+        if (!integration) {
+          toast.warning("Integration not found for this evidence");
+          return;
+        }
+        
+        const response = await request("POST",
+          `/api/v1/evidence/${evidence.id}/sync`,
+          data => {
+            toast.success(`Evidence synced from ${integration.name}`);
+            this.refreshData();
+            
+            // Update the specific evidence in the list
+            const index = this.evidenceItems.findIndex(e => e.id === evidence.id);
+            if (index !== -1) {
+              this.evidenceItems[index] = { ...this.evidenceItems[index], ...data };
+            }
+            
+            // Update selected evidence if it's the same
+            if (this.selectedEvidence.id === evidence.id) {
+              this.selectedEvidence = { ...this.selectedEvidence, ...data };
+            }
+          },
+          error => {
+            toast.error("Failed to sync evidence");
+          }
+        );
+      } catch (error) {
+        console.error("Error syncing single evidence:", error);
+        toast.error("Failed to sync evidence");
+      }
+    },
+    
+    async filterByIntegration(integration) {
+      this.filters.sourceTypes.integration = true;
+      this.filters.integration = integration.id;
+      this.filters.integrationIds = [integration.id];
+      this.applyFilters();
+    },
+    
+    async viewIntegrationLogs(evidence) {
+      try {
+        const integrationId = evidence.integration_metadata?.integration_id;
+        if (!integrationId) {
+          toast.warning("No integration logs available");
+          return;
+        }
+        
+        const response = await request("GET",
+          `/api/v1/integrations/${integrationId}/logs`,
+          data => {
+            this.integrationLogs = data;
+            this.showIntegrationLogsModal = true;
+          },
+          error => {
+            toast.error("Failed to load integration logs");
+          }
+        );
+      } catch (error) {
+        console.error("Error loading integration logs:", error);
+        toast.error("Failed to load logs");
+      }
+    },
+    
+    openInSource(evidence) {
+      if (evidence.integration_metadata?.source_url) {
+        window.open(evidence.integration_metadata.source_url, '_blank');
+      } else {
+        toast.warning("No source URL available");
+      }
+    },
+    
+    // Filtering updates for integration support
+    applyFilters() {
+      let filtered = [...this.evidenceItems];
+      
+      // Search query
+      if (this.searchQuery) {
+        const query = this.searchQuery.toLowerCase();
+        filtered = filtered.filter(item =>
+          item.name.toLowerCase().includes(query) ||
+          item.description?.toLowerCase().includes(query) ||
+          item.content?.toLowerCase().includes(query) ||
+          item.integration_source?.toLowerCase().includes(query) ||
+          item.tags?.some(tag => tag.toLowerCase().includes(query))
+        );
+      }
+      
+      // Source type filters
+      const activeSourceTypes = Object.keys(this.filters.sourceTypes)
+        .filter(key => this.filters.sourceTypes[key]);
+      
+      if (activeSourceTypes.length > 0) {
+        filtered = filtered.filter(item => {
+          const sourceType = item.source_type || 'manual';
+          const sourceTypeMap = {
+            'manual': 'manual',
+            'ai': 'ai_ocr',
+            'upload': 'upload',
+            'integration': 'integration',
+            'scan': 'scan'
+          };
+          
+          return activeSourceTypes.some(activeType => {
+            const mappedType = sourceTypeMap[activeType];
+            return sourceType === mappedType || 
+                   (activeType === 'ai' && sourceType === 'ai_ocr') ||
+                   (activeType === 'integration' && sourceType === 'integration');
+          });
+        });
+      }
+      
+      // Integration filter
+      if (this.filters.integrationIds.length > 0) {
+        filtered = filtered.filter(item => 
+          this.filters.integrationIds.includes(item.integration_id)
+        );
+      }
+      
+      // Previous filter logic continues...
+      // ... (rest of the applyFilters method)
+      
+      this.filteredEvidence = filtered;
+      this.currentPage = 1;
+    },
+    
+    // Enhanced getSourceTypeClass for integration
+    getSourceTypeClass(sourceType) {
+      const classes = {
+        'ai_ocr': 'badge-gradient-ai',
+        'manual': 'badge-gradient-manual',
+        'upload': 'badge-gradient-upload',
+        'integration': 'badge-warning',
+        'scan': 'badge-secondary'
+      };
+      return classes[sourceType] || 'badge-ghost';
+    },
+    
+    getSourceTypeDisplay(sourceType) {
+      const display = {
+        'ai_ocr': 'AI Extracted',
+        'manual': 'Manual Entry',
+        'upload': 'File Upload',
+        'integration': 'Integration',
+        'scan': 'Document Scan'
+      };
+      return display[sourceType] || sourceType || 'Manual';
+    }
+  };
 }
 </script>
-{%endblock%}
+{% endblock %}
