@@ -120,6 +120,17 @@ def assessments():
 def policies():
     return render_template("policies.html")
 
+@main.route("/evidence", methods=["GET"])
+@login_required
+def evidence_page():
+    """
+    Render the tenant‑wide evidence management UI.
+    The frontend will then call the API:
+       GET /api/v1/tenants/<tenant_id>/evidence
+    to populate the list.
+    """
+    return render_template("evidence.html")
+
 
 @main.route("/tenants/<string:id>/policy-center", methods=["GET"])
 @login_required

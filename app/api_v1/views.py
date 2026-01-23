@@ -1227,16 +1227,30 @@ def get_evidence_for_project(pid):
 @api.route("/projects/<string:id>/evidence", methods=["POST"])
 @login_required
 def create_evidence_for_project(id):
+    # Check user can edit the project
     result = Authorizer(current_user).can_user_edit_project(id)
+    project = result["extra"]["project"]
 
-    evidence = result["extra"]["project"].create_evidence(
+    # Create evidence at TENANT level
+    evidence = ProjectEvidence(
+        tenant_id=current_user.tenant_id,
         name=request.form.get("name"),
         content=request.form.get("content"),
         description=request.form.get("description"),
         owner_id=current_user.id,
-        file=request.files.get("file"),
     )
+
+    # Save evidence
+    db.session.add(evidence)
+    db.session.commit()
+
+    # Optionally associate it with controls
+    control_ids = request.form.getlist("control_ids")
+    if control_ids:
+        EvidenceAssociation.add(control_ids, evidence.id)
+
     return jsonify(evidence.as_dict())
+
 
 
 @api.route(

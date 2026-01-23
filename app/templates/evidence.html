@@ -7,44 +7,176 @@
   {{ macro.filehelper(grid=True, files=True, datepicker=True) }}
 {% endblock %}
 
-{%block page_header_title%}Evidence{%endblock%}
+{%block page_header_title%}Evidence - All Sources{%endblock%}
 {%block page_header_title_border%}{%endblock%}
 {%block page_header_buttons%}{%endblock%}
 
 {%block content%}
-<div x-data="table()" class="grid grid-cols-6 gap-4 mt-2">
+<div x-data="evidenceMaster()" class="grid grid-cols-6 gap-4 mt-2">
 
+  <!-- Document Processing Panel -->
   <div class="col-span-6">
-    <div class="card bg-base-100 border border-base-300">
+    <div class="card bg-base-100 border border-base-300 mb-6">
       <div class="card-body">
-        <div class="flex justify-between align-items-center">
-          <h2 class="card-title mb-4">Evidence</h2>
-          <div class="space-x-2 flex">
-            <button class="btn btn-sm btn-ghost border border-base-300 capitalize tooltip text-primary" @click="exportCSV" data-tip="CSV Export"><i class="ti ti-download"></i></button>
-            <button class="btn btn-sm btn-success" @click="openCreateModal">Create Evidence</button>
+        <h3 class="card-title mb-4"><i class="ti ti-file-text mr-2"></i> Process Documents for AI Extraction</h3>
+        
+        <div class="grid grid-cols-12 gap-4">
+          <div class="col-span-8">
+            <input type="file" 
+                   @change="queueDocuments" 
+                   multiple 
+                   accept=".pdf" 
+                   class="file-input file-input-bordered w-full" />
+            <p class="text-xs mt-2">Upload PDFs for automated compliance extraction</p>
+            
+            <!-- Selected files -->
+            <div x-show="queuedDocuments.length > 0" class="mt-3">
+              <p class="text-sm font-medium mb-2">Selected files:</p>
+              <ul class="text-xs space-y-1 max-h-32 overflow-y-auto">
+                <template x-for="(doc, index) in queuedDocuments" :key="index">
+                  <li class="flex justify-between items-center bg-base-100 p-2 rounded">
+                    <span class="truncate" x-text="doc.name"></span>
+                    <span class="text-xs opacity-70" x-text="formatFileSize(doc.size)"></span>
+                    <button @click="removeQueuedDocument(index)" class="btn btn-xs btn-ghost">
+                      <i class="ti ti-x text-error"></i>
+                    </button>
+                  </li>
+                </template>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="col-span-4">
+            <div class="flex flex-col space-y-2">
+              <button @click="processDocumentsOCR" 
+                      :disabled="!queuedDocuments.length || processingDocs" 
+                      class="btn btn-primary w-full">
+                <i class="ti ti-robot"></i> 
+                <span x-text="processingDocs ? 'Processing...' : 'Extract Evidence'"></span>
+              </button>
+              
+              <div class="collapse collapse-arrow border border-base-300 rounded">
+                <input type="checkbox" />
+                <div class="collapse-title text-xs font-medium">OCR Settings</div>
+                <div class="collapse-content text-xs">
+                  <div class="form-control">
+                    <label class="label cursor-pointer justify-start p-1">
+                      <input type="checkbox" x-model="ocrSettings.extractCompliance" class="checkbox checkbox-xs mr-2" checked />
+                      <span>Extract compliance violations</span>
+                    </label>
+                  </div>
+                  <div class="form-control">
+                    <label class="label cursor-pointer justify-start p-1">
+                      <input type="checkbox" x-model="ocrSettings.createRisks" class="checkbox checkbox-xs mr-2" checked />
+                      <span>Auto-create risks from findings</span>
+                    </label>
+                  </div>
+                  <div class="form-control">
+                    <label class="label cursor-pointer justify-start p-1">
+                      <input type="checkbox" x-model="ocrSettings.highConfidenceOnly" class="checkbox checkbox-xs mr-2" />
+                      <span>High confidence only (>90%)</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="mx-auto text-center mt-5" x-show="loading" x-transition:enter.duration.500ms x-transition:leave.duration.100ms x-html="loadingSkeleton"></div>
-        <div x-show="!loading" class="ag-theme-quartz" id="table_1" x-transition:enter.duration.500ms x-transition:leave.duration.500ms></div>
+        
+        <!-- Processing Status -->
+        <div x-show="processingDocs" class="mt-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm" x-text="processingStatus"></span>
+            <span class="text-sm font-medium" x-text="processingProgress + '%'"></span>
+          </div>
+          <progress class="progress progress-primary w-full" 
+                  :value="processingProgress" 
+                  max="100"></progress>
+          
+          <div x-show="processingStats" class="mt-3 text-xs grid grid-cols-5 gap-2">
+            <div class="text-center">
+              <div class="stat-title">Pages</div>
+              <div class="stat-value text-lg" x-text="processingStats.pages_processed || 0"></div>
+            </div>
+            <div class="text-center">
+              <div class="stat-title">Evidence</div>
+              <div class="stat-value text-lg" x-text="processingStats.evidence_created || 0"></div>
+            </div>
+            <div class="text-center">
+              <div class="stat-title">Risks</div>
+              <div class="stat-value text-lg" x-text="processingStats.risks_created || 0"></div>
+            </div>
+            <div class="text-center">
+              <div class="stat-title">Violations</div>
+              <div class="stat-value text-lg" x-text="processingStats.violations_found || 0"></div>
+            </div>
+            <div class="text-center">
+              <div class="stat-title">Confidence</div>
+              <div class="stat-value text-lg" x-text="Math.round((processingStats.average_confidence || 0) * 100) + '%'"></div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
+  <!-- Evidence Table -->
+  <div class="col-span-6">
+    <div class="card bg-base-100 border border-base-300">
+      <div class="card-body">
+        <div class="flex justify-between align-items-center">
+          <h2 class="card-title mb-4">All Evidence</h2>
+          <div class="space-x-2 flex">
+            <select x-model="filter.sourceType" @change="filterEvidence()" class="select select-sm select-bordered">
+              <option value="">All Sources</option>
+              <option value="ai_ocr">AI/OCR Extracted</option>
+              <option value="manual">Manual Upload</option>
+              <option value="api">API Import</option>
+            </select>
+            <button class="btn btn-sm btn-ghost border border-base-300 capitalize tooltip text-primary" @click="exportEvidenceCSV" data-tip="CSV Export"><i class="ti ti-download"></i></button>
+            <button class="btn btn-sm btn-success" @click="openCreateModal">Create Manual Evidence</button>
+          </div>
+        </div>
+        
+        <!-- Filter Badges -->
+        <div class="flex flex-wrap gap-2 mb-4">
+          <template x-for="(count, type) in evidenceStats" :key="type">
+            <div class="badge" 
+                 :class="{'badge-primary': type==='total', 'badge-info': type==='ai_ocr', 'badge-success': type==='manual', 'badge-warning': type==='api'}"
+                 x-text="type + ': ' + count"></div>
+          </template>
+        </div>
+        
+        <div class="mx-auto text-center mt-5" x-show="loading" x-transition:enter.duration.500ms x-transition:leave.duration.100ms>
+          <span class="loading loading-dots loading-lg"></span>
+        </div>
+        
+        <div x-show="!loading" class="ag-theme-quartz" id="evidenceTable" x-transition:enter.duration.500ms x-transition:leave.duration.500ms></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modals -->
   <div>
     <div class="modal" x-bind:class="{ 'modal-open': showDeleteModal }">
         <div class="modal-box">
             <form method="dialog">
               <button @click="showDeleteModal = false" class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
             </form>
-            <h3 class="font-bold text-lg" x-text="'Are you sure you want to delete ' + selectedItem.id + '?'"></h3>
+            <h3 class="font-bold text-lg">Delete Evidence</h3>
+            <p class="py-4" x-text="'Are you sure you want to delete evidence: ' + (selectedEvidence.name || selectedEvidence.id) + '?'"></p>
+            <p class="text-xs text-warning mb-4" x-show="selectedEvidence.linked_risks_count > 0">
+              <i class="ti ti-alert-triangle"></i> This evidence is linked to <span x-text="selectedEvidence.linked_risks_count"></span> risks. Deleting it will remove those links.
+            </p>
             <div class="modal-action">
-                <button class="btn" @click="showModal = false">Close</button>
+                <button class="btn" @click="showDeleteModal = false">Cancel</button>
                 <button class="btn btn-error" @click="deleteEvidence">Delete Evidence</button>
             </div>
         </div>
     </div>
   </div>
 
+  <!-- Create Evidence Modal -->
   <div>
     <div class="modal" x-bind:class="{ 'modal-open': showCreateModal }">
         <div class="modal-box w-11/12 max-w-5xl">
@@ -52,106 +184,209 @@
               <button @click="showCreateModal = false" class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
             </form>
             <h3 class="font-bold text-lg px-6">Create Evidence</h3>
-            <div class="card card-body">
-                  <div class="grid grid-cols-6 gap-6">
-                    <div class="col-span-3">
-                        <label class="block text-sm font-medium pb-2">Name</label>
-                        <input x-model="formData.name" type="text" placeholder="Input evidence name" class="input input-bordered w-full"/>
-                    </div>
-                    <div class="col-span-3">
-                        <label class="block text-sm font-medium pb-2">Description</label>
-                        <input x-model="formData.description" type="text" placeholder="Input description" class="input input-bordered w-full"/>
-                    </div>
-                    <div class="col-span-3">
-                        <label class="block text-sm font-medium pb-2">Group/Category</label>
-                        <input x-model="formData.group" type="text" placeholder="Optionally group the evidence together" class="input input-bordered w-full"/>
-                    </div>
-                    <div class="col-span-3">
-                        <label class="block text-sm font-medium pb-2">Collected On</label>
-                        <input x-model="formData.collected_on" x-init="initFlatpickr" id="datePicker" type="text" class="grow input w-full input-bordered" placeholder="Collection date (today by default)" />
-                    </div>
-                    <div class="col-span-6">
-                        <label class="block text-sm font-medium pb-2">Content</label>
-                        <textarea x-model="formData.content" class="textarea textarea-bordered w-full" placeholder="Place raw text evidence here (e.g. JSON results, CSV, etc)"></textarea>
-                    </div>
-                    <div class="col-span-6">
-                        <label class="block text-sm font-medium mb-2">Attach Evidence File</label>
-                        <input type="file" id="createEvidenceUploader">
-                        <p class="text-xs text-warning mt-2">Note: Only 1 evidence file is attached to each Evidence object.</p>
-                    </div>
-
-                  </div>
+            
+            <div class="tabs mb-4">
+              <a @click="evidenceType = 'manual'" :class="{'tab-active': evidenceType === 'manual'}" class="tab tab-lifted">Manual Entry</a>
+              <a @click="evidenceType = 'file'" :class="{'tab-active': evidenceType === 'file'}" class="tab tab-lifted">File Upload</a>
+              <a @click="evidenceType = 'api'" :class="{'tab-active': evidenceType === 'api'}" class="tab tab-lifted">API Import</a>
             </div>
+            
+            <div class="card card-body">
+              <!-- Manual Entry -->
+              <div x-show="evidenceType === 'manual'">
+                <div class="grid grid-cols-6 gap-6">
+                  <div class="col-span-3">
+                      <label class="block text-sm font-medium pb-2">Evidence Name *</label>
+                      <input x-model="formData.name" type="text" placeholder="e.g., 'NEMA License Scan'" class="input input-bordered w-full" required />
+                  </div>
+                  <div class="col-span-3">
+                      <label class="block text-sm font-medium pb-2">Evidence Type</label>
+                      <select x-model="formData.evidence_type" class="select select-bordered w-full">
+                        <option value="compliance">Compliance</option>
+                        <option value="risk">Risk Finding</option>
+                        <option value="audit">Audit Finding</option>
+                        <option value="policy">Policy Document</option>
+                        <option value="other">Other</option>
+                      </select>
+                  </div>
+                  <div class="col-span-6">
+                      <label class="block text-sm font-medium pb-2">Description</label>
+                      <input x-model="formData.description" type="text" placeholder="Brief description of this evidence" class="input input-bordered w-full"/>
+                  </div>
+                  <div class="col-span-3">
+                      <label class="block text-sm font-medium pb-2">Source Document (if applicable)</label>
+                      <input x-model="formData.source_document" type="text" placeholder="e.g., 'Environmental Audit Report.pdf'" class="input input-bordered w-full"/>
+                  </div>
+                  <div class="col-span-3">
+                      <label class="block text-sm font-medium pb-2">Page/Reference</label>
+                      <input x-model="formData.source_reference" type="text" placeholder="e.g., 'Page 42, Section 5.2'" class="input input-bordered w-full"/>
+                  </div>
+                  <div class="col-span-6">
+                      <label class="block text-sm font-medium pb-2">Content/Findings *</label>
+                      <textarea x-model="formData.content" class="textarea textarea-bordered w-full" rows="6" placeholder="Detailed evidence content, findings, or observations..."></textarea>
+                  </div>
+                  <div class="col-span-3">
+                      <label class="block text-sm font-medium pb-2">Compliance Standard</label>
+                      <select x-model="formData.compliance_standard" class="select select-bordered w-full">
+                        <option value="">Select standard</option>
+                        <option value="nema">NEMA Regulations</option>
+                        <option value="iso14001">ISO 14001</option>
+                        <option value="worldbank">World Bank Safeguards</option>
+                        <option value="other">Other</option>
+                      </select>
+                  </div>
+                  <div class="col-span-3">
+                      <label class="block text-sm font-medium pb-2">Severity</label>
+                      <select x-model="formData.severity" class="select select-bordered w-full">
+                        <option value="">Select severity</option>
+                        <option value="critical">Critical</option>
+                        <option value="high">High</option>
+                        <option value="medium">Medium</option>
+                        <option value="low">Low</option>
+                      </select>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- File Upload -->
+              <div x-show="evidenceType === 'file'">
+                <div class="grid grid-cols-6 gap-6">
+                  <div class="col-span-6">
+                    <label class="block text-sm font-medium mb-2">Upload Evidence File</label>
+                    <input type="file" id="createEvidenceUploader" class="file-input file-input-bordered w-full">
+                    <p class="text-xs text-warning mt-2">Supported: PDF, Images, DOCX, TXT (Max 50MB)</p>
+                  </div>
+                  <div class="col-span-6">
+                    <label class="block text-sm font-medium pb-2">File Description</label>
+                    <textarea x-model="formData.file_description" class="textarea textarea-bordered w-full" placeholder="Describe what this file contains..."></textarea>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- API Import -->
+              <div x-show="evidenceType === 'api'" class="text-center py-8">
+                <i class="ti ti-api text-4xl opacity-30"></i>
+                <p class="mt-4">API import configuration available in system settings.</p>
+                <p class="text-sm opacity-70">Configure external data sources to automatically import evidence.</p>
+              </div>
+            </div>
+            
             <div class="modal-action">
                 <button class="btn" @click="showCreateModal = false">Close</button>
-                <button class="btn btn-primary" @click="createEvidence">Create</button>
+                <button class="btn btn-primary" @click="createEvidence">Create Evidence</button>
             </div>
         </div>
     </div>
   </div>
 
+  <!-- View Evidence Modal -->
   <div>
-    <div class="modal" x-bind:class="{ 'modal-open': showModal }">
+    <div class="modal" x-bind:class="{ 'modal-open': showViewModal }">
         <div class="modal-box w-11/12 max-w-5xl">
-            <form method="dialog">
-              <button @click="showModal = false" class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
-            </form>
-            <h3 class="font-bold text-lg px-6" x-text="'Update: '+selectedItem.name"></h3>
-            <div class="card card-body">
-                <div class="grid grid-cols-6 gap-6">
-                    <div class="col-span-3">
-                        <label class="block text-sm font-medium pb-2">Name</label>
-                        <input x-model="selectedItem.name" type="text" placeholder="Input evidence name" class="input input-bordered w-full"/>
-                    </div>
-                    <div class="col-span-3">
-                        <label class="block text-sm font-medium pb-2">Description</label>
-                        <input x-model="selectedItem.description" type="text" placeholder="Input description" class="input input-bordered w-full"/>
-                    </div>
-                    <div class="col-span-3">
-                        <label class="block text-sm font-medium pb-2">Group/Category</label>
-                        <input x-model="selectedItem.group" type="text" placeholder="Optionally group the evidence together" class="input input-bordered w-full"/>
-                    </div>
-                    <div class="col-span-3">
-                        <label class="block text-sm font-medium pb-2">Collected On</label>
-                        <input x-model="selectedItem.collected_on" x-init="initFlatpickr" id="datePicker2" type="text" class="grow input w-full input-bordered" placeholder="Collection date (today by default)" />
-                    </div>
-                    <div class="col-span-6">
-                        <label class="block text-sm font-medium pb-2">Content</label>
-                        <textarea x-model="selectedItem.content" class="textarea textarea-bordered w-full" placeholder="Input content"></textarea>
-                    </div>
-                    <div class="col-span-6">
-                        <label class="block text-sm font-medium mb-2">Evidence File</label>
-                        <table x-show="selectedItem.file_name" class="table bg-base-200">
-                            <thead>
-                              <tr>
-                                <th class="py-4">Uploaded File</th>
-                                <th class="py-4">Backend</th>
-                                <th class="text-center w-1">Actions</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              <tr>
-                                <td class="font-semibold" x-text="selectedItem.file_name"></td>
-                                <td class="font-semibold" x-text="selectedItem.file_provider.toUpperCase()"></td>
-                                <td>
-                                    <div class="flex flex-row gap-x-4">
-                                        <a :href="selectedItem.file['source']" :download="selectedItem.file['name']" class="btn btn-xs bg-base-100">Download</a>
-                                    </div>
-                                </td>
-                              </tr>
-                            </tbody>
-                          </table>
-
-                        <div x-show="!selectedItem.file_name" class="col-span-6">
-                          <input type="file" id="updateEvidenceUploader">
-                        </div>
-                    </div>
-                </div>
+            <button @click="showViewModal = false" class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+            
+            <h3 class="font-bold text-lg mb-2" x-text="selectedEvidence.name"></h3>
+            <div class="flex flex-wrap gap-2 mb-4">
+              <span class="badge" 
+                    :class="{'badge-info': selectedEvidence.source_type==='ai_ocr', 'badge-success': selectedEvidence.source_type==='manual', 'badge-warning': selectedEvidence.source_type==='api'}"
+                    x-text="selectedEvidence.source_type || 'manual'"></span>
+              <span class="badge badge-ghost" x-text="selectedEvidence.evidence_type || 'evidence'"></span>
+              <span x-show="selectedEvidence.severity" 
+                    class="badge" 
+                    :class="{'badge-error': selectedEvidence.severity==='critical', 'badge-warning': selectedEvidence.severity==='high', 'badge-warning opacity-80': selectedEvidence.severity==='medium', 'badge-success': selectedEvidence.severity==='low'}"
+                    x-text="selectedEvidence.severity"></span>
             </div>
-            <div class="modal-action">
-                <button class="btn" @click="showModal = false">Close</button>
-                <button class="btn btn-error" @click="openDeleteModal(selectedItem)">Delete</button>
-                <button class="btn btn-primary" @click="updateEvidence">Update</button>
+            
+            <div class="grid grid-cols-2 gap-6">
+              <!-- Left Column: Evidence Details -->
+              <div>
+                <div class="space-y-4">
+                  <div>
+                    <h4 class="subtitle text-sm mb-2">Description</h4>
+                    <p class="text-sm" x-text="selectedEvidence.description || 'No description'"></p>
+                  </div>
+                  
+                  <div x-show="selectedEvidence.source_document">
+                    <h4 class="subtitle text-sm mb-2">Source Document</h4>
+                    <div class="text-sm">
+                      <p><span class="font-medium">Document:</span> <span x-text="selectedEvidence.source_document"></span></p>
+                      <p x-show="selectedEvidence.source_reference"><span class="font-medium">Reference:</span> <span x-text="selectedEvidence.source_reference"></span></p>
+                      <p x-show="selectedEvidence.page_number"><span class="font-medium">Page:</span> <span x-text="selectedEvidence.page_number"></span></p>
+                    </div>
+                  </div>
+                  
+                  <div x-show="selectedEvidence.extraction_metadata">
+                    <h4 class="subtitle text-sm mb-2">Extraction Details</h4>
+                    <div class="text-xs space-y-1">
+                      <div class="flex justify-between">
+                        <span>OCR Confidence:</span>
+                        <span x-text="Math.round((selectedEvidence.extraction_metadata.confidence || 0) * 100) + '%'"></span>
+                      </div>
+                      <div class="flex justify-between">
+                        <span>Extracted:</span>
+                        <span x-text="formatDate(selectedEvidence.extraction_metadata.extracted_at)"></span>
+                      </div>
+                      <div class="flex justify-between">
+                        <span>Pipeline:</span>
+                        <span x-text="selectedEvidence.extraction_metadata.pipeline_version || 'v1.0'"></span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Linked Risks -->
+                  <div x-show="selectedEvidence.linked_risks && selectedEvidence.linked_risks.length > 0">
+                    <h4 class="subtitle text-sm mb-2">Linked Risks</h4>
+                    <div class="space-y-2">
+                      <template x-for="risk in selectedEvidence.linked_risks" :key="risk.id">
+                        <div class="border border-base-300 rounded p-3">
+                          <div class="flex justify-between items-start">
+                            <div>
+                              <a :href="'/risks/' + risk.id" class="font-medium hover:underline" x-text="risk.title"></a>
+                              <p class="text-xs opacity-70 mt-1" x-text="risk.description?.substring(0, 100) + '...'"></p>
+                            </div>
+                            <span class="badge" 
+                                  :class="{'badge-error': risk.risk_level==='critical', 'badge-warning': risk.risk_level==='high', 'badge-warning opacity-80': risk.risk_level==='medium', 'badge-success': risk.risk_level==='low'}"
+                                  x-text="risk.risk_level"></span>
+                          </div>
+                        </div>
+                      </template>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Right Column: Evidence Content -->
+              <div>
+                <div class="sticky top-0">
+                  <h4 class="subtitle text-sm mb-2">Evidence Content</h4>
+                  <div class="border border-base-300 rounded-lg p-4 bg-base-100 max-h-96 overflow-auto">
+                    <template x-if="selectedEvidence.content_type === 'text'">
+                      <pre class="text-sm whitespace-pre-wrap" x-text="selectedEvidence.content"></pre>
+                    </template>
+                    <template x-if="selectedEvidence.content_type === 'file' && selectedEvidence.file_url">
+                      <div class="text-center">
+                        <i class="ti ti-file-text text-6xl opacity-30"></i>
+                        <p class="mt-2 font-medium" x-text="selectedEvidence.file_name"></p>
+                        <a :href="selectedEvidence.file_url" download class="btn btn-sm btn-primary mt-4">
+                          <i class="ti ti-download"></i> Download File
+                        </a>
+                      </div>
+                    </template>
+                    <template x-if="selectedEvidence.content_type === 'json'">
+                      <pre class="text-xs" x-text="JSON.stringify(JSON.parse(selectedEvidence.content || '{}'), null, 2)"></pre>
+                    </template>
+                  </div>
+                  
+                  <div class="mt-4 flex justify-between">
+                    <button @click="copyEvidenceLink(selectedEvidence)" class="btn btn-sm btn-ghost">
+                      <i class="ti ti-link"></i> Copy Link
+                    </button>
+                    <button @click="openDeleteModal(selectedEvidence)" class="btn btn-sm btn-error">
+                      <i class="ti ti-trash"></i> Delete
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
         </div>
     </div>
@@ -162,338 +397,357 @@
 
 {%block extrajs%}
 <script>
-function table(){
+function evidenceMaster(){
     return {
         init() {
-          this.$watch(
-            "items", (newValue, oldValue) => {
-                this.drawTable({"selector": "#table_1", "tableData":newValue})
-          })
-          flatpickr("#datePicker");
-          this.getItems()
+          this.getEvidence();
+          this.$watch("evidenceItems", () => {
+            this.updateStats();
+            this.drawTable();
+          });
         },
-        loadingSkeleton: '<span class="loading loading-dots loading-lg"></span>',
+        
+        // State
         loading: true,
+        evidenceItems: [],
+        selectedEvidence: {},
+        queuedDocuments: [],
+        processingDocs: false,
+        processingStatus: "",
+        processingProgress: 0,
+        processingStats: null,
+        evidenceStats: {},
+        
+        // UI State
         showDeleteModal: false,
-        showModal: false,
-        evidenceInitLoading: false,
-        newEvidenceInitLoading: false,
-        selectedItem: {},
-        formData: {},
-        fileUpload: null,
-        fileAdd: null,
-        modalFields: [],
-        createPondInstance: null,
-        updatePondInstance: null,
-        tableHeaders: [
-          {"field": "id", "headerName": "#", "width": 100, "filter": "agTextColumnFilter", "hide": true, "modal": {"disable": true, "hide": true}},
-          {"field": "name", "headerName": "Name", "filter": "agTextColumnFilter"},
-          {"field": "description", "headerName": "Description", "filter": "agTextColumnFilter"},
-          {"field": "group", "headerName": "Group", "filter": "agTextColumnFilter"},
-          {"field": "has_file", "headerName": "Has File", "width": 75, "cellRenderer": booleanBadge},
-          {"field": "date_added", "headerName": "Created At", "filter": "agTextColumnFilter", "cellRenderer": simpleDate}
-        ],
-        openModal(item) {
-            this.selectedItem = item;
-            this.showModal = true;
-            flatpickr("#datePicker2");
-
-            //Pond
-            const inputElement = document.getElementById("updateEvidenceUploader");
-            const pond = FilePond.find(inputElement);
-            if (pond) {
-                pond.setOptions({"files": []})
-                return
-            }
-            FilePond.registerPlugin(FilePondPluginImagePreview);
-            this.updatePondInstance = FilePond.create(inputElement, {
-              files: [],
-              allowMultiple: false,
-              acceptedFileTypes: ['image/*'],
-              labelIdle: 'Drag & Drop your files or <span class="filepond--label-action">Browse</span>'
-            });
-        },
         showCreateModal: false,
-        openCreateModal(item) {
-            const inputElement = document.getElementById("createEvidenceUploader");
-            const pond = FilePond.find(inputElement);
-            if (pond) {
-                pond.setOptions({"files": []})
-                return
-            }
-
-            FilePond.registerPlugin(FilePondPluginImagePreview);
-            this.createPondInstance = FilePond.create(inputElement, {
-              allowMultiple: false,
-              acceptedFileTypes: ['image/*'],
-              labelIdle: 'Drag & Drop your evidence or <span class="filepond--label-action">Browse</span>',
-              onactivatefile: (file) => {
-                console.log(file.filename)
+        showViewModal: false,
+        evidenceType: "manual",
+        filter: {
+          sourceType: "",
+          evidenceType: "",
+          severity: ""
+        },
+        
+        // OCR Settings
+        ocrSettings: {
+          extractCompliance: true,
+          createRisks: true,
+          highConfidenceOnly: false
+        },
+        
+        // Form Data
+        formData: {
+          name: "",
+          description: "",
+          evidence_type: "compliance",
+          source_document: "",
+          source_reference: "",
+          content: "",
+          compliance_standard: "",
+          severity: "",
+          file_description: ""
+        },
+        
+        // Table Configuration
+        tableHeaders: [
+          {"field": "id", "headerName": "ID", "width": 100, "filter": "agTextColumnFilter", "hide": true},
+          {"field": "name", "headerName": "Name", "filter": "agTextColumnFilter", "width": 200},
+          {"field": "description", "headerName": "Description", "filter": "agTextColumnFilter", "width": 250},
+          {"field": "evidence_type", "headerName": "Type", "width": 120, "cellRenderer": badgeRenderer},
+          {"field": "source_type", "headerName": "Source", "width": 120, "cellRenderer": sourceBadgeRenderer},
+          {"field": "severity", "headerName": "Severity", "width": 100, "cellRenderer": severityBadgeRenderer},
+          {"field": "source_document", "headerName": "Document", "filter": "agTextColumnFilter", "width": 180},
+          {"field": "created_at", "headerName": "Created", "width": 140, "cellRenderer": simpleDate},
+          {"field": "linked_risks_count", "headerName": "Linked Risks", "width": 120, "cellRenderer": linkedRisksRenderer},
+          {"field": "actions", "headerName": "Actions", "width": 120, "cellRenderer": actionsRenderer, "filter": false, "sortable": false}
+        ],
+        
+        // Helper Methods
+        formatFileSize: function(bytes) {
+          if (bytes === 0) return '0 Bytes';
+          const k = 1024;
+          const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+          const i = Math.floor(Math.log(bytes) / Math.log(k));
+          return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        },
+        
+        formatDate: function(dateString) {
+          if (!dateString) return 'N/A';
+          return new Date(dateString).toLocaleString();
+        },
+        
+        updateStats: function() {
+          const stats = {
+            total: this.evidenceItems.length,
+            ai_ocr: this.evidenceItems.filter(e => e.source_type === 'ai_ocr').length,
+            manual: this.evidenceItems.filter(e => e.source_type === 'manual').length,
+            api: this.evidenceItems.filter(e => e.source_type === 'api').length
+          };
+          this.evidenceStats = stats;
+        },
+        
+        // Document Processing
+        queueDocuments: function(event) {
+          const files = Array.from(event.target.files);
+          this.queuedDocuments.push(...files.map(file => ({
+            name: file.name,
+            size: file.size,
+            type: file.type,
+            file: file
+          })));
+        },
+        
+        removeQueuedDocument: function(index) {
+          this.queuedDocuments.splice(index, 1);
+        },
+        
+        async processDocumentsOCR() {
+          if (!this.queuedDocuments.length) return;
+          
+          this.processingDocs = true;
+          this.processingStatus = "Uploading documents to OCR pipeline...";
+          this.processingProgress = 10;
+          
+          try {
+            const formData = new FormData();
+            this.queuedDocuments.forEach(doc => {
+              formData.append('documents', doc.file);
+            });
+            formData.append('settings', JSON.stringify(this.ocrSettings));
+            
+            // Call OCR Pipeline API
+            const response = await fetch(`/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/evidence/process-documents`, {
+              method: 'POST',
+              body: formData,
+              headers: {
+                'Authorization': `Bearer ${this.$store.authToken}`
               }
             });
-
+            
+            if (!response.ok) throw new Error('OCR processing failed');
+            
+            const data = await response.json();
+            this.processingStats = data.stats;
+            this.processingStatus = "Creating evidence items...";
+            this.processingProgress = 60;
+            
+            // Refresh evidence list
+            await this.getEvidence();
+            
+            this.processingStatus = "Complete!";
+            this.processingProgress = 100;
+            
+            setTimeout(() => {
+              this.processingDocs = false;
+              this.queuedDocuments = [];
+              toast(`Created ${data.stats.evidence_created} evidence items from ${data.stats.documents_processed} documents`, "success");
+            }, 1000);
+            
+          } catch (error) {
+            toast("Error processing documents: " + error.message, "error");
+            this.processingDocs = false;
+          }
+        },
+        
+        // Evidence CRUD
+        async getEvidence() {
+          this.loading = true;
+          try {
+            const response = await request("GET",
+              `/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/evidence`,
+              data => {
+                this.evidenceItems = data;
+                this.loading = false;
+              },
+              error => {
+                toast(error.message, "error");
+                this.loading = false;
+              }
+            );
+          } catch (error) {
+            toast(error.message, "error");
+            this.loading = false;
+          }
+        },
+        
+        openViewModal: function(item) {
+          this.selectedEvidence = item;
+          this.showViewModal = true;
+        },
+        
+        openCreateModal: function() {
+          this.formData = {
+            name: "",
+            description: "",
+            evidence_type: "compliance",
+            source_document: "",
+            source_reference: "",
+            content: "",
+            compliance_standard: "",
+            severity: "",
+            file_description: ""
+          };
+          this.evidenceType = "manual";
           this.showCreateModal = true;
         },
-        openDeleteModal(item) {
-          this.selectedItem = item;
-          this.showModal = false;
+        
+        openDeleteModal: function(item) {
+          this.selectedEvidence = item;
+          this.showViewModal = false;
           this.showDeleteModal = true;
         },
-        items: [],
-        exportCSV: function() {
-          this.table.exportDataAsCsv();
+        
+        async createEvidence() {
+          if (!this.formData.name) {
+            toast("Evidence name is required", "error");
+            return;
+          }
+          
+          const payload = {
+            ...this.formData,
+            source_type: "manual",
+            tenant_id: this.$store.currentUser.selectedTenant.id
+          };
+          
+          try {
+            await request("POST",
+              `/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/evidence`,
+              data => {
+                toast("Evidence created successfully");
+                this.showCreateModal = false;
+                this.getEvidence();
+              },
+              error => {
+                toast(error.message, "error");
+              },
+              payload
+            );
+          } catch (error) {
+            toast(error.message, "error");
+          }
         },
-        drawTable: function({ selector = null, tableData = null, formatter = null }) {
-          var data = tableData;
-          var columns = [];
-
-          gridOptions = {
+        
+        async deleteEvidence() {
+          try {
+            await request("DELETE",
+              `/api/v1/evidence/${this.selectedEvidence.id}`,
+              data => {
+                toast("Evidence deleted");
+                this.showDeleteModal = false;
+                this.getEvidence();
+              },
+              error => {
+                toast(error.message, "error");
+              }
+            );
+          } catch (error) {
+            toast(error.message, "error");
+          }
+        },
+        
+        copyEvidenceLink: function(evidence) {
+          const url = `${window.location.origin}/evidence/${evidence.id}`;
+          navigator.clipboard.writeText(url);
+          toast("Evidence link copied to clipboard");
+        },
+        
+        exportEvidenceCSV: function() {
+          // Implement CSV export
+          toast("Export feature coming soon", "info");
+        },
+        
+        filterEvidence: function() {
+          // Implement filtering
+          this.drawTable();
+        },
+        
+        // Table Methods
+        drawTable: function() {
+          const gridElement = document.querySelector("#evidenceTable");
+          if (!gridElement) return;
+          
+          const gridOptions = {
+            rowData: this.evidenceItems,
+            columnDefs: this.tableHeaders,
             pagination: true,
             paginationPageSize: 25,
             domLayout: "autoHeight",
-            suppressMenuHide: true,
-            suppressHorizontalScroll: true,
-            enableCellTextSelection:true,
-            suppressFieldDotNotation: true,
             onGridReady: (params) => {
               params.api.sizeColumnsToFit();
-              this.loading = false;
-              window.onresize = () => {
-                this.loading = true;
-                params.api.sizeColumnsToFit();
-                this.loading = false;
-              }
+              window.onresize = () => params.api.sizeColumnsToFit();
             },
-            autoSizeStrategy: {
-              type: 'fitGridWidth',
-              defaultMinWidth: 50,
+            onRowDoubleClicked: (event) => {
+              this.openViewModal(event.data);
+            },
+            defaultColDef: {
+              filter: true,
+              sortable: true,
+              resizable: true
             }
+          };
+          
+          // Clear existing grid
+          if (this.evidenceGrid) {
+            this.evidenceGrid.destroy();
           }
-          const gridElement = document.querySelector(selector);
-          if (this.table) {
-            this.table.destroy();
-          }
-
-          gridOptions.rowData = this.formattedTable(tableData);
-          gridOptions.columnDefs = this.tableHeaders
-
-          gridOptions.onRowDoubleClicked = (row) => {
-            console.log(row.data.id)
-            selectedItem = this.items.find(obj => obj.id === row.data.id);
-            console.log(selectedItem)
-            this.openModal(selectedItem)
-          },
-
-          this.table = agGrid.createGrid(gridElement, gridOptions);
-
+          
+          this.evidenceGrid = agGrid.createGrid(gridElement, gridOptions);
         },
-        formattedTable: function(data) {
-          var filteredData = [];
-          var keysToExtract = this.tableHeaders.map(header => header.field)
-
-          data.forEach((row) => {
-            var filteredRow = {};
-            keysToExtract.forEach(key => {
-              /*
-              if (row.name === "Limit unsuccessful logon") {
-                row.name = `<button class='btn btn-sm' @click='alert(1)' x-text='${this.controls.length}'></button>`
-              }*/
-
-              filteredRow[key] = row[key];
-            });
-            filteredData.push(filteredRow);
-          });
-
-          return filteredData
+        
+        // Custom Cell Renderers
+        badgeRenderer: function(params) {
+          return `<span class="badge badge-ghost">${params.value || 'N/A'}</span>`;
         },
-        getItems: function() {
-          this.loading = true,
-          request("GET",
-            `/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/evidence`,
-            data => {
-              this.items = data;
-              this.loading = false;
-            },
-            error => {
-              toast(error.message, "error");
-            }
-          );
+        
+        sourceBadgeRenderer: function(params) {
+          const badges = {
+            'ai_ocr': 'badge-info',
+            'manual': 'badge-success', 
+            'api': 'badge-warning'
+          };
+          const cls = badges[params.value] || 'badge-ghost';
+          return `<span class="badge ${cls}">${params.value || 'manual'}</span>`;
         },
-        // Evidence module
-        fileUploadMap:{},
-        evidence: [],
-        tenantEvidence: [],
-        evidence_map: {},
-        focusEvidence: function(index) {
-            if ( !this.evidence[index].open ) {
-                for(let i = 0; i < this.evidence.length; i++){
-                    this.evidence[i].open = false;
-                    this.evidence[i].focused = i == index;
-                }
-            }
+        
+        severityBadgeRenderer: function(params) {
+          if (!params.value) return 'N/A';
+          const badges = {
+            'critical': 'badge-error',
+            'high': 'badge-warning',
+            'medium': 'badge-warning opacity-80',
+            'low': 'badge-success'
+          };
+          const cls = badges[params.value] || 'badge-ghost';
+          return `<span class="badge ${cls}">${params.value}</span>`;
         },
-        isOpen: function(index) {
-            for(let i = 0; i < this.evidence.length; i++){
-
-                this.evidence[i].focused = false;
-                this.evidence[i].open = i == index;
-            }
+        
+        linkedRisksRenderer: function(params) {
+          const count = params.value || 0;
+          if (count === 0) return '<span class="opacity-50">0</span>';
+          return `<span class="badge badge-primary">${count} risk${count !== 1 ? 's' : ''}</span>`;
         },
-        openEvidence: function(index) {
-            document.querySelector('.custom-file-container').innerHTML = '';
-            for(let i = 0; i < this.evidence.length; i++){
-                this.evidence[i].focused = false;
-                this.evidence[i].open = i == index;
-            }
-            if (!this.fileUploadMap[this.evidence[index].id]) {
-              var preloadFiles = [];
-              for (var file in this.evidence[index].files) {
-                preloadFiles.push([this.evidence[index].files[file],`/evidence/${this.evidence[index].id}/files/${this.evidence[index].files[file]}`])
-              }
-              this.fileUploadMap[this.evidence[index].id] = new FileUploadWithPreview.FileUploadWithPreview(`upload-${this.evidence[index].id}`, {multiple:true, text:{browse: 'Choose',chooseFile: 'Choose files to upload...'}, presetFiles:preloadFiles});
-            }
-            setTimeout(()=>document.getElementById(`titleField${index}`).focus(),10);
-        },
-        defocusEvidence: function() {
-            for(let i = 0; i < this.evidence.length; i++){
-                this.evidence[i].focused = false;
-                this.evidence[i].open = false;
-            }
-        },
-        deleteEvidence: function() {
-            request("DELETE",
-                `/api/v1/evidence/${this.selectedItem.id}`,
-                data => {
-                    toast("Removed evidence")
-                    this.showDeleteModal = false;
-                    this.getItems()
-                    return(data)
-                },
-                error => {
-                  toast(error.message, "error");
-                }
-            );
-        },
-        addEvidence: function() {
-            d = {
-                name: '',
-                description: '',
-                content: '',
-                focused: false,
-                open: false
-            }
-            this.evidence.unshift(d);
-            setTimeout(()=>this.openEvidence(0),10);
-
-            /* push to bottom
-            this.evidence.push(d);
-            setTimeout(()=>this.openEvidence(this.evidence.length-1),10);
-            setTimeout(()=>this.scrollDiv(),100);
-            */
-        },
-        scrollDiv: function() {
-          var objDiv = document.getElementById("evidence-body");
-          objDiv.scrollTop = objDiv.scrollHeight;
-        },
-        updateEvidence: function(index) {
-          var fd = new FormData();
-
-          fd.append("name", this.selectedItem.name)
-          fd.append("content", this.selectedItem.content)
-          fd.append("description", this.selectedItem.description)
-          fd.append("group", this.selectedItem.group)
-          fd.append("collected", this.selectedItem.collected_on)
-
-          this.updatePondInstance.getFiles().forEach(fileItem => {
-                fd.append("file", fileItem.file);
-          });
-
-          fetch(`/api/v1/evidence/${this.selectedItem.id}`, {
-              method: "PUT",
-              body: fd,
-              cache: "no-cache"
-            })
-            .then(response => {
-              if (!response.ok) {
-                // Convert non-2xx HTTP responses into errors
-                return response.json().then(errorData => {
-                  throw new Error(errorData.message);
-                });
-              }
-              return response.json(); // Parse JSON response
-            })
-            .then(data => {
-              toast("Updated evidence")
-              this.showModal = false;
-              return data;
-            })
-            .catch(errMsg => {
-              toast(errMsg.message, "error");
-              return errMsg;
-          });
-        },
-        createEvidence: function() {
-          if (!this.formData.name) {
-            toast("Name is required","error")
-            return
-          }
-          var fd = new FormData();
-
-          fd.append("name", this.formData.name)
-          fd.append("content", this.formData.content)
-          fd.append("group", this.formData.group)
-          fd.append("description", this.formData.description)
-          if (this.formData.collected_on) {
-            fd.append("collected_on", this.formData.collected_on)
-          }
-          this.createPondInstance.getFiles().forEach(fileItem => {
-                fd.append("file", fileItem.file);
-          });
-          requestWithForm("POST",
-            `/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/evidence`,
-            data => {
-              toast("Created evidence")
-              this.getItems()
-              this.showCreateModal = false
-            },
-            error => {
-              toast(error.message, "error");
-            },
-            fd
-          );
-
-        },
-        getTenantEvidence: function(subcontrol) {
-          request("GET",
-            `/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/evidence`,
-            data => {
-              this.tenantEvidence = data;
-            },
-            error => {
-              toast(error.message, "error");
-            }
-          );
-        },
-        getEvidence: function(subcontrol) {
-          // get evidence for a subcontrol
-          this.evidence = []
-          this.evidence_map = [];
-
-          request("GET",
-            `/api/v1/projects/${this.projectId}/subcontrols/${subcontrol.id}/evidence`,
-            data => {
-              for (var item in data) {
-                console.log(data[item])
-                this.evidence.push(data[item])
-                this.evidence_map[data[item].id] = data[item].name;
-              }
-            },
-            error => {
-              toast(error.message, "error");
-            }
-          );
-        },
+        
+        actionsRenderer: function(params) {
+          return `
+            <div class="flex gap-1">
+              <button class="btn btn-xs btn-ghost" onclick="this.closest('[x-data]').__x.$data.openViewModal(${JSON.stringify(params.data).replace(/"/g, '&quot;')})">
+                <i class="ti ti-eye"></i>
+              </button>
+              <button class="btn btn-xs btn-ghost" onclick="this.closest('[x-data]').__x.$data.openDeleteModal(${JSON.stringify(params.data).replace(/"/g, '&quot;')})">
+                <i class="ti ti-trash text-error"></i>
+              </button>
+            </div>
+          `;
+        }
     }
+}
+
+// Helper functions
+function simpleDate(params) {
+  if (!params.value) return 'N/A';
+  const date = new Date(params.value);
+  return date.toLocaleDateString();
 }
 </script>
 {%endblock%}

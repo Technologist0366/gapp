@@ -36,13 +36,44 @@
 								<span class="text-xl" x-text="selectedReport.title"></span>
 							</div>
 							<div class="flex flex-row gap-x-2">
-
+								<!-- NEW: Evidence button -->
+								<button @click="showEvidence(selectedReport)" 
+								        x-show="selectedReport.source"
+								        class="btn btn-sm btn-ghost border border-base-300 tooltip" 
+								        data-tip="View Source Evidence">
+									<i class="ti ti-file-text text-xl"></i>
+								</button>
 								<button @click="copyRiskLink(selectedReport.id)" class="btn btn-sm btn-ghost border border-base-300"><i class="ti ti-share text-xl"></i></button>
 								<button @click="closeReportDrawer" class="btn btn-sm btn-ghost border border-base-300"><i class="ti ti-x text-xl"></i></button>
 							</div>
 						</div>
 					</div>
-						<div class="grid grid-cols-12 my-6 gap-x-6">
+					
+					<!-- NEW: Compliance badges row -->
+					<div class="flex flex-wrap gap-2 mt-3" x-show="selectedReport.compliance">
+						<!-- Risk badge -->
+						<span :class="riskBadgeClass(selectedReport.risk)" 
+						      class="badge" 
+						      x-text="selectedReport.risk"></span>
+						
+						<!-- Compliance violation badge -->
+						<span x-show="selectedReport.compliance && selectedReport.compliance.violated_laws" 
+						      class="badge badge-warning" 
+						      x-text="'Violates: ' + (selectedReport.compliance.violated_laws.length || 0) + ' laws'"></span>
+						
+						<!-- Evidence confidence badge -->
+						<span x-show="selectedReport.source && selectedReport.source.confidence" 
+						      class="badge" 
+						      :class="selectedReport.source.confidence > 0.9 ? 'badge-success' : 'badge-warning'"
+						      x-text="'Confidence: ' + Math.round((selectedReport.source.confidence || 0) * 100) + '%'"></span>
+						
+						<!-- Extraction method badge -->
+						<span x-show="selectedReport.extraction" 
+						      class="badge badge-info" 
+						      x-text="selectedReport.extraction.method || 'AI Extraction'"></span>
+					</div>
+					
+					<div class="grid grid-cols-12 my-6 gap-x-6">
 						<div class="col-span-6">
 							<div class="flex flex-col mb-2">
 								<span class="subtitle text-sm">Risk Description</span>
@@ -71,8 +102,36 @@
 							</div>
 						</div>
 					</div>
-						<div role="tablist" class="tabs">
+					
+					<!-- NEW: Document Source Panel -->
+					<div x-show="selectedReport.source" class="border-t pt-4 mt-4">
+						<h4 class="subtitle text-sm mb-2">📄 Source Evidence</h4>
+						<div class="text-xs space-y-1">
+							<div class="flex">
+								<span class="font-medium w-24">Document:</span>
+								<a :href="'/documents/' + selectedReport.source.document_id" 
+								   class="link link-primary truncate max-w-xs" 
+								   x-text="selectedReport.source.document_name || selectedReport.source.document_id"></a>
+							</div>
+							<div class="flex" x-show="selectedReport.source.page">
+								<span class="font-medium w-24">Page:</span>
+								<span x-text="selectedReport.source.page"></span>
+							</div>
+							<div class="flex" x-show="selectedReport.source.ocr_snippet">
+								<span class="font-medium w-24">Extracted Text:</span>
+								<span class="italic truncate max-w-md" x-text="selectedReport.source.ocr_snippet"></span>
+							</div>
+							<button @click="showSourceImage(selectedReport)" 
+							        class="btn btn-xs btn-ghost mt-2"
+							        x-show="selectedReport.source.page">
+								<i class="ti ti-photo"></i> View Source Image
+							</button>
+						</div>
+					</div>
+					
+					<div role="tablist" class="tabs mt-4">
 					  <button @click="changeTabInDrawer('overview')" :class="{'border-b font-semibold border-primary': activeSideTab==='overview'}" role="tab" class="tab subtitle text-sm hover:opacity-50">Overview</button>
+					  <button @click="changeTabInDrawer('compliance')" :class="{'border-b font-semibold border-primary': activeSideTab==='compliance'}" role="tab" class="tab subtitle text-sm hover:opacity-50" x-text="'Compliance' + (selectedReport.compliance ? ' (' + selectedReport.compliance.violated_laws.length + ')' : '')"></button>
 					  <button @click="changeTabInDrawer('comments'); scrollToRecentMessagesInDrawer()" :class="{'border-b font-semibold border-primary': activeSideTab==='comments'}" role="tab" class="tab subtitle text-sm hover:opacity-50" x-text="'Comments ('+comments.length+')'"></button>
 					</div>
 					</div>
@@ -82,93 +141,150 @@
 			<!-- Scrollable Middle Section -->
 			<div id="middle-section" class="flex-1 overflow-y-auto p-4">
 
-	<!--            Control drawer content-->
-				<div>
-					<div x-show="activeSideTab==='overview'" class="card">
-						<div class="grid grid-cols-12 gap-4">
-							<div class="col-span-4">
-								<div class="card card-body border border-base-300">
-									<div class="card-title">Risk Level</div>
-									<figure>
-										<div class="radial-progress text-sm font-semibold my-2 border-base-100 border-2 mt-6 text-error uppercase" :style="'--value:' + selectedReport.risk_level + '; --size: 12rem; --thickness: 2px;'" role="progressbar" x-text="selectedReport.risk"></div>
-									</figure>
-								</div>
+				<!-- Overview Tab -->
+				<div x-show="activeSideTab==='overview'" class="card">
+					<div class="grid grid-cols-12 gap-4">
+						<div class="col-span-4">
+							<div class="card card-body border border-base-300">
+								<div class="card-title">Risk Level</div>
+								<figure>
+									<div class="radial-progress text-sm font-semibold my-2 border-base-100 border-2 mt-6 text-error uppercase" :style="'--value:' + selectedReport.risk_level + '; --size: 12rem; --thickness: 2px;'" role="progressbar" x-text="selectedReport.risk"></div>
+								</figure>
 							</div>
-							<div class="col-span-8">
-								<div class="grid grid-cols-6 gap-2">
-									<div class="col-span-2">
-										<div class="flex flex-row">
-											<h4 class="subtitle text-sm">Risk Status</h4>
-										</div>
-										<select @change="updateRisk(selectedReport)" x-model="selectedReport.status" class="select select-sm w-full">
-											<option value="new" :selected="selectedReport.status === 'new'">New</option>
-											<option value="in_progress" :selected="selectedReport.status === 'in_progress'">In Progress</option>
-											<option value="accepted" :selected="selectedReport.status === 'accepted'">Accepted</option>
-											<option value="mitigated" :selected="selectedReport.status === 'mitigated'">Mitigated</option>
-										</select>
+						</div>
+						<div class="col-span-8">
+							<div class="grid grid-cols-6 gap-2">
+								<div class="col-span-2">
+									<div class="flex flex-row">
+										<h4 class="subtitle text-sm">Risk Status</h4>
 									</div>
-									<div class="col-span-2">
-										<div class="flex flex-row">
-											<h4 class="subtitle text-sm">Risk Level</h4>
-										</div>
-										<select @change="updateRisk(selectedReport)" x-model="selectedReport.risk" class="select select-sm w-full">
-											<option value="critical" :selected="selectedReport.risk === 'critical'">Critical</option>
-											<option value="high" :selected="selectedReport.risk === 'high'">High</option>
-											<option value="moderate" :selected="selectedReport.risk === 'moderate'">Moderate</option>
-											<option value="low" :selected="selectedReport.risk === 'low'">Low</option>
-											<option value="unknown" :selected="selectedReport.risk === 'unknown'">Unknown</option>
-
-										</select>
+									<select @change="updateRisk(selectedReport)" x-model="selectedReport.status" class="select select-sm w-full">
+										<option value="new" :selected="selectedReport.status === 'new'">New</option>
+										<option value="in_progress" :selected="selectedReport.status === 'in_progress'">In Progress</option>
+										<option value="accepted" :selected="selectedReport.status === 'accepted'">Accepted</option>
+										<option value="mitigated" :selected="selectedReport.status === 'mitigated'">Mitigated</option>
+									</select>
+								</div>
+								<div class="col-span-2">
+									<div class="flex flex-row">
+										<h4 class="subtitle text-sm">Risk Level</h4>
 									</div>
-									<div class="col-span-2">
-										<div class="flex flex-row">
-											<h4 class="subtitle text-sm"><i x-show="!selectedReport.assignee" class="ti ti-alert-triangle text-warning mr-1 my-auto"></i>Assignee</h4>
-										</div>
-										<select @change="updateRisk(selectedReport)" x-model="selectedReport.assignee" class="select select-sm w-full">
-											<option value="" :selected="selectedReport.assignee === 'Missing Assignee'">Missing Assignee</option>
-											<template  x-for="user in tenantUsers">
-												<option :value="user.id" x-text="user.email" :selected="selectedReport.assignee === user.id"></option>
-											</template>
-										</select>
+									<select @change="updateRisk(selectedReport)" x-model="selectedReport.risk" class="select select-sm w-full">
+										<option value="critical" :selected="selectedReport.risk === 'critical'">Critical</option>
+										<option value="high" :selected="selectedReport.risk === 'high'">High</option>
+										<option value="moderate" :selected="selectedReport.risk === 'moderate'">Moderate</option>
+										<option value="low" :selected="selectedReport.risk === 'low'">Low</option>
+										<option value="unknown" :selected="selectedReport.risk === 'unknown'">Unknown</option>
+									</select>
+								</div>
+								<div class="col-span-2">
+									<div class="flex flex-row">
+										<h4 class="subtitle text-sm"><i x-show="!selectedReport.assignee" class="ti ti-alert-triangle text-warning mr-1 my-auto"></i>Assignee</h4>
 									</div>
-									<div class="col-span-6">
-										<h4 class="my-2 subtitle text-sm">Risk Description</h4>
-										<textarea rows="4" @change="updateRisk(selectedReport)" x-model="selectedReport.description" :value="selectedReport.description" x-text="selectedReport.description" class="textarea w-full" placeholder="No description as been provided."></textarea>
-									</div>
-									<div class="col-span-6">
-										<h4 class="my-2 subtitle text-sm">Risk Remediation</h4>
-										<textarea rows="4" @change="updateRisk(selectedReport)" x-model="selectedReport.remediation" :value="selectedReport.remediation" x-text="selectedReport.remediation" class="textarea w-full" placeholder="No remediation as been provided."></textarea>
-									</div>
+									<select @change="updateRisk(selectedReport)" x-model="selectedReport.assignee" class="select select-sm w-full">
+										<option value="" :selected="selectedReport.assignee === 'Missing Assignee'">Missing Assignee</option>
+										<template x-for="user in tenantUsers">
+											<option :value="user.id" x-text="user.email" :selected="selectedReport.assignee === user.id"></option>
+										</template>
+									</select>
+								</div>
+								<div class="col-span-6">
+									<h4 class="my-2 subtitle text-sm">Risk Description</h4>
+									<textarea rows="4" @change="updateRisk(selectedReport)" x-model="selectedReport.description" :value="selectedReport.description" x-text="selectedReport.description" class="textarea w-full" placeholder="No description as been provided."></textarea>
+								</div>
+								<div class="col-span-6">
+									<h4 class="my-2 subtitle text-sm">Risk Remediation</h4>
+									<textarea rows="4" @change="updateRisk(selectedReport)" x-model="selectedReport.remediation" :value="selectedReport.remediation" x-text="selectedReport.remediation" class="textarea w-full" placeholder="No remediation as been provided."></textarea>
 								</div>
 							</div>
 						</div>
 					</div>
+				</div>
 
-					<div x-show="activeSideTab==='comments'" class="flex-1 overflow-y-auto">
-						<div x-show="comments.length===0" class="flex-grow hero-content text-center">
-							<div class="max-w-md">
-							  <h1 class="text-2xl font-semibold mt-10">No Comments</h1>
-							  <p class="py-6">
-								There are no comments! Start communicating with team members
-							  </p>
+				<!-- NEW: Compliance Tab -->
+				<div x-show="activeSideTab==='compliance'" class="card">
+					<div class="card-body">
+						<h3 class="card-title mb-4">Compliance Violations</h3>
+						
+						<div x-show="!selectedReport.compliance || !selectedReport.compliance.violated_laws || selectedReport.compliance.violated_laws.length === 0">
+							<div class="alert alert-info">
+								<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+								<span>No compliance violations found. This risk was manually created or has no linked regulations.</span>
 							</div>
 						</div>
-						<div x-show="comments.length>0" class="flex-grow overflow-y-auto">
-							 <template x-for="message in comments" :key="message.id">
-								<div :class='{"chat-start": message.author_email === $store.currentUser.email, "chat-end": message.author_email !== $store.currentUser.email}' class="chat">
-								  <div @click="deleteControlMessage(message)" class="chat-image avatar placeholder cursor-pointer">
-									  <div class="bg-base-300 rounded-full w-8">
-										<span class="text-xs uppercase" x-text="message.author_email[0]"></span>
-									  </div>
-								  </div>
-								  <div class="chat-header mb-2">
-									<span class="text-xs opacity-50 mr-1" x-text="simpleDate(message.date_added)"></span>
-									<p class="font-normal" x-text="message.author_email"></p>
-								  </div>
-								  <div class="chat-bubble" x-text="message.message"></div>
+						
+						<div x-show="selectedReport.compliance && selectedReport.compliance.violated_laws && selectedReport.compliance.violated_laws.length > 0">
+							<template x-for="(law, index) in selectedReport.compliance.violated_laws" :key="index">
+								<div class="border border-base-300 rounded-lg p-4 mb-3">
+									<div class="flex justify-between items-start">
+										<div>
+											<h4 class="font-semibold" x-text="law.code || 'NEMA Regulation'"></h4>
+											<p class="text-sm mt-1" x-text="law.description || law"></p>
+											<div class="flex items-center mt-2">
+												<span class="badge badge-sm" 
+												      :class="{'badge-error': law.severity === 'high' || law.severity === 'critical', 'badge-warning': law.severity === 'medium', 'badge-success': law.severity === 'low'}"
+												      x-text="law.severity || 'unknown'"></span>
+												<span class="text-xs ml-3" x-text="'Control ID: ' + (law.control_id || 'N/A')"></span>
+											</div>
+										</div>
+										<a :href="law.reference_url || '#'" target="_blank" class="btn btn-xs btn-ghost">
+											<i class="ti ti-external-link"></i> View Regulation
+										</a>
+									</div>
 								</div>
-							 </template>
+							</template>
 						</div>
+						
+						<!-- Extraction Metadata -->
+						<div class="border-t mt-6 pt-6" x-show="selectedReport.extraction">
+							<h4 class="subtitle text-sm mb-3">Extraction Metadata</h4>
+							<div class="grid grid-cols-2 gap-4 text-sm">
+								<div>
+									<span class="font-medium">Pipeline Version:</span>
+									<span class="ml-2" x-text="selectedReport.extraction.pipeline_version || 'v1.0'"></span>
+								</div>
+								<div>
+									<span class="font-medium">Extracted At:</span>
+									<span class="ml-2" x-text="formatDate(selectedReport.extraction.extracted_at)"></span>
+								</div>
+								<div>
+									<span class="font-medium">Method:</span>
+									<span class="ml-2" x-text="selectedReport.extraction.method || 'AI + Rules'"></span>
+								</div>
+								<div>
+									<span class="font-medium">Entity Types:</span>
+									<span class="ml-2" x-text="selectedReport.extraction.entity_types ? selectedReport.extraction.entity_types.join(', ') : 'Finding, Observation'"></span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Comments Tab -->
+				<div x-show="activeSideTab==='comments'" class="flex-1 overflow-y-auto">
+					<div x-show="comments.length===0" class="flex-grow hero-content text-center">
+						<div class="max-w-md">
+						  <h1 class="text-2xl font-semibold mt-10">No Comments</h1>
+						  <p class="py-6">
+							There are no comments! Start communicating with team members
+						  </p>
+						</div>
+					</div>
+					<div x-show="comments.length>0" class="flex-grow overflow-y-auto">
+						 <template x-for="message in comments" :key="message.id">
+							<div :class='{"chat-start": message.author_email === $store.currentUser.email, "chat-end": message.author_email !== $store.currentUser.email}' class="chat">
+							  <div @click="deleteControlMessage(message)" class="chat-image avatar placeholder cursor-pointer">
+								  <div class="bg-base-300 rounded-full w-8">
+									<span class="text-xs uppercase" x-text="message.author_email[0]"></span>
+								  </div>
+							  </div>
+							  <div class="chat-header mb-2">
+								<span class="text-xs opacity-50 mr-1" x-text="simpleDate(message.date_added)"></span>
+								<p class="font-normal" x-text="message.author_email"></p>
+							  </div>
+							  <div class="chat-bubble" x-text="message.message"></div>
+							</div>
+						 </template>
 					</div>
 				</div>
 
@@ -176,7 +292,6 @@
 
 			<!-- Sticky Footer -->
 			<div class="border-t border-base-300 py-4">
-<!--                Control message-->
 				<div x-show="activeSideTab==='comments'" class="relative flex">
 					<input x-model="currentMessage" @keyup.enter="createMessage(selectedReport)" type="text" placeholder="Write your message!" class="w-full input-md border border-base-100 bg-base-300 focus:outline-none pl-6 rounded-md py-3">
 					<div class="absolute right-0 items-center inset-y-0 hidden sm:flex">
@@ -188,7 +303,6 @@
 						</button>
 					</div>
 				</div>
-
 			</div>
 		</div>
 	</div>
@@ -332,197 +446,346 @@
             </div>
         </div>
     	</div>
+    	
         <div class="col-span-8 p-5 border rounded-tr-lg overflow-y-auto h-screen border-base-300">
-        	<div class="overflow-x-auto">
-          <div class="flex justify-between my-2">
-            <div class="flex flex-row gap-x-2 my-auto">
-				<span class="card-title">Reports</span>
-				<span class="pill text-ss bg-base-300" x-text="'Showing: '+filteredReports.length"></span>
-              <span x-show="false" x-text="JSON.stringify(filter)"></span>
-            </div>
-            <div class="flex flex-row gap-x-4">
-				<button @click="search=''" x-show="search.length>0" class="btn btn-xs btn-ghost border border-base-300 my-auto"><i class="ti ti-x text-error"></i></button>
-				<label x-show="tableSelected" class="input input-sm input-bordered flex items-center gap-2">
-				  <input type="text" class="grow text-sm" x-model="search" @input="filterReports()" placeholder="Search by Title" />
-				  <svg
-					xmlns="http://www.w3.org/2000/svg"
-					viewBox="0 0 16 16"
-					fill="currentColor"
-					:class="{'text-error': search.length>0}"
-					class="h-4 w-4 opacity-70">
-					<path
-					  fill-rule="evenodd"
-					  d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
-					  clip-rule="evenodd" />
-				  </svg>
-				</label>
-				<div class="flex flex-row gap-x-2 border border-base-300 rounded-lg my-auto">
-					<button @click="switchToTable" :class="{'btn-active': tableSelected}" class="btn btn-sm btn-ghost"><i class="ti ti-table"></i>Table</button>
-					<button @click="switchToChart" :class="{'btn-active': !tableSelected}" class="btn btn-sm btn-ghost"><i class="ti ti-chart-bar"></i>Dashboard</button>
-				</div>
-				<button @click="showCreateRisk=true" class="btn btn-sm btn-success">Create Risk</button>
-              	<span class="my-auto" x-show="rowsSelected.length>0" x-text="'Rows selected: '+rowsSelected.length"></span>
-              	<div class="my-auto" x-show="rowsSelected.length>0">
-					<details class="dropdown dropdown-bottom dropdown-end">
-						<summary class="btn btn-sm btn-ghost border border-base-300"><i class="ti ti-dots text-lg"></i></summary>
-						<ul class="menu dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
-							<li><a @click="toggleAllRows(true)"><i class="ti ti-checks mr-1 text-success"></i>Select all</a></li>
-							<li><a @click="deselectedAllRows"><i class="ti ti-x mr-1 text-error"></i>Deselect all</a></li>
-							<li><a @click="showUpdateStatusModal = true"><i class="ti ti-progress mr-1"></i>Update Status</a></li>
-							<li><a @click="showUpdateRiskModal = true"><i class="ti ti-alarm mr-1"></i>Update Risk</a></li>
-						</ul>
-					</details>
-				</div>
-
-            </div>
-          </div>
-<!--          When we are loading/filtering reports-->
-          <div x-show="loadingReports">
-            <div class="hero bg-base-200 min-h-screen">
-              <div class="hero-content text-center">
-                <div class="max-w-full">
-                  <span class="loading loading-dots loading-lg"></span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-<!--          When the filter does not match any data-->
-          <div x-show="!loadingReports && filteredReports.length===0">
-            <div class="hero bg-base-200 min-h-screen">
-              <div class="hero-content text-center">
-                <div class="max-w-full">
-                  <h1 class="text-2xl font-semibold">No Risks!</h1>
-                  <p x-show="!hasFilter" class="py-4">
-                    You have not logged any risks. Let's get started.
-                  </p>
-                  <button x-show="!hasFilter" @click="showCreateRisk=true" class="btn btn-sm btn-success">Create Risk</button>
-                  <p x-show="hasFilter" class="py-4">
-                    The filter you applied does not match any reports.
-                  </p>
-                  <button x-show="hasFilter" @click="disableFilter" class="btn btn-sm btn-error">Remove Filter</button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-<!--          When we have results to show-->
-		  <div x-show="!loadingReports && filteredReports.length>0">
-          	<table x-show="tableSelected" class="table">
-            <!-- head -->
-            <thead>
-              <tr>
-                <th class="p-4 bg-base-200 rounded-tl-lg w-1">
-                  <label>
-                    <input x-ref="selectAllCheckbox" @click="toggleAllRows($el.checked)" type="checkbox" class="checkbox checkbox-xs mt-1" />
-                  </label>
-                </th>
-                <th class="p-4 bg-base-200">Status</th>
-                <th class="p-4 bg-base-200">Title</th>
-                <th class="p-4 bg-base-200">Description</th>
-                <th class="p-4 bg-base-200">Risk</th>
-			  	<th class="p-4 bg-base-200">Created</th>
-                <th class="p-4 bg-base-200 rounded-tr-lg w-1">Open</th>
-
-              </tr>
-            </thead>
-            <tbody class="border border-base-300 px-1">
-                <template x-for="report in paginatedReports" :key="report.id">
-                  <tr :class="{'opacity-70': previousSelectedReport === report}">
-                    <th>
-                      <div class="my-auto mt-1">
-                        <input :checked="rowsSelected.includes(report.id)" @change="toggleRow($event.target.checked, report.id)" type="checkbox" class="checkbox checkbox-xs"/>
-                      </div>
-                    </th>
-				    <td>
-                        <span :class="{'bg-primary': report.status==='new', 'bg-warning': report.status==='in_progress', 'bg-success': report.status==='mitigated', 'bg-success opacity-80': report.status==='accepted'}" class="p-1 px-2 rounded-lg uppercase text-ss text-primary-content" x-text="report.status"></span>
-                    </td>
-                    <td @click="openDrawer(report)" class="underline hover:cursor-pointer hover:opacity-75">
-						<div class="flex flex-row">
-							<span x-text="report.title"></span>
+        	<!-- NEW: Document Processing Panel -->
+        	<div class="card bg-base-200 mb-6">
+				<div class="card-body">
+					<h3 class="card-title"><i class="ti ti-file-text"></i> Process Documents</h3>
+					
+					<div class="grid grid-cols-12 gap-4">
+						<div class="col-span-8">
+							<input type="file" 
+							       @change="queueDocuments" 
+							       multiple 
+							       accept=".pdf,.png,.jpg" 
+							       class="file-input file-input-bordered w-full" />
+							<p class="text-xs mt-2">Upload PDFs for automated risk extraction (up to 100 files)</p>
+							
+							<!-- Selected files preview -->
+							<div x-show="queuedDocuments.length > 0" class="mt-3">
+								<p class="text-sm font-medium mb-2">Selected files:</p>
+								<ul class="text-xs space-y-1 max-h-32 overflow-y-auto">
+									<template x-for="(doc, index) in queuedDocuments" :key="index">
+										<li class="flex justify-between items-center bg-base-100 p-2 rounded">
+											<span class="truncate" x-text="doc.name"></span>
+											<button @click="removeQueuedDocument(index)" class="btn btn-xs btn-ghost">
+												<i class="ti ti-x text-error"></i>
+											</button>
+										</li>
+									</template>
+								</ul>
+							</div>
 						</div>
-					</td>
-					<td>
-						<div
-						  x-data="{ expanded: false }"
-						  class="overflow-y-auto"
-						  :class="expanded ? 'h-40' : ''"
-						>
-						  <span class="text-xs">
-							<template x-if="report.description.length > 200">
-							  <p class="text-xs" x-text="expanded ? report.description : report.description.slice(0, 200) + '...'"></p>
-							</template>
-							<template x-if="report.description.length <= 200">
-							  <p class="text-xs" x-text="report.description"></p>
-							</template>
-						  </span>
-
-						  <button
-							x-show="report.description.length > 200"
-							@click="expanded = !expanded"
-							class="underline text-ss"
-						  >
-							<span class="text-xs" x-text="expanded ? 'See less' : 'See more'"></span>
-						  </button>
+						
+						<div class="col-span-4">
+							<div class="flex flex-col space-y-2">
+								<button @click="processUploadedDocs" 
+										:disabled="!queuedDocuments.length || processingDocs" 
+										class="btn btn-primary w-full">
+									<i class="ti ti-robot"></i> 
+									<span x-text="processingDocs ? 'Processing...' : 'Extract Risks'"></span>
+								</button>
+								
+								<!-- Processing options -->
+								<div class="collapse collapse-arrow border border-base-300 rounded">
+									<input type="checkbox" />
+									<div class="collapse-title text-xs font-medium">Processing Options</div>
+									<div class="collapse-content text-xs">
+										<div class="form-control">
+											<label class="label cursor-pointer justify-start p-1">
+												<input type="checkbox" x-model="processingOptions.extractCompliance" class="checkbox checkbox-xs mr-2" />
+												<span>Extract compliance violations</span>
+											</label>
+										</div>
+										<div class="form-control">
+											<label class="label cursor-pointer justify-start p-1">
+												<input type="checkbox" x-model="processingOptions.autoAssign" class="checkbox checkbox-xs mr-2" />
+												<span>Auto-assign risks</span>
+											</label>
+										</div>
+										<div class="form-control">
+											<label class="label cursor-pointer justify-start p-1">
+												<input type="checkbox" x.model="processingOptions.highConfidenceOnly" class="checkbox checkbox-xs mr-2" />
+												<span>High confidence only (>90%)</span>
+											</label>
+										</div>
+									</div>
+								</div>
+							</div>
 						</div>
-					</td>
-
-                    <td>
-                        <span :class="{'bg-primary': report.risk==='unknown', 'bg-success': report.risk==='low', 'bg-warning': report.risk==='moderate', 'bg-error opacity-80': report.risk==='high', 'bg-error': report.risk==='critical'}" class="p-1 px-2 rounded-lg uppercase text-ss text-white" x-text="report.risk"></span>
-                    </td>
-				  	<td>
-						<span class="tooltip text-xs" :data-tip="report.created_at_h" x-text="report.created_at"></span>
-				    </td>
-                    <td>
-                        <button @click="openDrawer(report)" class="btn btn-xs btn-ghost border border-base-300"><i class="ti ti-arrow-right text-md"></i></button>
-                    </td>
-                  </tr>
-                </template>
-            </tbody>
-          </table>
-
-          	<div x-show="tableSelected" class="join bg-base-200 float-right mt-2">
-              <button @click="prevPage" :disabled="currentPage === 1" class="join-item btn-sm">«</button>
-              <button class="join-item btn-sm" :disabled="true" x-text="'Page ' + currentPage"></button>
-              <button @click="nextPage" :disabled="currentPage === totalPages" class="join-item btn-sm">»</button>
-          </div>
-
-		  	<div class="mt-4" x-show="!tableSelected">
-			  <div class="grid grid-cols-12 gap-4">
-				  <div class="col-span-6">
-					  <div class="card border border-base-300">
-						  <div class="card-body">
-							  <div class="card-title">Status of Reports</div>
-							  <div id="statusChart" x-ref="statusChart"></div>
-						  </div>
-					  </div>
-				  </div>
-				  <div class="col-span-6">
-					  <div class="card border border-base-300">
-						  <div class="card-body">
-							  <div class="card-title">Initial Risk</div>
-							  <div id="initialRiskChart" x-ref="initialRiskChart"></div>
-						  </div>
-					  </div>
-				  </div>
-				  <div class="col-span-12">
-					  <div class="card border border-base-300">
-						  <div class="card-body">
-							  <div class="card-title">Activity Chart - last 30 days</div>
-							  <div id="activityChart" x-ref="activityChart"></div>
-						  </div>
-					  </div>
-				  </div>
-			  </div>
-
+					</div>
+					
+					<!-- Processing status -->
+					<div x-show="processingDocs" class="mt-4">
+						<div class="flex items-center justify-between mb-2">
+							<span class="text-sm" x-text="processingStatus"></span>
+							<span class="text-sm font-medium" x-text="processingProgress + '%'"></span>
+						</div>
+						<progress class="progress progress-primary w-full" 
+								:value="processingProgress" 
+								max="100"></progress>
+						
+						<!-- Processing details -->
+						<div x-show="processingStats" class="mt-3 text-xs grid grid-cols-4 gap-2">
+							<div class="text-center">
+								<div class="stat-title">Pages</div>
+								<div class="stat-value text-lg" x-text="processingStats.pagesProcessed || 0"></div>
+							</div>
+							<div class="text-center">
+								<div class="stat-title">Risks</div>
+								<div class="stat-value text-lg" x-text="processingStats.risksFound || 0"></div>
+							</div>
+							<div class="text-center">
+								<div class="stat-title">Violations</div>
+								<div class="stat-value text-lg" x-text="processingStats.violationsFound || 0"></div>
+							</div>
+							<div class="text-center">
+								<div class="stat-title">Confidence</div>
+								<div class="stat-value text-lg" x-text="Math.round((processingStats.averageConfidence || 0) * 100) + '%'"></div>
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
-		  </div>
+        	
+        	<div class="overflow-x-auto">
+          		<div class="flex justify-between my-2">
+            		<div class="flex flex-row gap-x-2 my-auto">
+						<span class="card-title">Reports</span>
+						<span class="pill text-ss bg-base-300" x-text="'Showing: '+filteredReports.length"></span>
+              			<span x-show="false" x-text="JSON.stringify(filter)"></span>
+            		</div>
+            		
+            		<div class="flex flex-row gap-x-4">
+						<button @click="search=''" x-show="search.length>0" class="btn btn-xs btn-ghost border border-base-300 my-auto"><i class="ti ti-x text-error"></i></button>
+						<label x-show="tableSelected" class="input input-sm input-bordered flex items-center gap-2">
+						  <input type="text" class="grow text-sm" x-model="search" @input="filterReports()" placeholder="Search by Title" />
+						  <svg
+							xmlns="http://www.w3.org/2000/svg"
+							viewBox="0 0 16 16"
+							fill="currentColor"
+							:class="{'text-error': search.length>0}"
+							class="h-4 w-4 opacity-70">
+							<path
+							  fill-rule="evenodd"
+							  d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
+							  clip-rule="evenodd" />
+						  </svg>
+						</label>
+						
+						<!-- NEW: Source filter -->
+						<select x-model="filter.sourceType" @change="filterReports()" class="select select-sm select-bordered">
+							<option value="">All Sources</option>
+							<option value="ai">AI Extracted</option>
+							<option value="manual">Manual</option>
+						</select>
+						
+						<div class="flex flex-row gap-x-2 border border-base-300 rounded-lg my-auto">
+							<button @click="switchToTable" :class="{'btn-active': tableSelected}" class="btn btn-sm btn-ghost"><i class="ti ti-table"></i>Table</button>
+							<button @click="switchToChart" :class="{'btn-active': !tableSelected}" class="btn btn-sm btn-ghost"><i class="ti ti-chart-bar"></i>Dashboard</button>
+						</div>
+						
+						<button @click="showCreateRisk=true" class="btn btn-sm btn-success">Create Risk</button>
+						
+              			<span class="my-auto" x-show="rowsSelected.length>0" x-text="'Rows selected: '+rowsSelected.length"></span>
+              			
+              			<div class="my-auto" x-show="rowsSelected.length>0">
+							<details class="dropdown dropdown-bottom dropdown-end">
+								<summary class="btn btn-sm btn-ghost border border-base-300"><i class="ti ti-dots text-lg"></i></summary>
+								<ul class="menu dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+									<li><a @click="toggleAllRows(true)"><i class="ti ti-checks mr-1 text-success"></i>Select all</a></li>
+									<li><a @click="deselectedAllRows"><i class="ti ti-x mr-1 text-error"></i>Deselect all</a></li>
+									<li><a @click="showUpdateStatusModal = true"><i class="ti ti-progress mr-1"></i>Update Status</a></li>
+									<li><a @click="showUpdateRiskModal = true"><i class="ti ti-alarm mr-1"></i>Update Risk</a></li>
+									<!-- NEW: Export evidence -->
+									<li><a @click="exportSelectedEvidence"><i class="ti ti-download mr-1"></i>Export Evidence</a></li>
+								</ul>
+							</details>
+						</div>
+            		</div>
+          		</div>
+          		
+<!--          		When we are loading/filtering reports-->
+          		<div x-show="loadingReports">
+            		<div class="hero bg-base-200 min-h-screen">
+              			<div class="hero-content text-center">
+                			<div class="max-w-full">
+                  				<span class="loading loading-dots loading-lg"></span>
+                			</div>
+              			</div>
+            		</div>
+          		</div>
 
+<!--          		When the filter does not match any data-->
+          		<div x-show="!loadingReports && filteredReports.length===0">
+            		<div class="hero bg-base-200 min-h-screen">
+              			<div class="hero-content text-center">
+                			<div class="max-w-full">
+                  				<h1 class="text-2xl font-semibold">No Risks!</h1>
+                  				<p x-show="!hasFilter" class="py-4">
+                    				You have not logged any risks. Let's get started.
+                  				</p>
+                  				<button x-show="!hasFilter" @click="showCreateRisk=true" class="btn btn-sm btn-success">Create Risk</button>
+                  				<p x-show="hasFilter" class="py-4">
+                    				The filter you applied does not match any reports.
+                  				</p>
+                  				<button x-show="hasFilter" @click="disableFilter" class="btn btn-sm btn-error">Remove Filter</button>
+                			</div>
+              			</div>
+            		</div>
+          		</div>
 
-        </div>
+<!--          		When we have results to show-->
+		  		<div x-show="!loadingReports && filteredReports.length>0">
+          			<table x-show="tableSelected" class="table">
+            			<!-- head -->
+            			<thead>
+              				<tr>
+                				<th class="p-4 bg-base-200 rounded-tl-lg w-1">
+                  					<label>
+                    					<input x-ref="selectAllCheckbox" @click="toggleAllRows($el.checked)" type="checkbox" class="checkbox checkbox-xs mt-1" />
+                  					</label>
+                				</th>
+                				<th class="p-4 bg-base-200">Status</th>
+                				<th class="p-4 bg-base-200">Title</th>
+                				<th class="p-4 bg-base-200">Description</th>
+                				<th class="p-4 bg-base-200">Risk</th>
+			  					<th class="p-4 bg-base-200">Source</th>
+			  					<th class="p-4 bg-base-200">Created</th>
+                				<th class="p-4 bg-base-200 rounded-tr-lg w-1">Open</th>
+              				</tr>
+            			</thead>
+            			<tbody class="border border-base-300 px-1">
+                			<template x-for="report in paginatedReports" :key="report.id">
+                  				<tr :class="{'opacity-70': previousSelectedReport === report}">
+                    				<th>
+                      					<div class="my-auto mt-1">
+                        					<input :checked="rowsSelected.includes(report.id)" @change="toggleRow($event.target.checked, report.id)" type="checkbox" class="checkbox checkbox-xs"/>
+                      					</div>
+                    				</th>
+				    				<td>
+                        				<span :class="{'bg-primary': report.status==='new', 'bg-warning': report.status==='in_progress', 'bg-success': report.status==='mitigated', 'bg-success opacity-80': report.status==='accepted'}" class="p-1 px-2 rounded-lg uppercase text-ss text-primary-content" x-text="report.status"></span>
+                    				</td>
+                    				<td @click="openDrawer(report)" class="underline hover:cursor-pointer hover:opacity-75">
+										<div class="flex flex-row">
+											<!-- NEW: AI extraction indicator -->
+											<i x-show="report.source" class="ti ti-robot text-info mr-1 my-auto"></i>
+											<i x-show="!report.source" class="ti ti-user text-base-content mr-1 my-auto"></i>
+											<span x-text="report.title"></span>
+										</div>
+									</td>
+									<td>
+										<div
+										  x-data="{ expanded: false }"
+										  class="overflow-y-auto"
+										  :class="expanded ? 'h-40' : ''"
+										>
+										  <span class="text-xs">
+											<template x-if="report.description.length > 200">
+											  <p class="text-xs" x-text="expanded ? report.description : report.description.slice(0, 200) + '...'"></p>
+											</template>
+											<template x-if="report.description.length <= 200">
+											  <p class="text-xs" x-text="report.description"></p>
+											</template>
+										  </span>
+
+										  <button
+											x-show="report.description.length > 200"
+											@click="expanded = !expanded"
+											class="underline text-ss"
+										  >
+											<span class="text-xs" x-text="expanded ? 'See less' : 'See more'"></span>
+										  </button>
+										</div>
+									</td>
+
+                    				<td>
+                        				<span :class="{'bg-primary': report.risk==='unknown', 'bg-success': report.risk==='low', 'bg-warning': report.risk==='moderate', 'bg-error opacity-80': report.risk==='high', 'bg-error': report.risk==='critical'}" class="p-1 px-2 rounded-lg uppercase text-ss text-white" x-text="report.risk"></span>
+                    				</td>
+				  					<td>
+										<!-- NEW: Source info -->
+										<div class="flex flex-col text-xs">
+											<template x-if="report.source">
+												<div>
+													<span class="font-medium" x-text="report.source.document_name ? report.source.document_name.substring(0, 20) + '...' : 'Document'"></span>
+													<div class="text-xs opacity-70" x-text="'Pg ' + (report.source.page || 'N/A')"></div>
+												</div>
+											</template>
+											<template x-if="!report.source">
+												<span class="italic opacity-70">Manual entry</span>
+											</template>
+										</div>
+				    				</td>
+				  					<td>
+										<span class="tooltip text-xs" :data-tip="report.created_at_h" x-text="report.created_at"></span>
+				    				</td>
+                    				<td>
+                        				<button @click="openDrawer(report)" class="btn btn-xs btn-ghost border border-base-300"><i class="ti ti-arrow-right text-md"></i></button>
+                    				</td>
+                  				</tr>
+                			</template>
+            			</tbody>
+          			</table>
+
+          			<div x-show="tableSelected" class="join bg-base-200 float-right mt-2">
+              			<button @click="prevPage" :disabled="currentPage === 1" class="join-item btn-sm">«</button>
+              			<button class="join-item btn-sm" :disabled="true" x-text="'Page ' + currentPage"></button>
+              			<button @click="nextPage" :disabled="currentPage === totalPages" class="join-item btn-sm">»</button>
+          			</div>
+
+		  			<div class="mt-4" x-show="!tableSelected">
+			  			<div class="grid grid-cols-12 gap-4">
+				  			<div class="col-span-6">
+					  			<div class="card border border-base-300">
+						  			<div class="card-body">
+							  			<div class="card-title">Status of Reports</div>
+							  			<div id="statusChart" x-ref="statusChart"></div>
+						  			</div>
+					  			</div>
+				  			</div>
+				  			<div class="col-span-6">
+					  			<div class="card border border-base-300">
+						  			<div class="card-body">
+							  			<div class="card-title">Initial Risk</div>
+							  			<div id="initialRiskChart" x-ref="initialRiskChart"></div>
+						  			</div>
+					  			</div>
+				  			</div>
+				  			<!-- NEW: Source Type Chart -->
+				  			<div class="col-span-6">
+					  			<div class="card border border-base-300">
+						  			<div class="card-body">
+							  			<div class="card-title">Risk Sources</div>
+							  			<div id="sourceChart" x-ref="sourceChart"></div>
+						  			</div>
+					  			</div>
+				  			</div>
+				  			<!-- NEW: Compliance Violations Chart -->
+				  			<div class="col-span-6">
+					  			<div class="card border border-base-300">
+						  			<div class="card-body">
+							  			<div class="card-title">Compliance Violations</div>
+							  			<div id="complianceChart" x-ref="complianceChart"></div>
+						  			</div>
+					  			</div>
+				  			</div>
+				  			<div class="col-span-12">
+					  			<div class="card border border-base-300">
+						  			<div class="card-body">
+							  			<div class="card-title">Activity Chart - last 30 days</div>
+							  			<div id="activityChart" x-ref="activityChart"></div>
+						  			</div>
+					  			</div>
+				  			</div>
+			  			</div>
+					</div>
+		  		</div>
+        	</div>
     	</div>
     </div>
 
+	<!-- Create Risk Modal -->
 	<div>
         <div data-theme="dim" class="modal" x-bind:class="{ 'modal-open': showCreateRisk}">
             <div class="modal-box w-11/12 max-w-4xl">
@@ -595,7 +858,6 @@
         </div>
     </div>
 
-
     <!-- Update Status Modal -->
     <div x-show="showUpdateStatusModal" class="modal modal-open">
         <div class="modal-box">
@@ -635,6 +897,86 @@
         </div>
     </div>
 
+	<!-- NEW: Evidence Viewer Modal -->
+	<div x-show="showEvidenceModal" class="modal modal-open">
+		<div class="modal-box w-11/12 max-w-5xl">
+			<button @click="showEvidenceModal = false" class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+			<h3 class="font-bold text-lg mb-4">Source Evidence</h3>
+			
+			<div class="grid grid-cols-2 gap-6">
+				<!-- Document Image -->
+				<div>
+					<h4 class="subtitle text-sm mb-2">Document Page</h4>
+					<div class="border border-base-300 rounded-lg p-4 bg-base-100 h-96 overflow-auto flex items-center justify-center">
+						<template x-if="selectedEvidence && selectedEvidence.source">
+							<div class="relative">
+								<!-- This would be replaced with actual image -->
+								<div class="text-center">
+									<i class="ti ti-file-text text-6xl opacity-30"></i>
+									<p class="mt-2 text-sm" x-text="selectedEvidence.source.document_name"></p>
+									<p class="text-xs opacity-70" x-text="'Page ' + selectedEvidence.source.page"></p>
+									<div class="mt-4 p-2 bg-warning/20 border border-warning rounded">
+										<p class="text-xs font-medium">Highlighted Text:</p>
+										<p class="text-xs italic mt-1" x-text="selectedEvidence.source.ocr_snippet"></p>
+									</div>
+								</div>
+							</div>
+						</template>
+					</div>
+				</div>
+				
+				<!-- Extraction Details -->
+				<div>
+					<h4 class="subtitle text-sm mb-2">Extraction Details</h4>
+					<div class="space-y-4">
+						<div class="card bg-base-100 border border-base-300">
+							<div class="card-body p-4">
+								<h5 class="card-title text-sm">OCR Confidence</h5>
+								<div class="flex items-center">
+									<progress class="progress progress-primary w-full" 
+											:value="(selectedEvidence.source?.confidence || 0) * 100" 
+											max="100"></progress>
+									<span class="ml-2 text-sm" x-text="Math.round((selectedEvidence.source?.confidence || 0) * 100) + '%'"></span>
+								</div>
+							</div>
+						</div>
+						
+						<div class="card bg-base-100 border border-base-300">
+							<div class="card-body p-4">
+								<h5 class="card-title text-sm">Bounding Box Coordinates</h5>
+								<code class="text-xs" x-text="JSON.stringify(selectedEvidence.source?.bounding_box || [])"></code>
+							</div>
+						</div>
+						
+						<div class="card bg-base-100 border border-base-300">
+							<div class="card-body p-4">
+								<h5 class="card-title text-sm">Extraction Pipeline</h5>
+								<div class="text-xs space-y-1">
+									<div class="flex justify-between">
+										<span>Pipeline Version:</span>
+										<span x-text="selectedEvidence.extraction?.pipeline_version || 'v1.0'"></span>
+									</div>
+									<div class="flex justify-between">
+										<span>Method:</span>
+										<span x-text="selectedEvidence.extraction?.method || 'LayoutLMv3 + Rules'"></span>
+									</div>
+									<div class="flex justify-between">
+										<span>Extracted:</span>
+										<span x-text="formatDate(selectedEvidence.extraction?.extracted_at)"></span>
+									</div>
+								</div>
+							</div>
+						</div>
+						
+						<button @click="downloadEvidence(selectedEvidence)" class="btn btn-sm btn-primary w-full">
+							<i class="ti ti-download"></i> Download Evidence Package
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
 </div>
 {%endblock%}
 
@@ -660,7 +1002,7 @@ function risks(){
         reports: [],
         tenantUsers: [],
         filteredReports: [],
-        comments: [], // comments for the selectedReport
+        comments: [],
         selectedReport: {},
         currentPage: 1,
         reportsPerPage: 200,
@@ -670,10 +1012,24 @@ function risks(){
         search: "",
 		currentMessage: "",
         activeSideTab: "overview",
-        showCreateRisk:false,
+        showCreateRisk: false,
+        showEvidenceModal: false,
+        selectedEvidence: null,
+        queuedDocuments: [],
+        processingDocs: false,
+        processingStatus: "",
+        processingProgress: 0,
+        processingStats: null,
+        processingOptions: {
+            extractCompliance: true,
+            autoAssign: true,
+            highConfidenceOnly: false
+        },
         filter: {
           status: null,
-          impact: null
+          risk: null,
+          sourceType: null,
+          createdWithin: null,
         },
         payload: {},
         showUpdateStatusModal: false,
@@ -681,148 +1037,162 @@ function risks(){
         bulkUpdateStatus: 'new',
         bulkUpdateRisk: 'unknown',
         selectedRisks: [],
-        getRisks: function() {
-          this.loadingReports = true
-		  request("GET",
-			`/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/risks`,
-			data => {
-              this.reports = data
-              this.filteredReports = data
-              this.loadingReports = false
-			  return(data)
-			},
-			error => {
-			  toast(error.message, "error");
-			}
-		  );
-        },
-        getTenantUsers: function() {
-          request("GET",
-            `/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/users`,
-            data => {
-              this.tenantUsers = data;
-              data.forEach((user) => {
-                if (user.roles.includes("riskmanager")) {
-                    this.riskManagers.push(user)
-                }
-                if (user.roles.includes("riskviewer")) {
-                    this.riskViewers.push(user)
-                }
-                if (user.roles.includes("vendor")) {
-                    this.riskVendors.push(user)
-                }
-              })
-            },
-            error => {
-              toast(error.message, "error");
+        
+        // NEW: Helper methods
+        riskBadgeClass: function(risk) {
+            switch(risk) {
+                case 'critical': return 'badge-error';
+                case 'high': return 'badge-error opacity-80';
+                case 'moderate': return 'badge-warning';
+                case 'low': return 'badge-success';
+                default: return 'badge-primary';
             }
-          );
         },
-        createRisk: function() {
-            if (!this.payload.title) {
-                toast("Provide the risk with a title", "warning")
-                return
+        
+        formatDate: function(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleString();
+        },
+        
+        showEvidence: function(report) {
+            this.selectedEvidence = report;
+            this.showEvidenceModal = true;
+        },
+        
+        showSourceImage: function(report) {
+            // This would fetch and display the actual page image
+            toast("Fetching source image...", "info");
+            // In production: fetch(`/api/evidence/${report.id}/image`)
+        },
+        
+        queueDocuments: function(event) {
+            const files = Array.from(event.target.files);
+            this.queuedDocuments.push(...files.map(file => ({
+                name: file.name,
+                size: file.size,
+                type: file.type,
+                file: file
+            })));
+        },
+        
+        removeQueuedDocument: function(index) {
+            this.queuedDocuments.splice(index, 1);
+        },
+        
+        async processUploadedDocs() {
+            if (!this.queuedDocuments.length) return;
+            
+            this.processingDocs = true;
+            this.processingStatus = "Uploading documents...";
+            this.processingProgress = 10;
+            
+            try {
+                const formData = new FormData();
+                this.queuedDocuments.forEach(doc => {
+                    formData.append('documents', doc.file);
+                });
+                formData.append('options', JSON.stringify(this.processingOptions));
+                
+                // Simulate processing
+                this.processingStatus = "Running OCR extraction...";
+                this.processingProgress = 30;
+                
+                // In production, this would be a real API call
+                const response = await request("POST",
+                    `/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/risks/from-documents`,
+                    data => {
+                        this.processingStats = data.stats;
+                        this.processingStatus = "Creating risks in system...";
+                        this.processingProgress = 70;
+                        
+                        // Add the new risks to our list
+                        data.risks.forEach(risk => {
+                            this.reports.push(risk);
+                        });
+                        
+                        this.processingStatus = "Complete!";
+                        this.processingProgress = 100;
+                        
+                        setTimeout(() => {
+                            this.processingDocs = false;
+                            this.queuedDocuments = [];
+                            this.getRisks(); // Refresh the list
+                            toast(`Successfully extracted ${data.risks.length} risks from ${data.stats.documentsProcessed} documents`, "success");
+                        }, 1000);
+                    },
+                    error => {
+                        toast(error.message, "error");
+                        this.processingDocs = false;
+                    },
+                    formData,
+                    true // isFormData
+                );
+                
+            } catch (error) {
+                toast("Error processing documents: " + error.message, "error");
+                this.processingDocs = false;
             }
-            request("POST",
-                `/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/risks`,
-                data => {
-                    toast("Created risk")
-                    this.showCreateRisk = false
-                    this.payload = {}
-                    this.getRisks()
-                },
-                error => {
-                  toast(error.message, "error");
-                },
-                this.payload
-            );
         },
-        deleteRisk: function() {
-            request("DELETE",
-                `/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/risks`,
-                data => {
-                    this.showRiskModal = false
-                    this.payload = {}
-                    this.getRisks()
-                },
-                error => {
-                  toast(error.message, "error");
-                }
-            );
-        },
-		createMessage: function(report) {
-			if (this.currentMessage) {
-				let jsonData = {"message": this.currentMessage}
-				request("POST",
-					`/api/v1/risks/${report.id}/comments`,
-					data => {
-						this.comments.push(data)
-						this.currentMessage = "";
-						this.scrollToRecentMessagesInDrawer()
-					},
-					error => {
-					  toast(error.message, "error");
-					},
-					jsonData
-				);
-			}
-		},
-        disableFilter() {
-            this.filter = {
-              status: null,
-              risk: null,
-              triage_risk: null,
-              createdWithin: null,
+        
+        exportSelectedEvidence: function() {
+            if (this.rowsSelected.length === 0) {
+                toast("Please select risks to export", "warning");
+                return;
             }
-            this.search = "";
-            this.deselectedAllRows()
+            
+            const selectedReports = this.reports.filter(r => this.rowsSelected.includes(r.id));
+            const evidencePackage = {
+                exportedAt: new Date().toISOString(),
+                riskCount: selectedReports.length,
+                risks: selectedReports.map(r => ({
+                    id: r.id,
+                    title: r.title,
+                    description: r.description,
+                    risk: r.risk,
+                    source: r.source,
+                    compliance: r.compliance,
+                    extraction: r.extraction
+                }))
+            };
+            
+            // Create and trigger download
+            const blob = new Blob([JSON.stringify(evidencePackage, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `risk-evidence-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            toast(`Exported evidence for ${selectedReports.length} risks`, "success");
         },
-		simpleDate: function(dateString) {
-			var date = new Date(dateString);
-			var dayOfWeek = date.toLocaleDateString('en', { weekday: 'short' });
-			var dayOfMonth = date.getDate();
-			var year = date.getFullYear();
-
-			// Format the result string
-			return dayOfWeek + ', ' + (dayOfMonth < 10 ? '0' : '') + dayOfMonth + ', ' + year;
-
-		},
-        filterStatus(status) {
-          this.filter.status = status;
-          this.currentPage = 1; // Reset to first page when filter changes
+        
+        downloadEvidence: function(report) {
+            // This would create a comprehensive evidence package
+            toast("Preparing evidence package...", "info");
         },
-        filterRisk(risk) {
-          this.filter.risk = risk;
-          this.currentPage = 1; // Reset to first page when filter changes
-        },
-        filterTriageRisk(risk) {
-          this.filter.triage_risk = risk;
-          this.currentPage = 1; // Reset to first page when filter changes
-        },
-        filterCreatedAt(createdWithin) {
-          this.filter.createdWithin = createdWithin;
-          this.currentPage = 1; // Reset to first page when filter changes
-        },
-        // Get the total number of pages
-        totalPages() {
-            return Math.ceil(this.reports.length / this.reportsPerPage);
-        },
-
+        
+        // Enhanced filter to include source type
 		filterReports() {
 		  if (!this.reports.length) return [];
 		  const filtered = this.reports.filter(report => {
 			  const statusMatch = this.filter.status ? report.status === this.filter.status : true;
 			  const initialRiskMatch = this.filter.risk ? report.risk === this.filter.risk : true;
+			  const sourceTypeMatch = this.filter.sourceType ? 
+				  (this.filter.sourceType === 'ai' ? report.source : !report.source) : true;
 
 			  // Search filter (case-insensitive)
 			  const searchMatch = this.search
 				? report.title.toLowerCase().includes(this.search.toLowerCase())
 				: true;
 
-			  // Date filter (e.g., "Apr 2, 2025")
+			  // Date filter
 			  let dateMatch = true;
 			  if (this.filter.createdWithin) {
-				const createdAt = new Date(report.created_at);  // works with "Apr 2, 2025"
+				const createdAt = new Date(report.created_at);
 				const now = new Date();
 				const diffMs = now - createdAt;
 
@@ -837,14 +1207,14 @@ function risks(){
 				dateMatch = diffMs <= maxAgeMs;
 			  }
 
-			  return statusMatch && initialRiskMatch && searchMatch && dateMatch;
+			  return statusMatch && initialRiskMatch && sourceTypeMatch && searchMatch && dateMatch;
 		  });
 
+		  // Update counts
 		  this.newReportsCount = filtered.filter(report => report.status === 'new').length;
 		  this.triageReportsCount = filtered.filter(report => report.status === 'triage').length;
 		  this.acceptedReportsCount = filtered.filter(report => report.status === 'accepted').length;
 		  this.mitigatedReportsCount = filtered.filter(report => report.status === 'mitigated').length;
-
 
 		  this.initialCriticalRiskCount = filtered.filter(report => report.risk === 'critical').length;
 		  this.initialHighRiskCount = filtered.filter(report => report.risk === 'high').length;
@@ -853,7 +1223,6 @@ function risks(){
 		  this.initialUnknownRiskCount = filtered.filter(report => report.risk === 'unknown').length;
 
 		  const now = new Date();
-
 		  this.createdTodayCount = filtered.filter(report => {
 			const createdAt = new Date(report.created_at);
 			return (now - createdAt) <= (24 * 60 * 60 * 1000);
@@ -873,27 +1242,170 @@ function risks(){
 		  this.filteredReports = filtered;
 		  return filtered;
 		},
-
-        // Paginated reports based on the current page
+		
+		// Enhanced chart components
+		sourceChartComponent() {
+		  const aiCount = this.reports.filter(r => r.source).length;
+		  const manualCount = this.reports.filter(r => !r.source).length;
+		  
+		  this.sourceChart = new ApexCharts(this.$refs.sourceChart, {
+			chart: { type: 'donut' },
+			labels: ['AI Extracted', 'Manual Entry'],
+			series: [aiCount, manualCount],
+			colors: ['#3b82f6', '#d1d5db'],
+			dataLabels: { enabled: false }
+		  });
+		  this.sourceChart.render();
+		},
+		
+		complianceChartComponent() {
+		  const withViolations = this.reports.filter(r => r.compliance && r.compliance.violated_laws && r.compliance.violated_laws.length > 0).length;
+		  const withoutViolations = this.reports.length - withViolations;
+		  
+		  this.complianceChart = new ApexCharts(this.$refs.complianceChart, {
+			chart: { type: 'donut' },
+			labels: ['With Violations', 'No Violations'],
+			series: [withViolations, withoutViolations],
+			colors: ['#f87171', '#34d399'],
+			dataLabels: { enabled: false }
+		  });
+		  this.complianceChart.render();
+		},
+		
+		switchToChart: function() {
+			this.tableSelected = false;
+		    this.$nextTick(() => {
+				this.statusChartComponent();
+				this.initialRiskChartComponent();
+				this.sourceChartComponent();
+				this.complianceChartComponent();
+				this.activityChartComponent();
+		    });
+		},
+		
+        // Rest of the existing methods remain the same...
+        getRisks: function() {
+          this.loadingReports = true;
+		  request("GET",
+			`/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/risks`,
+			data => {
+              this.reports = data;
+              this.filteredReports = data;
+              this.loadingReports = false;
+			  return(data);
+			},
+			error => {
+			  toast(error.message, "error");
+			}
+		  );
+        },
+        
+        getTenantUsers: function() {
+          request("GET",
+            `/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/users`,
+            data => {
+              this.tenantUsers = data;
+            },
+            error => {
+              toast(error.message, "error");
+            }
+          );
+        },
+        
+        createRisk: function() {
+            if (!this.payload.title) {
+                toast("Provide the risk with a title", "warning");
+                return;
+            }
+            request("POST",
+                `/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/risks`,
+                data => {
+                    toast("Created risk");
+                    this.showCreateRisk = false;
+                    this.payload = {};
+                    this.getRisks();
+                },
+                error => {
+                  toast(error.message, "error");
+                },
+                this.payload
+            );
+        },
+        
+        createMessage: function(report) {
+			if (this.currentMessage) {
+				let jsonData = {"message": this.currentMessage};
+				request("POST",
+					`/api/v1/risks/${report.id}/comments`,
+					data => {
+						this.comments.push(data);
+						this.currentMessage = "";
+						this.scrollToRecentMessagesInDrawer();
+					},
+					error => {
+					  toast(error.message, "error");
+					},
+					jsonData
+				);
+			}
+		},
+        
+        disableFilter() {
+            this.filter = {
+              status: null,
+              risk: null,
+              sourceType: null,
+              createdWithin: null,
+            };
+            this.search = "";
+            this.deselectedAllRows();
+        },
+        
+		simpleDate: function(dateString) {
+			var date = new Date(dateString);
+			var dayOfWeek = date.toLocaleDateString('en', { weekday: 'short' });
+			var dayOfMonth = date.getDate();
+			var year = date.getFullYear();
+			return dayOfWeek + ', ' + (dayOfMonth < 10 ? '0' : '') + dayOfMonth + ', ' + year;
+		},
+        
+        filterStatus(status) {
+          this.filter.status = status;
+          this.currentPage = 1;
+        },
+        
+        filterRisk(risk) {
+          this.filter.risk = risk;
+          this.currentPage = 1;
+        },
+        
+        filterCreatedAt(createdWithin) {
+          this.filter.createdWithin = createdWithin;
+          this.currentPage = 1;
+        },
+        
+        totalPages() {
+            return Math.ceil(this.reports.length / this.reportsPerPage);
+        },
+        
         paginatedReports() {
           const startIndex = (this.currentPage - 1) * this.reportsPerPage;
-          console.log(startIndex)
           const paginated = this.filterReports().slice(startIndex, startIndex + this.reportsPerPage);
-          console.log("Paginated Reports:", paginated.length);
           return paginated;
         },
+        
         prevPage() {
             if (this.currentPage > 1) {
                 this.currentPage--;
             }
         },
-
-        // Navigate to the next page
+        
         nextPage() {
             if (this.currentPage < this.totalPages) {
                 this.currentPage++;
             }
         },
+        
         toggleAllRows: function(checked) {
             if (checked) {
                 this.rowsSelected = [];
@@ -901,13 +1413,15 @@ function risks(){
                     this.rowsSelected.push(report.id);
                 });
             } else {
-                this.deselectedAllRows()
+                this.deselectedAllRows();
             }
         },
+        
         deselectedAllRows: function() {
-           this.rowsSelected = []
-           this.$refs.selectAllCheckbox.checked = false
+           this.rowsSelected = [];
+           this.$refs.selectAllCheckbox.checked = false;
         },
+        
         toggleRow: function(checked, reportId) {
             if (checked) {
                 this.rowsSelected.push(reportId);
@@ -915,57 +1429,51 @@ function risks(){
                 this.rowsSelected = this.rowsSelected.filter(id => id !== reportId);
             }
         },
+        
         openDrawer: function(report) {
         	this.selectedReport = report;
         	if (this.selectedReport.risk === "critical") {
-        		this.selectedReport.risk_level = 95
+        		this.selectedReport.risk_level = 95;
         	} else if (this.selectedReport.risk === "high") {
-				this.selectedReport.risk_level = 80
+				this.selectedReport.risk_level = 80;
         	} else if (this.selectedReport.risk === "moderate") {
-				this.selectedReport.risk_level = 50
+				this.selectedReport.risk_level = 50;
         	} else if (this.selectedReport.risk === "low") {
-				this.selectedReport.risk_level = 20
+				this.selectedReport.risk_level = 20;
         	} else {
-        		this.selectedReport.risk_level = 10
+        		this.selectedReport.risk_level = 10;
         	}
-        	this.comments = report.comments;
+        	this.comments = report.comments || [];
 			document.getElementById('right-drawer').checked = true;
         },
+        
 		copyRiskLink(riskId) {
-			this.copyLink()
+			this.copyLink();
 		},
+		
 		copyLink: function(url=null) {
-			// Create a temporary textarea element
 			let textarea = document.createElement('textarea');
 			if (url === null) {
-				// Set the value of the textarea to the text you want to copy
 				url = new URL(window.location.href);
 			}
-
 			textarea.value = url.toString();
-
-			// Append the textarea to the document
 			document.body.appendChild(textarea);
-
-			// Select the text in the textarea
 			textarea.select();
-
-			// Execute the copy command
 			document.execCommand('copy');
-
-			// Remove the textarea from the document
 			document.body.removeChild(textarea);
-			toast("Link copied to your clipboard")
+			toast("Link copied to your clipboard");
 		},
+        
         closeReportDrawer: function() {
-			this.previousSelectedReport = this.selectedReport
-			this.selectedReport = {}
+			this.previousSelectedReport = this.selectedReport;
+			this.selectedReport = {};
 			document.getElementById('right-drawer').checked = false;
-
         },
+        
         changeTabInDrawer: function(tab) {
         	this.activeSideTab = tab;
         },
+        
 		scrollToRecentMessagesInDrawer: function() {
 		  setTimeout(function() {
 			var divElement = document.getElementById("middle-section");
@@ -974,19 +1482,12 @@ function risks(){
 			}
 		  }, 100);
 		},
-		switchToChart: function() {
-			this.tableSelected = false
-		    this.$nextTick(() => {
-				this.statusChartComponent();
-				this.initialRiskChartComponent();
-				this.activityChartComponent();
-		    });
-		},
+		
 		switchToTable: function() {
-			this.tableSelected = true
+			this.tableSelected = true;
 		},
+		
 		statusChartComponent() {
-		  // Group and count status
 		  const statusCounts = this.reports.reduce((acc, report) => {
 			const status = report.status || "unknown";
 			acc[status] = (acc[status] || 0) + 1;
@@ -1005,13 +1506,13 @@ function risks(){
 		    colors: labels.map(status => {
 				switch (status) {
 				  case 'mitigated':
-					return '#34d399'; // green-400
+					return '#34d399';
 				  case 'in_progress':
-					return '#f87171'; // red-400
-				  case 'mitigated':
-					return '#fbbf24'; // yellow-400
+					return '#f87171';
+				  case 'accepted':
+					return '#fbbf24';
 				  default:
-					return '#3b82f6'; // gray-300
+					return '#3b82f6';
 				}
 		    }),
 		    dataLabels: {
@@ -1020,8 +1521,8 @@ function risks(){
 		  });
 		  this.chart.render();
 		},
+		
 		initialRiskChartComponent() {
-		  // Group and count initial risk
 		  const riskCounts = this.reports.reduce((acc, report) => {
 			const risk = report.risk || "unknown";
 			acc[risk] = (acc[risk] || 0) + 1;
@@ -1041,15 +1542,15 @@ function risks(){
 		    colors: labels.map(status => {
 				switch (status) {
 				  case 'low':
-					return '#34d399'; // green-400
+					return '#34d399';
 				  case 'moderate':
-					return '#fbbf24'; // yellow-400
+					return '#fbbf24';
 				  case 'high':
-					return '#f87f7f'; // red-400
+					return '#f87f7f';
 				  case 'critical':
-					return '#c65a5a'; // darkred-400
+					return '#c65a5a';
 				  default:
-					return '#d1d5db'; // gray-300
+					return '#d1d5db';
 				}
 		    }),
 		    dataLabels: {
@@ -1058,6 +1559,7 @@ function risks(){
 		  });
 		  this.initialRiskChart.render();
 		},
+		
 		activityChartComponent() {
 		  const data = this.dailyCountsLast30Days();
 
@@ -1098,21 +1600,18 @@ function risks(){
 
 		  this.chart.render();
 		},
+		
 		dailyCountsLast30Days() {
 		  const today = new Date();
-		  const past30 = new Date();
-		  past30.setDate(today.getDate() - 29); // 30 days including today
-
-		  // Prepare a map with keys for each day (even if no reports)
 		  const dateMap = {};
+		  
 		  for (let i = 0; i < 30; i++) {
 			const d = new Date();
 			d.setDate(today.getDate() - i);
-			const key = d.toISOString().slice(0, 10); // e.g., '2025-04-02'
+			const key = d.toISOString().slice(0, 10);
 			dateMap[key] = 0;
 		  }
 
-		  // Count reports per day
 		  this.reports.forEach(report => {
 			const date = new Date(report.created_at);
 			const key = date.toISOString().slice(0, 10);
@@ -1121,22 +1620,20 @@ function risks(){
 			}
 		  });
 
-		  // Reverse for chronological order
 		  const sortedKeys = Object.keys(dateMap).sort();
 		  return {
 			dates: sortedKeys,
 			counts: sortedKeys.map(k => dateMap[k])
 		  };
 		},
+        
         updateRisk: function(risk) {
-            // Create payload with only allowed fields that are being updated
             const allowedFields = [
                 'title', 'description', 'remediation', 'status', 
                 'risk', 'priority', 'assignee', 'owner_id', 'enabled'
             ];
             
             const payload = {};
-            // Only include fields that are explicitly being updated
             for (const field of allowedFields) {
                 if (field in risk && risk[field] !== undefined) {
                     payload[field] = risk[field];
@@ -1147,7 +1644,7 @@ function risks(){
                 `/api/v1/tenants/${this.$store.currentUser.selectedTenant.id}/risks/${risk.id}`,
                 data => {
                     toast("Risk updated successfully");
-                    this.getRisks(); // Refresh the risks list
+                    this.getRisks();
                 },
                 error => {
                     toast(error.message, "error");
@@ -1155,6 +1652,7 @@ function risks(){
                 payload
             );
         },
+        
         bulkUpdateStatuses() {
             if (!this.rowsSelected.length) {
                 toast("Please select risks to update", "error");
@@ -1178,6 +1676,7 @@ function risks(){
                 this.getRisks();
             });
         },
+        
         bulkUpdateRisks() {
             if (!this.rowsSelected.length) {
                 toast("Please select risks to update", "error");
@@ -1201,6 +1700,7 @@ function risks(){
                 this.getRisks();
             });
         },
+        
         toggleRiskSelection(risk) {
             const index = this.selectedRisks.findIndex(r => r.id === risk.id);
             if (index === -1) {
