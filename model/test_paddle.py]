@@ -1,0 +1,20 @@
+import os
+os.environ['DISABLE_MODEL_SOURCE_CHECK'] = 'True'
+os.environ['FLAGS_use_mkldnn'] = '0'          # disable oneDNN to avoid CPU backend crashes
+os.environ['OMP_NUM_THREADS'] = '1'           # limit threads to reduce memory/parallel bugs
+
+from paddleocr import PaddleOCR
+
+print("Initializing OCR...")
+ocr = PaddleOCR(
+    lang='en',
+    use_textline_orientation=True,
+    # use lighter models if possible
+    det_model_dir='PP-OCRv4_mobile_det',  # try mobile variants
+    rec_model_dir='PP-OCRv4_mobile_rec',
+)
+
+print("OCR ready. Testing single image...")
+result = ocr.predict('/home/mehit/Documents/complianceassets/model/dataset/kdreceipts')  # use a SINGLE small image
+
+print("Done - no crash!")

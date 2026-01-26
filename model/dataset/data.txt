@@ -1,0 +1,8 @@
+Receipt Number
+Date of disposal
+Quantity of  waste
+Unit (Kg, litres)
+Type of waste (hazardous, general )
+Handler Name Handler 
+Lincense Number
+Signature & Stamp
