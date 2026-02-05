@@ -1,0 +1,2303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mehit – Prevention Systems | Safer Tomorrow Starts Today</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    /* CSS Reset and Variables */
+    :root {
+      --primary: #004aad;
+      --primary-dark: #003080;
+      --primary-light: #3a7bd5;
+      --accent: #27ae60;
+      --accent-light: #6fcf97;
+      --danger: #e74c3c;
+      --danger-light: #ff8a7a;
+      --warning: #f39c12;
+      --light: #f8faff;
+      --lighter: #ffffff;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-400: #9ca3af;
+      --gray-500: #6b7280;
+      --gray-600: #4b5563;
+      --gray-700: #374151;
+      --gray-800: #1f2937;
+      --gray-900: #111827;
+      --dark: #0f172a;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      --radius-sm: 0.375rem;
+      --radius-md: 0.5rem;
+      --radius-lg: 0.75rem;
+      --radius-xl: 1rem;
+      --radius-2xl: 1.5rem;
+      --radius-full: 9999px;
+      --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-normal: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+      --glass: rgba(255, 255, 255, 0.1);
+      --glass-border: rgba(255, 255, 255, 0.2);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 80px;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      color: var(--gray-800);
+      background: var(--lighter);
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Typography Scale */
+    h1, h2, h3, h4, h5, h6 {
+      font-weight: 700;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+    }
+
+    h1 { font-size: 3.5rem; }
+    h2 { font-size: 2.75rem; }
+    h3 { font-size: 2rem; }
+    h4 { font-size: 1.5rem; }
+    h5 { font-size: 1.25rem; }
+
+    @media (max-width: 768px) {
+      h1 { font-size: 2.75rem; }
+      h2 { font-size: 2.25rem; }
+      h3 { font-size: 1.75rem; }
+      h4 { font-size: 1.375rem; }
+    }
+
+    @media (max-width: 480px) {
+      h1 { font-size: 2.25rem; }
+      h2 { font-size: 1.875rem; }
+      h3 { font-size: 1.5rem; }
+    }
+
+    /* Spacing System */
+    .container {
+      width: 100%;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    section {
+      padding: 8rem 0;
+    }
+
+    @media (max-width: 768px) {
+      section {
+        padding: 6rem 0;
+      }
+    }
+
+    @media (max-width: 480px) {
+      section {
+        padding: 4rem 0;
+      }
+    }
+
+    /* Toolbar */
+    .toolbar {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow-md);
+      z-index: 1000;
+      padding: 1.25rem 0;
+      transition: all var(--transition-normal);
+    }
+
+    .toolbar.scrolled {
+      padding: 0.75rem 0;
+      background: rgba(255, 255, 255, 0.98);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .toolbar .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 1.875rem;
+      font-weight: 900;
+      color: var(--primary);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .logo-icon {
+      color: var(--accent);
+      font-size: 2rem;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+    }
+
+    .nav-links a {
+      color: var(--gray-700);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 1rem;
+      transition: color var(--transition-fast);
+      position: relative;
+      padding: 0.5rem 0;
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--accent);
+      transition: width var(--transition-normal);
+    }
+
+    .nav-links a:hover {
+      color: var(--primary);
+    }
+
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    .toolbar-cta .btn {
+      background: var(--accent);
+      color: white;
+      padding: 0.875rem 2rem;
+      border-radius: var(--radius-full);
+      font-weight: 600;
+      text-decoration: none;
+      box-shadow: var(--shadow-md);
+      transition: all var(--transition-normal);
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .toolbar-cta .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+      background: var(--accent-light);
+    }
+
+    /* Hero Section */
+    #hero {
+      min-height: 100vh;
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary), var(--primary-light));
+      color: white;
+      display: flex;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+      padding-top: 80px;
+    }
+
+    .hero-background {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.2) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.15) 0%, transparent 50%);
+      z-index: 1;
+    }
+
+    .network-lines {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 1;
+      opacity: 0.15;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      padding: 0.5rem 1.5rem;
+      border-radius: var(--radius-full);
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 2rem;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .hero-headline {
+      font-size: 4rem;
+      font-weight: 900;
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      transform: translateY(30px);
+    }
+
+    .hero-subheadline {
+      font-size: 1.5rem;
+      opacity: 0.9;
+      margin-bottom: 3rem;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.6;
+    }
+
+    .hero-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: linear-gradient(135deg, var(--danger), var(--danger-light));
+      color: white;
+      padding: 1.25rem 3rem;
+      font-size: 1.25rem;
+      font-weight: 600;
+      border-radius: var(--radius-full);
+      text-decoration: none;
+      box-shadow: var(--shadow-xl);
+      transition: all var(--transition-normal);
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .hero-cta::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left var(--transition-slow);
+      z-index: -1;
+    }
+
+    .hero-cta:hover::before {
+      left: 100%;
+    }
+
+    .hero-cta:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-2xl);
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(40px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-10px);
+      }
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.7;
+      }
+    }
+
+    @keyframes slideInLeft {
+      from {
+        opacity: 0;
+        transform: translateX(-50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes slideInRight {
+      from {
+        opacity: 0;
+        transform: translateX(50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes scaleIn {
+      from {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @keyframes shimmer {
+      0% {
+        background-position: -1000px 0;
+      }
+      100% {
+        background-position: 1000px 0;
+      }
+    }
+
+    .animate-fade-up {
+      opacity: 0;
+      animation: fadeInUp 0.8s var(--transition-normal) forwards;
+    }
+
+    .animate-fade-in {
+      opacity: 0;
+      animation: fadeIn 1s var(--transition-normal) forwards;
+    }
+
+    .animate-slide-left {
+      opacity: 0;
+      animation: slideInLeft 0.8s var(--transition-normal) forwards;
+    }
+
+    .animate-slide-right {
+      opacity: 0;
+      animation: slideInRight 0.8s var(--transition-normal) forwards;
+    }
+
+    .animate-scale-in {
+      opacity: 0;
+      animation: scaleIn 0.6s var(--transition-normal) forwards;
+    }
+
+    /* Section Headers */
+    .section-header {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+
+    .section-title {
+      color: var(--primary);
+      margin-bottom: 1rem;
+      position: relative;
+      display: inline-block;
+    }
+
+    .section-title::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 4px;
+      background: var(--accent);
+      border-radius: var(--radius-full);
+    }
+
+    .section-subtitle {
+      color: var(--gray-600);
+      font-size: 1.25rem;
+      max-width: 800px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* Problem Section */
+    #problem {
+      background: var(--gray-50);
+      position: relative;
+    }
+
+    .problem-header .section-title {
+      color: var(--danger);
+    }
+
+    .problem-header .section-title::after {
+      background: var(--danger);
+    }
+
+    .story-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+
+    .story-card {
+      background: white;
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+      transition: all var(--transition-normal);
+      opacity: 0;
+      transform: translateY(30px);
+      position: relative;
+    }
+
+    .story-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--danger), var(--warning));
+      z-index: 2;
+    }
+
+    .story-card.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .story-card:hover {
+      transform: translateY(-10px);
+      box-shadow: var(--shadow-2xl);
+    }
+
+    .story-image {
+      height: 200px;
+      background-size: cover;
+      background-position: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .story-image::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.7));
+    }
+
+    .story-icon {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: rgba(255, 255, 255, 0.9);
+      width: 50px;
+      height: 50px;
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      z-index: 3;
+      box-shadow: var(--shadow-md);
+    }
+
+    .story-content {
+      padding: 2rem;
+    }
+
+    .story-title {
+      font-size: 1.375rem;
+      margin-bottom: 1rem;
+      color: var(--gray-900);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .story-description {
+      color: var(--gray-600);
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+
+    .story-stats {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--danger);
+      font-weight: 600;
+      font-size: 0.875rem;
+      margin-top: 1rem;
+    }
+
+    .problem-cta {
+      text-align: center;
+      margin-top: 4rem;
+    }
+
+    /* Approach Section */
+    #approach {
+      background: white;
+    }
+
+    .approach-steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2.5rem;
+      margin-top: 3rem;
+    }
+
+    .step-card {
+      text-align: center;
+      padding: 2.5rem 2rem;
+      background: white;
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-md);
+      transition: all var(--transition-normal);
+      opacity: 0;
+      transform: translateY(30px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .step-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+    }
+
+    .step-card.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .step-card:hover {
+      transform: translateY(-8px);
+      box-shadow: var(--shadow-xl);
+    }
+
+    .step-icon {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+      font-size: 2rem;
+      color: white;
+      box-shadow: var(--shadow-md);
+      animation: float 4s ease-in-out infinite;
+    }
+
+    .step-number {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      width: 32px;
+      height: 32px;
+      background: var(--accent);
+      color: white;
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.875rem;
+    }
+
+    .step-title {
+      font-size: 1.375rem;
+      margin-bottom: 1rem;
+      color: var(--gray-900);
+    }
+
+    .step-description {
+      color: var(--gray-600);
+      line-height: 1.6;
+    }
+
+    /* How It Works */
+    #how {
+      background: linear-gradient(135deg, var(--gray-50), var(--gray-100));
+    }
+
+    .workflow {
+      display: flex;
+      flex-direction: column;
+      gap: 3rem;
+      margin-top: 3rem;
+      position: relative;
+    }
+
+    .workflow::before {
+      content: '';
+      position: absolute;
+      top: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 2px;
+      height: calc(100% - 120px);
+      background: linear-gradient(to bottom, var(--primary), var(--accent));
+      z-index: 0;
+    }
+
+    @media (max-width: 768px) {
+      .workflow::before {
+        display: none;
+      }
+    }
+
+    .workflow-step {
+      display: flex;
+      align-items: center;
+      gap: 3rem;
+      opacity: 0;
+      transform: translateY(30px);
+      position: relative;
+      z-index: 1;
+    }
+
+    .workflow-step:nth-child(odd) {
+      flex-direction: row-reverse;
+    }
+
+    .workflow-step.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 768px) {
+      .workflow-step,
+      .workflow-step:nth-child(odd) {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+
+    .step-visual {
+      flex: 0 0 300px;
+      height: 200px;
+      background: white;
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+      position: relative;
+    }
+
+    @media (max-width: 768px) {
+      .step-visual {
+        flex: 0 0 auto;
+        width: 100%;
+        max-width: 400px;
+      }
+    }
+
+    .step-visual::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent), var(--primary));
+    }
+
+    .step-content {
+      flex: 1;
+      background: white;
+      padding: 2.5rem;
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .step-content h3 {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      color: var(--primary);
+    }
+
+    .step-index {
+      width: 40px;
+      height: 40px;
+      background: var(--primary);
+      color: white;
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    /* Who We Serve */
+    #who {
+      background: white;
+    }
+
+    .sectors-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+
+    .sector-card {
+      background: white;
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+      transition: all var(--transition-normal);
+      opacity: 0;
+      transform: translateY(30px);
+      position: relative;
+    }
+
+    .sector-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--accent);
+    }
+
+    .sector-card.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .sector-card:hover {
+      transform: translateY(-8px);
+      box-shadow: var(--shadow-xl);
+    }
+
+    .sector-image {
+      height: 160px;
+      background-size: cover;
+      background-position: center;
+      position: relative;
+    }
+
+    .sector-image::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(to bottom, rgba(0, 74, 173, 0.1), rgba(0, 74, 173, 0.3));
+    }
+
+    .sector-icon {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: white;
+      width: 50px;
+      height: 50px;
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      color: var(--primary);
+      box-shadow: var(--shadow-md);
+      z-index: 2;
+    }
+
+    .sector-content {
+      padding: 1.5rem;
+    }
+
+    .sector-title {
+      font-size: 1.25rem;
+      margin-bottom: 0.75rem;
+      color: var(--gray-900);
+    }
+
+    .sector-benefits {
+      list-style: none;
+      margin-top: 0.75rem;
+    }
+
+    .sector-benefits li {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--gray-600);
+      font-size: 0.875rem;
+      margin-bottom: 0.375rem;
+    }
+
+    .sector-benefits li i {
+      color: var(--accent);
+      font-size: 0.75rem;
+    }
+
+    /* Showcase Section */
+    #showcase {
+      background: linear-gradient(135deg, var(--dark), var(--gray-900));
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .showcase::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
+      z-index: 1;
+    }
+
+    .showcase .container {
+      position: relative;
+      z-index: 2;
+    }
+
+    .showcase-header {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+
+    .showcase-header .section-title {
+      color: white;
+    }
+
+    .showcase-header .section-title::after {
+      background: var(--accent);
+    }
+
+    .showcase-header .section-subtitle {
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .showcase-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+
+    .showcase-card {
+      background: var(--glass);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      transition: all var(--transition-normal);
+      opacity: 0;
+      transform: translateY(30px);
+      position: relative;
+    }
+
+    .showcase-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
+      opacity: 0;
+      transition: opacity var(--transition-normal);
+    }
+
+    .showcase-card.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .showcase-card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .showcase-card:hover::before {
+      opacity: 1;
+    }
+
+    .showcase-image {
+      height: 200px;
+      background-size: cover;
+      background-position: center;
+      position: relative;
+    }
+
+    .showcase-image::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.7));
+    }
+
+    .showcase-content {
+      padding: 2rem;
+    }
+
+    .showcase-title {
+      font-size: 1.375rem;
+      margin-bottom: 1rem;
+      color: white;
+    }
+
+    .showcase-description {
+      color: rgba(255, 255, 255, 0.85);
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+
+    .showcase-stats {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      color: var(--accent-light);
+      font-weight: 600;
+      font-size: 0.875rem;
+    }
+
+    .showcase-cta {
+      text-align: center;
+      margin-top: 4rem;
+    }
+
+    .showcase-cta .btn {
+      background: var(--accent);
+      color: white;
+      padding: 1.25rem 3rem;
+      font-size: 1.25rem;
+      font-weight: 600;
+      border-radius: var(--radius-full);
+      text-decoration: none;
+      box-shadow: var(--shadow-xl);
+      transition: all var(--transition-normal);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      animation: pulse 2s infinite;
+    }
+
+    .showcase-cta .btn:hover {
+      animation: none;
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-2xl);
+      background: var(--accent-light);
+    }
+
+    /* Contact Section */
+    #contact {
+      background: white;
+    }
+
+    .contact-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: start;
+    }
+
+    @media (max-width: 992px) {
+      .contact-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .contact-info {
+      opacity: 0;
+      transform: translateX(-30px);
+    }
+
+    .contact-info.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .contact-title {
+      font-size: 2.5rem;
+      margin-bottom: 1.5rem;
+      color: var(--primary);
+    }
+
+    .contact-description {
+      color: var(--gray-600);
+      margin-bottom: 2rem;
+      line-height: 1.6;
+    }
+
+    .contact-details {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .contact-detail {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    .contact-icon {
+      width: 50px;
+      height: 50px;
+      background: var(--primary);
+      color: white;
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      flex-shrink: 0;
+    }
+
+    .contact-detail-content h4 {
+      font-size: 1.125rem;
+      margin-bottom: 0.25rem;
+      color: var(--gray-900);
+    }
+
+    .contact-detail-content p {
+      color: var(--gray-600);
+      font-size: 0.9375rem;
+    }
+
+    .contact-form {
+      background: white;
+      padding: 3rem;
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-lg);
+      opacity: 0;
+      transform: translateX(30px);
+    }
+
+    .contact-form.visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: var(--gray-700);
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 1rem;
+      border: 1px solid var(--gray-300);
+      border-radius: var(--radius-md);
+      font-size: 1rem;
+      font-family: inherit;
+      transition: all var(--transition-fast);
+      background: var(--gray-50);
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(0, 74, 173, 0.1);
+      background: white;
+    }
+
+    .form-control::placeholder {
+      color: var(--gray-400);
+    }
+
+    textarea.form-control {
+      min-height: 150px;
+      resize: vertical;
+    }
+
+    .submit-btn {
+      width: 100%;
+      background: var(--accent);
+      color: white;
+      padding: 1rem;
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 1.125rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition-normal);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+    }
+
+    .submit-btn:hover {
+      background: var(--accent-light);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    /* Footer */
+    footer {
+      background: var(--dark);
+      color: white;
+      padding: 4rem 0 2rem;
+    }
+
+    .footer-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 3rem;
+      margin-bottom: 3rem;
+    }
+
+    .footer-col h3 {
+      font-size: 1.25rem;
+      margin-bottom: 1.5rem;
+      color: white;
+    }
+
+    .footer-links {
+      list-style: none;
+    }
+
+    .footer-links li {
+      margin-bottom: 0.75rem;
+    }
+
+    .footer-links a {
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      transition: color var(--transition-fast);
+      font-size: 0.9375rem;
+    }
+
+    .footer-links a:hover {
+      color: white;
+    }
+
+    .footer-bottom {
+      text-align: center;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 0.875rem;
+    }
+
+    /* Mobile Menu */
+    .menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--primary);
+      cursor: pointer;
+      z-index: 1001;
+    }
+
+    @media (max-width: 992px) {
+      .menu-toggle {
+        display: block;
+      }
+      
+      .nav-links {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        background: white;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        transform: translateX(-100%);
+        opacity: 0;
+        transition: all var(--transition-normal);
+        z-index: 1000;
+      }
+      
+      .nav-links.active {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      
+      .nav-links a {
+        font-size: 1.25rem;
+        padding: 1rem;
+      }
+    }
+
+    /* Utility Classes */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.875rem 2rem;
+      font-size: 1rem;
+      font-weight: 600;
+      text-decoration: none;
+      border-radius: var(--radius-full);
+      border: none;
+      cursor: pointer;
+      transition: all var(--transition-normal);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .btn-accent {
+      background: var(--accent);
+      color: white;
+    }
+
+    .btn-accent:hover {
+      background: var(--accent-light);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: var(--danger-light);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    .mt-1 { margin-top: 0.5rem; }
+    .mt-2 { margin-top: 1rem; }
+    .mt-3 { margin-top: 1.5rem; }
+    .mt-4 { margin-top: 2rem; }
+    .mt-6 { margin-top: 3rem; }
+    .mt-8 { margin-top: 4rem; }
+
+    .mb-1 { margin-bottom: 0.5rem; }
+    .mb-2 { margin-bottom: 1rem; }
+    .mb-3 { margin-bottom: 1.5rem; }
+    .mb-4 { margin-bottom: 2rem; }
+    .mb-6 { margin-bottom: 3rem; }
+    .mb-8 { margin-bottom: 4rem; }
+
+    .py-1 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+    .py-2 { padding-top: 1rem; padding-bottom: 1rem; }
+    .py-3 { padding-top: 1.5rem; padding-bottom: 1.5rem; }
+    .py-4 { padding-top: 2rem; padding-bottom: 2rem; }
+    .py-6 { padding-top: 3rem; padding-bottom: 3rem; }
+    .py-8 { padding-top: 4rem; padding-bottom: 4rem; }
+  </style>
+</head>
+<body>
+
+  <!-- Toolbar -->
+  <nav class="toolbar">
+    <div class="container">
+      <a href="#" class="logo">
+        <i class="fas fa-shield-alt logo-icon"></i>
+        <span>Mehit</span>
+      </a>
+      
+      <button class="menu-toggle" id="menuToggle">
+        <i class="fas fa-bars"></i>
+      </button>
+      
+      <div class="nav-links" id="navLinks">
+        <a href="#hero">Home</a>
+        <a href="#problem">Problem</a>
+        <a href="#approach">Approach</a>
+        <a href="#how">How It Works</a>
+        <a href="#who">Who We Serve</a>
+        <a href="#showcase">Showcase</a>
+        <a href="#contact">Contact</a>
+      </div>
+      
+      <div class="toolbar-cta">
+        <a href="#contact" class="btn">
+          <i class="fas fa-calendar-alt"></i>
+          Request Demo
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section id="hero">
+    <div class="hero-background"></div>
+    <div class="network-lines" id="networkLines"></div>
+    
+    <div class="container">
+      <div class="hero-content">
+        <div class="hero-badge animate-fade-in">
+          <span>Trusted by 500+ Institutions Worldwide</span>
+        </div>
+        
+        <h1 class="hero-headline animate-fade-up" style="animation-delay: 0.2s;">
+          Built for Prevention.<br>Designed for Trust.
+        </h1>
+        
+        <p class="hero-subheadline animate-fade-up" style="animation-delay: 0.4s;">
+          Practical systems that help institutions and communities prevent harm — before it happens.
+        </p>
+        
+        <a href="#how" class="hero-cta animate-fade-up" style="animation-delay: 0.6s;">
+          <i class="fas fa-play-circle"></i>
+          See How Mehit Works
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Problem Section -->
+  <section id="problem">
+    <div class="container">
+      <div class="problem-header section-header">
+        <h2 class="section-title">Harm Happens Silently — and Often Preventably</h2>
+        <p class="section-subtitle">
+          These are not isolated accidents — they are predictable failures of systems we can fix. 
+          Real stories from 2024–2026 show the human and economic cost of inaction.
+        </p>
+      </div>
+      
+      <div class="story-cards">
+        <!-- Story 1 -->
+        <div class="story-card">
+          <div class="story-image" style="background-image: url('https://images.unsplash.com/photo-1581092160560-1c1e428e9d65?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');">
+            <div class="story-icon">🏗️</div>
+          </div>
+          <div class="story-content">
+            <h3 class="story-title">Unsafe Structures – Nairobi</h3>
+            <p class="story-description">
+              January 2026: A 16-story building in South C collapsed, killing multiple people. 
+              Four extra illegal floors were suspected to have been approved via bribes.
+            </p>
+            <div class="story-stats">
+              <i class="fas fa-exclamation-triangle"></i>
+              <span>80% of Nairobi buildings considered unsafe</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Story 2 -->
+        <div class="story-card">
+          <div class="story-image" style="background-image: url('https://images.unsplash.com/photo-1555949963-aa79d0ebc8fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');">
+            <div class="story-icon">🔒</div>
+          </div>
+          <div class="story-content">
+            <h3 class="story-title">Data Breach – Worldcoin</h3>
+            <p class="story-description">
+              Global scrutiny in 2024–2025 over insecure iris scan collection. Kenya's High Court 
+              deemed Worldcoin's biometric collection unlawful, mandating deletion of all Kenyan data.
+            </p>
+            <div class="story-stats">
+              <i class="fas fa-user-shield"></i>
+              <span>Millions of biometric records at risk</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Story 3 -->
+        <div class="story-card">
+          <div class="story-image" style="background-image: url('https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');">
+            <div class="story-icon">📱</div>
+          </div>
+          <div class="story-content">
+            <h3 class="story-title">Data Breach – Local Loan Apps</h3>
+            <p class="story-description">
+              Kenyan mobile loan apps accessed users' contacts and photos, leading to harassment 
+              and public shaming. ODPC fined companies like Whitepath and Mulla Pride millions.
+            </p>
+            <div class="story-stats">
+              <i class="fas fa-file-invoice-dollar"></i>
+              <span>KES 9.3M+ in fines issued</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Story 4 -->
+        <div class="story-card">
+          <div class="story-image" style="background-image: url('https://images.unsplash.com/photo-1501696461415-6bd6660c6742?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');">
+            <div class="story-icon">🌊</div>
+          </div>
+          <div class="story-content">
+            <h3 class="story-title">Pollution – Kenya</h3>
+            <p class="story-description">
+              Despite the 2017 plastic bag ban, Nairobi faces severe plastic pollution, clogging rivers, 
+              causing floods, and breeding mosquitoes. The Nairobi River is heavily polluted with toxic metals.
+            </p>
+            <div class="story-stats">
+              <i class="fas fa-skull-crossbones"></i>
+              <span>Chromium & lead levels 500% above safe limits</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Story 5 -->
+        <div class="story-card">
+          <div class="story-image" style="background-image: url('https://images.unsplash.com/photo-1611270427850-4e9d5b0e0f0a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');">
+            <div class="story-icon">🏭</div>
+          </div>
+          <div class="story-content">
+            <h3 class="story-title">Pollution – Global (Russia)</h3>
+            <p class="story-description">
+              Industrial waste fires continue in Russia and other regions, causing deaths, 
+              toxic air, and environmental degradation — a silent global crisis.
+            </p>
+            <div class="story-stats">
+              <i class="fas fa-fire"></i>
+              <span>200+ industrial fires annually</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Story 6 -->
+        <div class="story-card">
+          <div class="story-image" style="background-image: url('https://images.unsplash.com/photo-1542744095-fcf48d80b0fd?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');">
+            <div class="story-icon">⚒️</div>
+          </div>
+          <div class="story-content">
+            <h3 class="story-title">Workplace Hazards</h3>
+            <p class="story-description">
+              Construction collapses and factory incidents highlight poor safety standards, 
+              lack of PPE, dangerous machinery, and chemical hazards.
+            </p>
+            <div class="story-stats">
+              <i class="fas fa-hard-hat"></i>
+              <span>60% of workers lack proper PPE</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="problem-cta">
+        <a href="#how" class="btn btn-danger">
+          <i class="fas fa-shield-alt"></i>
+          Prevent the Next Tragedy – See How Mehit Works
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Approach Section -->
+  <section id="approach">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Turning Real Risks Into Practical Systems</h2>
+        <p class="section-subtitle">
+          Our systematic approach transforms potential hazards into actionable prevention, 
+          creating safer environments through intelligent intervention.
+        </p>
+      </div>
+      
+      <div class="approach-steps">
+        <!-- Step 1 -->
+        <div class="step-card">
+          <div class="step-number">1</div>
+          <div class="step-icon">
+            <i class="fas fa-search"></i>
+          </div>
+          <h3 class="step-title">Discover Risks</h3>
+          <p class="step-description">
+            Audit buildings, workplaces, rivers, and apps to identify hazards before they harm anyone.
+          </p>
+        </div>
+        
+        <!-- Step 2 -->
+        <div class="step-card">
+          <div class="step-number">2</div>
+          <div class="step-icon">
+            <i class="fas fa-file-alt"></i>
+          </div>
+          <h3 class="step-title">Translate Rules</h3>
+          <p class="step-description">
+            Turn construction codes, environmental laws, workplace safety, and data protection 
+            regulations into clear, actionable steps.
+          </p>
+        </div>
+        
+        <!-- Step 3 -->
+        <div class="step-card">
+          <div class="step-number">3</div>
+          <div class="step-icon">
+            <i class="fas fa-shield-alt"></i>
+          </div>
+          <h3 class="step-title">Implement Controls</h3>
+          <p class="step-description">
+            Enforce safe scaffolding, chemical protocols, waste management, and secure data handling.
+          </p>
+        </div>
+        
+        <!-- Step 4 -->
+        <div class="step-card">
+          <div class="step-number">4</div>
+          <div class="step-icon">
+            <i class="fas fa-handshake"></i>
+          </div>
+          <h3 class="step-title">Build Trust</h3>
+          <p class="step-description">
+            Communities, regulators, and users can see that risks are managed responsibly.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works Section -->
+  <section id="how">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">How Mehit Works</h2>
+        <p class="section-subtitle">
+          Upload evidence, map controls across frameworks (ISO 45001, Data Protection Act, NEMA regs, etc.), 
+          implement & track — all in one platform.
+        </p>
+      </div>
+      
+      <div class="workflow">
+        <!-- Step 1 -->
+        <div class="workflow-step">
+          <div class="step-visual" style="background-image: url('https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');"></div>
+          <div class="step-content">
+            <h3>
+              <span class="step-index">1</span>
+              Upload Evidence & Discover Risks
+            </h3>
+            <p>
+              Upload photos, PDFs, inspection reports, sensor data. AI maps controls to multiple frameworks 
+              (safety, environmental, data protection) and flags gaps before incidents occur.
+            </p>
+            <ul class="sector-benefits">
+              <li><i class="fas fa-check"></i> AI-powered risk detection</li>
+              <li><i class="fas fa-check"></i> Multi-framework compliance mapping</li>
+              <li><i class="fas fa-check"></i> Real-time gap analysis</li>
+            </ul>
+          </div>
+        </div>
+        
+        <!-- Step 2 -->
+        <div class="workflow-step">
+          <div class="step-visual" style="background-image: url('https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');"></div>
+          <div class="step-content">
+            <h3>
+              <span class="step-index">2</span>
+              Map & Implement Controls
+            </h3>
+            <p>
+              Automatically map uploaded evidence to standards (e.g., OSHA-equivalent, Kenya Data Protection Act, 
+              NEMA waste rules). Deploy automated checklists, safe scaffolding protocols, encryption, waste tracking.
+            </p>
+            <ul class="sector-benefits">
+              <li><i class="fas fa-check"></i> Automated compliance mapping</li>
+              <li><i class="fas fa-check"></i> Custom control implementation</li>
+              <li><i class="fas fa-check"></i> Framework-agnostic approach</li>
+            </ul>
+          </div>
+        </div>
+        
+        <!-- Step 3 -->
+        <div class="workflow-step">
+          <div class="step-visual" style="background-image: url('https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');"></div>
+          <div class="step-content">
+            <h3>
+              <span class="step-index">3</span>
+              Track, Report & Prove Compliance
+            </h3>
+            <p>
+              Live dashboards show control status, evidence coverage, risk scores across frameworks. 
+              Generate audit-ready reports instantly — visible to regulators, communities, insurers.
+            </p>
+            <ul class="sector-benefits">
+              <li><i class="fas fa-check"></i> Real-time compliance tracking</li>
+              <li><i class="fas fa-check"></i> Audit-ready reporting</li>
+              <li><i class="fas fa-check"></i> Stakeholder transparency</li>
+            </ul>
+          </div>
+        </div>
+        
+        <!-- Step 4 -->
+        <div class="workflow-step">
+          <div class="step-visual" style="background-image: url('https://images.unsplash.com/photo-1543286386-713bdd548da4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');"></div>
+          <div class="step-content">
+            <h3>
+              <span class="step-index">4</span>
+              Improve & Adapt Continuously
+            </h3>
+            <p>
+              Machine learning identifies patterns, predicts emerging risks, and suggests improvements. 
+              Systems evolve with changing regulations and environments.
+            </p>
+            <ul class="sector-benefits">
+              <li><i class="fas fa-check"></i> Predictive risk analytics</li>
+              <li><i class="fas fa-check"></i> Continuous improvement</li>
+              <li><i class="fas fa-check"></i> Regulatory change adaptation</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Who We Serve Section -->
+  <section id="who">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Who We Serve</h2>
+        <p class="section-subtitle">
+          Tailored prevention systems that protect people, assets, and communities — 
+          wherever responsibility meets real-world risk.
+        </p>
+      </div>
+      
+      <div class="sectors-grid">
+        <!-- Schools -->
+        <div class="sector-card">
+          <div class="sector-image" style="background-image: url('https://images.unsplash.com/photo-1580582932707-520aed4e9987?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');">
+            <div class="sector-icon">🏫</div>
+          </div>
+          <div class="sector-content">
+            <h3 class="sector-title">Schools</h3>
+            <p>Playground & lab safety, fire drills, child protection — zero preventable accidents, confident parents.</p>
+            <ul class="sector-benefits">
+              <li><i class="fas fa-check"></i> Playground safety compliance</li>
+              <li><i class="fas fa-check"></i> Fire drill management</li>
+              <li><i class="fas fa-check"></i> Child protection protocols</li>
+            </ul>
+          </div>
+        </div>
+        
+        <!-- Hospitals -->
+        <div class="sector-card">
+          <div class="sector-image" style="background-image: url('https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');">
+            <div class="sector-icon">🏥</div>
+          </div>
+          <div class="sector-content">
+            <h3 class="sector-title">Hospitals & Clinics</h3>
+            <p>Patient data security, infection control, emergency readiness — protected lives and privacy.</p>
+            <ul class="sector-benefits">
+              <li><i class="fas fa-check"></i> HIPAA/Data Protection compliance</li>
+              <li><i class="fas fa-check"></i> Infection control protocols</li>
+              <li><i class="fas fa-check"></i> Emergency response planning</li>
+            </ul>
+          </div>
+        </div>
+        
+        <!-- Churches -->
+        <div class="sector-card">
+          <div class="sector-image" style="background-image: url('https://images.unsplash.com/photo-1547036967-23d11aacaee0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');">
+            <div class="sector-icon">⛪</div>
+          </div>
+          <div class="sector-content">
+            <h3 class="sector-title">Churches & Faith Organizations</h3>
+            <p>Fire safety, crowd management, child safeguarding — safe gatherings and lasting trust.</p>
+            <ul class="sector-benefits">
+              <li><i class="fas fa-check"></i> Crowd safety management</li>
+              <li><i class="fas fa-check"></i> Fire safety compliance</li>
+              <li><i class="fas fa-check"></i> Child protection policies</li>
+            </ul>
+          </div>
+        </div>
+        
+        <!-- SMEs & Factories -->
+        <div class="sector-card">
+          <div class="sector-image" style="background-image: url('https://images.unsplash.com/photo-1581092160560-1c1e428e9d65?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');">
+            <div class="sector-icon">🏭</div>
+          </div>
+          <div class="sector-content">
+            <h3 class="sector-title">SMEs & Factories</h3>
+            <p>Machinery safety, chemical handling, pollution controls — fewer injuries, no fines, steady growth.</p>
+            <ul class="sector-benefits">
+              <li><i class="fas fa-check"></i> OSHA-equivalent compliance</li>
+              <li><i class="fas fa-check"></i> Chemical safety protocols</li>
+              <li><i class="fas fa-check"></i> Pollution control tracking</li>
+            </ul>
+          </div>
+        </div>
+        
+        <!-- Housing Developers -->
+        <div class="sector-card">
+          <div class="sector-image" style="background-image: url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');">
+            <div class="sector-icon">🏗️</div>
+          </div>
+          <div class="sector-content">
+            <h3 class="sector-title">Housing Developers</h3>
+            <p>Structural integrity, construction compliance, site safety — no collapses, no delays, no lawsuits.</p>
+            <ul class="sector-benefits">
+              <li><i class="fas fa-check"></i> Building code compliance</li>
+              <li><i class="fas fa-check"></i> Site safety monitoring</li>
+              <li><i class="fas fa-check"></i> Contractor management</li>
+            </ul>
+          </div>
+        </div>
+        
+        <!-- Public Sector -->
+        <div class="sector-card">
+          <div class="sector-image" style="background-image: url('https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');">
+            <div class="sector-icon">🏛️</div>
+          </div>
+          <div class="sector-content">
+            <h3 class="sector-title">Public Sector & Communities</h3>
+            <p>Waste management, flood prevention, public infrastructure — accountable, sustainable services.</p>
+            <ul class="sector-benefits">
+              <li><i class="fas fa-check"></i> NEMA regulation compliance</li>
+              <li><i class="fas fa-check"></i> Public safety monitoring</li>
+              <li><i class="fas fa-check"></i> Infrastructure risk management</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Showcase Section -->
+  <section id="showcase" class="showcase">
+    <div class="container">
+      <div class="showcase-header">
+        <h2 class="section-title">Start Building Safer Systems Today</h2>
+        <p class="section-subtitle">
+          See how Mehit transforms real environments — turning risk into resilience, fear into confidence, 
+          and compliance into lasting protection.
+        </p>
+      </div>
+      
+      <div class="showcase-cards">
+        <!-- Safe School -->
+        <div class="showcase-card">
+          <div class="showcase-image" style="background-image: url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');"></div>
+          <div class="showcase-content">
+            <h3 class="showcase-title">Safe School Environment</h3>
+            <p class="showcase-description">
+              Inspected playgrounds, secure labs, clear emergency protocols — zero preventable accidents, 
+              confident parents, thriving students.
+            </p>
+            <div class="showcase-stats">
+              <i class="fas fa-chart-line"></i>
+              <span>100% safety compliance achieved</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Safe Factory -->
+        <div class="showcase-card">
+          <div class="showcase-image" style="background-image: url('https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');"></div>
+          <div class="showcase-content">
+            <h3 class="showcase-title">Safe Factory Floor</h3>
+            <p class="showcase-description">
+              Machinery guards, chemical compliance, PPE protocols — worker injuries reduced by up to 80%, 
+              higher productivity, zero fines.
+            </p>
+            <div class="showcase-stats">
+              <i class="fas fa-chart-line"></i>
+              <span>80% reduction in workplace injuries</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Clean River -->
+        <div class="showcase-card">
+          <div class="showcase-image" style="background-image: url('https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');"></div>
+          <div class="showcase-content">
+            <h3 class="showcase-title">Clean River & Thriving Community</h3>
+            <p class="showcase-description">
+              Effective waste controls, pollution monitoring — reduced flooding, healthier ecosystems, 
+              safer water for thousands.
+            </p>
+            <div class="showcase-stats">
+              <i class="fas fa-chart-line"></i>
+              <span>90% reduction in pollution incidents</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Secure Data -->
+        <div class="showcase-card">
+          <div class="showcase-image" style="background-image: url('https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');"></div>
+          <div class="showcase-content">
+            <h3 class="showcase-title">Secure Data & Restored Trust</h3>
+            <p class="showcase-description">
+              Encrypted records, strict access controls — zero breaches, full compliance, 
+              renewed stakeholder confidence.
+            </p>
+            <div class="showcase-stats">
+              <i class="fas fa-chart-line"></i>
+              <span>100% data protection compliance</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="showcase-cta">
+        <a href="#contact" class="btn">
+          <i class="fas fa-rocket"></i>
+          Get Your Free Demo Now
+        </a>
+        <p class="mt-3" style="color: rgba(255, 255, 255, 0.9);">
+          No risk, no obligation — see prevention in action within days.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contact">
+    <div class="container">
+      <div class="contact-container">
+        <div class="contact-info">
+          <h2 class="contact-title">Ready to Build Safer Systems?</h2>
+          <p class="contact-description">
+            Get in touch with our prevention experts. We'll show you how Mehit can transform 
+            your approach to safety, compliance, and risk management.
+          </p>
+          
+          <div class="contact-details">
+            <div class="contact-detail">
+              <div class="contact-icon">
+                <i class="fas fa-envelope"></i>
+              </div>
+              <div class="contact-detail-content">
+                <h4>Email Us</h4>
+                <p>contact@mehit.com</p>
+              </div>
+            </div>
+            
+            <div class="contact-detail">
+              <div class="contact-icon">
+                <i class="fas fa-phone"></i>
+              </div>
+              <div class="contact-detail-content">
+                <h4>Call Us</h4>
+                <p>+254 700 000 000</p>
+              </div>
+            </div>
+            
+            <div class="contact-detail">
+              <div class="contact-icon">
+                <i class="fas fa-map-marker-alt"></i>
+              </div>
+              <div class="contact-detail-content">
+                <h4>Visit Us</h4>
+                <p>Nairobi, Kenya</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="contact-form">
+          <form id="contactForm">
+            <div class="form-group">
+              <label for="name">Full Name</label>
+              <input type="text" id="name" class="form-control" placeholder="Enter your name" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="email">Email Address</label>
+              <input type="email" id="email" class="form-control" placeholder="Enter your email" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="organization">Organization</label>
+              <input type="text" id="organization" class="form-control" placeholder="Your organization">
+            </div>
+            
+            <div class="form-group">
+              <label for="message">Your Message</label>
+              <textarea id="message" class="form-control" placeholder="Tell us about your safety challenges..." rows="4" required></textarea>
+            </div>
+            
+            <button type="submit" class="submit-btn">
+              <i class="fas fa-paper-plane"></i>
+              Send Message
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-col">
+          <a href="#" class="logo" style="color: white; margin-bottom: 1.5rem; display: block;">
+            <i class="fas fa-shield-alt logo-icon"></i>
+            <span>Mehit</span>
+          </a>
+          <p style="color: rgba(255, 255, 255, 0.7); margin-bottom: 1.5rem;">
+            Life-Changing Technology for Everyday Challenges. Building safer systems for institutions and communities worldwide.
+          </p>
+        </div>
+        
+        <div class="footer-col">
+          <h3>Quick Links</h3>
+          <ul class="footer-links">
+            <li><a href="#hero">Home</a></li>
+            <li><a href="#problem">The Problem</a></li>
+            <li><a href="#approach">Our Approach</a></li>
+            <li><a href="#how">How It Works</a></li>
+            <li><a href="#who">Who We Serve</a></li>
+          </ul>
+        </div>
+        
+        <div class="footer-col">
+          <h3>Resources</h3>
+          <ul class="footer-links">
+            <li><a href="#">Blog</a></li>
+            <li><a href="#">Case Studies</a></li>
+            <li><a href="#">Documentation</a></li>
+            <li><a href="#">API Reference</a></li>
+            <li><a href="#">Support</a></li>
+          </ul>
+        </div>
+        
+        <div class="footer-col">
+          <h3>Legal</h3>
+          <ul class="footer-links">
+            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="#">Terms of Service</a></li>
+            <li><a href="#">Cookie Policy</a></li>
+            <li><a href="#">GDPR Compliance</a></li>
+            <li><a href="#">Security</a></li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <p>© 2026 Mehit Technologies. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Enhanced JavaScript for animations and interactions
+    
+    // Initialize animations on load
+    document.addEventListener('DOMContentLoaded', function() {
+      // Create network lines for hero background
+      createNetworkLines();
+      
+      // Animate hero headline
+      const headline = document.querySelector('.hero-headline');
+      const subtitle = document.querySelector('.hero-subheadline');
+      const cta = document.querySelector('.hero-cta');
+      
+      setTimeout(() => {
+        headline.style.opacity = '1';
+        headline.style.transform = 'translateY(0)';
+      }, 300);
+      
+      setTimeout(() => {
+        subtitle.style.opacity = '1';
+        subtitle.style.transform = 'translateY(0)';
+      }, 800);
+      
+      setTimeout(() => {
+        cta.style.opacity = '1';
+        cta.style.transform = 'translateY(0)';
+      }, 1200);
+      
+      // Initialize scroll animations
+      initScrollAnimations();
+      
+      // Mobile menu toggle
+      initMobileMenu();
+      
+      // Form submission
+      initContactForm();
+      
+      // Sticky navbar
+      initStickyNavbar();
+    });
+    
+    // Create animated network lines
+    function createNetworkLines() {
+      const container = document.getElementById('networkLines');
+      if (!container) return;
+      
+      const svgNS = "http://www.w3.org/2000/svg";
+      const svg = document.createElementNS(svgNS, "svg");
+      svg.setAttribute("width", "100%");
+      svg.setAttribute("height", "100%");
+      svg.setAttribute("viewBox", "0 0 1000 600");
+      svg.style.position = "absolute";
+      svg.style.top = "0";
+      svg.style.left = "0";
+      
+      // Create nodes
+      const nodes = [];
+      for (let i = 0; i < 15; i++) {
+        nodes.push({
+          x: Math.random() * 1000,
+          y: Math.random() * 600,
+          vx: (Math.random() - 0.5) * 0.5,
+          vy: (Math.random() - 0.5) * 0.5
+        });
+        
+        // Create node circle
+        const circle = document.createElementNS(svgNS, "circle");
+        circle.setAttribute("cx", nodes[i].x);
+        circle.setAttribute("cy", nodes[i].y);
+        circle.setAttribute("r", "2");
+        circle.setAttribute("fill", "rgba(255, 255, 255, 0.3)");
+        svg.appendChild(circle);
+      }
+      
+      // Animate nodes
+      function animateNodes() {
+        const circles = svg.querySelectorAll('circle');
+        nodes.forEach((node, i) => {
+          // Update position
+          node.x += node.vx;
+          node.y += node.vy;
+          
+          // Bounce off edges
+          if (node.x < 0 || node.x > 1000) node.vx *= -1;
+          if (node.y < 0 || node.y > 600) node.vy *= -1;
+          
+          // Update circle position
+          circles[i].setAttribute("cx", node.x);
+          circles[i].setAttribute("cy", node.y);
+        });
+        
+        // Update lines
+        updateLines();
+        requestAnimationFrame(animateNodes);
+      }
+      
+      // Create lines between nodes
+      function updateLines() {
+        // Remove existing lines
+        const existingLines = svg.querySelectorAll('line');
+        existingLines.forEach(line => line.remove());
+        
+        // Create new lines
+        for (let i = 0; i < nodes.length; i++) {
+          for (let j = i + 1; j < nodes.length; j++) {
+            const dx = nodes[i].x - nodes[j].x;
+            const dy = nodes[i].y - nodes[j].y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            if (distance < 150) {
+              const line = document.createElementNS(svgNS, "line");
+              line.setAttribute("x1", nodes[i].x);
+              line.setAttribute("y1", nodes[i].y);
+              line.setAttribute("x2", nodes[j].x);
+              line.setAttribute("y2", nodes[j].y);
+              line.setAttribute("stroke", "rgba(255, 255, 255, 0.1)");
+              line.setAttribute("stroke-width", "1");
+              svg.appendChild(line);
+            }
+          }
+        }
+      }
+      
+      container.appendChild(svg);
+      animateNodes();
+    }
+    
+    // Scroll animations
+    function initScrollAnimations() {
+      const observerOptions = {
+        root: null,
+        rootMargin: '0px',
+        threshold: 0.1
+      };
+      
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            
+            // Add staggered animation for cards
+            if (entry.target.classList.contains('story-card') || 
+                entry.target.classList.contains('step-card') ||
+                entry.target.classList.contains('sector-card') ||
+                entry.target.classList.contains('showcase-card')) {
+              const index = Array.from(entry.target.parentNode.children).indexOf(entry.target);
+              entry.target.style.animationDelay = `${index * 0.1}s`;
+            }
+            
+            // Add animation for workflow steps
+            if (entry.target.classList.contains('workflow-step')) {
+              const index = Array.from(entry.target.parentNode.children).indexOf(entry.target);
+              entry.target.style.animationDelay = `${index * 0.2}s`;
+            }
+            
+            // Add animation for contact sections
+            if (entry.target.classList.contains('contact-info') || 
+                entry.target.classList.contains('contact-form')) {
+              entry.target.style.animationDelay = '0.3s';
+            }
+          }
+        });
+      }, observerOptions);
+      
+      // Observe all elements that need animation
+      document.querySelectorAll('.story-card, .step-card, .sector-card, .showcase-card, .workflow-step, .contact-info, .contact-form').forEach(el => {
+        observer.observe(el);
+      });
+    }
+    
+    // Mobile menu
+    function initMobileMenu() {
+      const menuToggle = document.getElementById('menuToggle');
+      const navLinks = document.getElementById('navLinks');
+      
+      if (!menuToggle || !navLinks) return;
+      
+      menuToggle.addEventListener('click', () => {
+        navLinks.classList.toggle('active');
+        menuToggle.innerHTML = navLinks.classList.contains('active') 
+          ? '<i class="fas fa-times"></i>' 
+          : '<i class="fas fa-bars"></i>';
+      });
+      
+      // Close menu when clicking a link
+      document.querySelectorAll('.nav-links a').forEach(link => {
+        link.addEventListener('click', () => {
+          navLinks.classList.remove('active');
+          menuToggle.innerHTML = '<i class="fas fa-bars"></i>';
+        });
+      });
+    }
+    
+    // Contact form
+    function initContactForm() {
+      const form = document.getElementById('contactForm');
+      if (!form) return;
+      
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        // Get form data
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData);
+        
+        // Show success message
+        alert(`Thank you, ${data.name}! We'll contact you at ${data.email} within 24 hours.`);
+        
+        // Reset form
+        form.reset();
+        
+        // Scroll to top
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    }
+    
+    // Sticky navbar
+    function initStickyNavbar() {
+      const navbar = document.querySelector('.toolbar');
+      if (!navbar) return;
+      
+      window.addEventListener('scroll', () => {
+        if (window.scrollY > 100) {
+          navbar.classList.add('scrolled');
+        } else {
+          navbar.classList.remove('scrolled');
+        }
+      });
+    }
+    
+    // Smooth scrolling for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        
+        const targetId = this.getAttribute('href');
+        if (targetId === '#') return;
+        
+        const targetElement = document.querySelector(targetId);
+        if (targetElement) {
+          window.scrollTo({
+            top: targetElement.offsetTop - 80,
+            behavior: 'smooth'
+          });
+        }
+      });
+    });
+  </script>
+</body>
+</html>

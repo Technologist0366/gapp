@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mehit – Built for Prevention. Designed for Trust.</title>
+  <style>
+    :root {
+      --primary: #004aad;
+      --accent: #27ae60;
+      --danger: #e74c3c;
+      --light: #f8faff;
+      --dark: #1a202c;
+      --sidebar: #003080;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--light);
+      color: var(--dark);
+      line-height: 1.7;
+    }
+    h1 { font-size: 5.5rem; font-weight: 800; }
+    h2 { font-size: 3.8rem; font-weight: 700; text-align: center; margin-bottom: 4rem; color: var(--primary); }
+
+    /* Sidebar Navigation */
+    .sidebar {
+      position: fixed;
+      left: 0; top: 0; bottom: 0;
+      width: 280px;
+      background: var(--sidebar);
+      color: white;
+      padding: 2rem;
+      overflow-y: auto;
+      z-index: 100;
+      box-shadow: 8px 0 30px rgba(0,0,0,0.2);
+    }
+    .sidebar-logo { font-size: 2rem; margin-bottom: 3rem; text-align: center; }
+    .sidebar-menu { list-style: none; }
+    .sidebar-menu li { margin: 1.5rem 0; }
+    .sidebar-menu a {
+      color: white;
+      text-decoration: none;
+      font-size: 1.4rem;
+      display: flex;
+      align-items: center;
+      padding: 1rem;
+      border-radius: 12px;
+      transition: all 0.3s;
+    }
+    .sidebar-menu a:hover { background: rgba(255,255,255,0.15); transform: translateX(10px); }
+    .sidebar-icon { font-size: 2rem; margin-right: 1rem; }
+
+    /* Main Content */
+    main { margin-left: 280px; padding: 0 6%; }
+
+    /* Hero */
+    #hero {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #003080, #004aad);
+      color: white;
+      display: flex;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-content { max-width: 900px; }
+    .hero h1 { margin-bottom: 1.5rem; }
+    .btn { background: var(--accent); color: white; padding: 1.4rem 3.5rem; border-radius: 60px; font-size: 1.5rem; font-weight: 700; text-decoration: none; box-shadow: 0 12px 40px rgba(39,174,96,0.4); transition: all 0.4s; }
+    .btn:hover { transform: translateY(-8px) scale(1.05); }
+
+    section { padding: 160px 0; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 3rem; }
+    .card { background: white; border-radius: 28px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.12); transition: all 0.5s; opacity: 0; transform: translateY(80px); }
+    .card.visible { opacity: 1; transform: translateY(0); }
+    .card:hover { transform: translateY(-20px) scale(1.04); }
+    .card-img { height: 280px; background-size: cover; background-position: center; }
+
+    /* Who We Serve Icons */
+    .icons-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 3rem; text-align: center; }
+    .icon-item { padding: 2rem; transition: transform 0.4s; }
+    .icon-item:hover { transform: scale(1.15); }
+    .icon-item img { width: 160px; height: 160px; object-fit: contain; margin-bottom: 1.5rem; }
+
+    /* Blog */
+    .blog-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 3rem; }
+    .blog-card { background: white; border-radius: 24px; overflow: hidden; box-shadow: 0 16px 48px rgba(0,0,0,0.1); }
+    .blog-img { height: 240px; background-size: cover; }
+
+    /* Contact */
+    #contact form { max-width: 800px; margin: 0 auto; display: grid; gap: 1.5rem; }
+    #contact input, #contact textarea { padding: 1.2rem; border-radius: 12px; border: 1px solid #ddd; font-size: 1.2rem; }
+
+    @keyframes fadeInUp { from { opacity:0; transform:translateY(100px); } to { opacity:1; transform:translateY(0); } }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">Mehit</div>
+    <ul class="sidebar-menu">
+      <li><a href="#hero"><span class="sidebar-icon">🏠</span> Home</a></li>
+      <li><a href="#problem"><span class="sidebar-icon">⚠️</span> The Problem</a></li>
+      <li><a href="#approach"><span class="sidebar-icon">🛠️</span> Our Approach</a></li>
+      <li><a href="#who"><span class="sidebar-icon">👥</span> Who We Serve</a></li>
+      <li><a href="#how"><span class="sidebar-icon">🔄</span> How It Works</a></li>
+      <li><a href="#blog"><span class="sidebar-icon">📝</span> Blog</a></li>
+      <li><a href="#contact"><span class="sidebar-icon">✉️</span> Contact Us</a></li>
+      <li><a href="#" onclick="document.getElementById('signup').style.display='block'"><span class="sidebar-icon">📩</span> Sign Up</a></li>
+    </ul>
+  </aside>
+
+  <main>
+    <!-- Hero -->
+    <section id="hero">
+      <div class="hero-content">
+        <h1>Built for Prevention.<br>Designed for Trust.</h1>
+        <p style="font-size:2rem;">Practical systems that help institutions and communities prevent harm — before it happens.</p>
+        <a href="#problem" class="btn">See How Mehit Works</a>
+      </div>
+    </section>
+
+    <!-- Problem, Approach, etc. (keep from previous, with bigger cards) -->
+    <!-- ... (insert previous sections here for brevity, but with .card.visible class) ... -->
+
+    <!-- Who We Serve with Icons -->
+    <section id="who" style="background:#f0f7ff;">
+      <h2>Who We Serve</h2>
+      <div class="icons-grid">
+        <div class="icon-item">
+
+<grok-card data-id="ce0a06" data-type="image_card" data-plain-type="render_searched_image"  data-arg-size="LARGE" ></grok-card>
+
+<p>Schools</p></div>
+        <div class="icon-item">
+
+<grok-card data-id="156e33" data-type="image_card" data-plain-type="render_searched_image"  data-arg-size="LARGE" ></grok-card>
+
+<p>Hospitals</p></div>
+        <div class="icon-item">
+
+<grok-card data-id="21bceb" data-type="image_card" data-plain-type="render_searched_image"  data-arg-size="LARGE" ></grok-card>
+
+<p>Churches</p></div>
+        <div class="icon-item">
+
+<grok-card data-id="44c243" data-type="image_card" data-plain-type="render_searched_image"  data-arg-size="LARGE" ></grok-card>
+
+<p>SMEs & Factories</p></div>
+        <div class="icon-item">
+
+<grok-card data-id="da3bef" data-type="image_card" data-plain-type="render_searched_image"  data-arg-size="LARGE" ></grok-card>
+
+<p>Housing Developers</p></div>
+        <div class="icon-item">
+
+<grok-card data-id="81cbf5" data-type="image_card" data-plain-type="render_searched_image"  data-arg-size="LARGE" ></grok-card>
+
+<p>Public Sector</p></div>
+      </div>
+    </section>
+
+    <!-- Blog Page -->
+    <section id="blog">
+      <h2>Mehit Blog – Insights on Prevention & Compliance</h2>
+      <div class="blog-grid">
+        <div class="blog-card"><div class="blog-img" style="background-image:ur[](https://www.oecd.org/adobe/dynamicmedia/deliver/dm-aid--49aa82bc-bb81-4cdc-ab48-74a8a8e96a7d/environmental-compliance-assurance-02.png);"></div><div style="padding:2rem;"><h3>Ensuring Environmental Compliance</h3><p>Strategies for monitoring and enforcement.</p></div></div>
+        <div class="blog-card"><div class="blog-img" style="background-image:ur[](https://www.ardentprivacy.ai/content/images/2025/04/DPLUAE--2-.png);"></div><div style="padding:2rem;"><h3>Data Protection Laws Guide</h3><p>Understanding compliance in modern institutions.</p></div></div>
+        <div class="blog-card"><div class="blog-img" style="background-image:ur[](https://www.fortinet.com/content/dam/fortinet/images/cyberglossary/cloud-data-protection.jpg);"></div><div style="padding:2rem;"><h3>Cloud Data Security Techniques</h3><p>Protecting sensitive information effectively.</p></div></div>
+      </div>
+    </section>
+
+    <!-- Contact Us -->
+    <section id="contact" style="background:#fff;">
+      <h2>Contact Us</h2>
+      <form>
+        <input type="text" placeholder="Name">
+        <input type="email" placeholder="Email">
+        <textarea placeholder="Message" rows="6"></textarea>
+        <button class="btn">Send Message</button>
+      </form>
+    </section>
+
+    <!-- Signup Modal -->
+    <div id="signup" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); align-items:center; justify-content:center; z-index:200;">
+      <div style="background:white; padding:3rem; border-radius:24px; max-width:500px; text-align:center;">
+        <h2>Sign Up for Updates</h2>
+        <form style="display:grid; gap:1rem;">
+          <input type="text" placeholder="Name">
+          <input type="email" placeholder="Email">
+          <button class="btn">Subscribe</button>
+        </form>
+        <button onclick="document.getElementById('signup').style.display='none'" style="margin-top:1rem;">Close</button>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const observer = new IntersectionObserver(entries => entries.forEach(e => e.isIntersecting && e.target.classList.add('visible')), { threshold: 0.1 });
+    document.querySelectorAll('.card, .icon-item').forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>

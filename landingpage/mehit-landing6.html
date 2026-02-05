@@ -1,0 +1,459 @@
+K<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mehit – Prevention Systems | Safer Tomorrow Starts Today</title>
+  <style>
+    :root {
+      --primary: #004aad;
+      --primary-dark: #003080;
+      --accent: #27ae60;
+      --danger: #e74c3c;
+      --light: #f8faff;
+      --gray: #4a5568;
+      --dark: #1a202c;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      color: var(--dark);
+      background: var(--light);
+      line-height: 1.7;
+    }
+
+    /* Sticky Top Toolbar */
+    .toolbar {
+      position: sticky;
+      top: 0;
+      background: white;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      z-index: 1000;
+      padding: 1.2rem 6%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo { font-size: 2.2rem; font-weight: 800; color: var(--primary); }
+    .nav-links { display: flex; gap: 2.5rem; }
+    .nav-links a {
+      color: var(--dark);
+      text-decoration: none;
+      font-size: 1.3rem;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+    .nav-links a:hover { color: var(--primary); transform: translateY(-2px); }
+    .toolbar-cta .btn { background: var(--accent); color: white; padding: 1rem 2.5rem; border-radius: 50px; font-weight: 700; text-decoration: none; box-shadow: 0 6px 20px rgba(39,174,96,0.3); transition: all 0.4s; }
+    .toolbar-cta .btn:hover { transform: translateY(-4px) scale(1.05); box-shadow: 0 12px 35px rgba(39,174,96,0.45); }
+
+    /* Hero */
+    #hero {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #003080, #004aad);
+      color: white;
+      display: flex;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+    #hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url('https://thumbs.dreamstime.com/b/network-abstract-people-icons-connected-glowing-lines-blue-pink-connect-like-structure-gradient-scene-361756747.jpg') center/cover;
+      opacity: 0.2;
+      animation: pulseNetwork 20s infinite ease-in-out;
+    }
+    @keyframes pulseNetwork { 0%,100% { opacity:0.2; transform:scale(1); } 50% { opacity:0.35; transform:scale(1.06); } }
+    .hero-content { max-width: 1000px; margin: 0 auto; text-align: center; position: relative; z-index: 2; }
+    h1 { font-size: 6rem; font-weight: 900; margin-bottom: 1.8rem; text-shadow: 0 6px 30px rgba(0,0,0,0.5); }
+    .hero p { font-size: 2.2rem; max-width: 900px; margin: 0 auto 3.5rem; opacity: 0.95; }
+
+    /* Sections */
+    section { padding: 180px 6%; }
+    .section-title { font-size: 4.2rem; text-align: center; margin-bottom: 6rem; color: var(--primary); }
+
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 3.5rem; }
+    .card {
+      background: white;
+      border-radius: 32px;
+      overflow: hidden;
+      box-shadow: 0 20px 70px rgba(0,0,0,0.12);
+      transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      opacity: 0;
+      transform: translateY(100px);
+    }
+    .card.visible { opacity:1; transform:translateY(0); }
+    .card:hover { transform: translateY(-24px) scale(1.04); box-shadow: 0 40px 100px rgba(0,0,0,0.2); }
+    .card-img { height: 320px; background-size: cover; background-position: center; }
+
+    /* Who We Serve Icons */
+    .icons-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 4rem; text-align: center; }
+    .icon-item { transition: all 0.4s; }
+    .icon-item:hover { transform: scale(1.2) rotate(3deg); }
+    .icon-item img { width: 180px; height: 180px; object-fit: contain; margin-bottom: 2rem; filter: drop-shadow(0 10px 20px rgba(0,74,173,0.2)); }
+
+    /* CTA */
+    .cta-section { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; text-align: center; padding: 160px 6%; }
+    .cta-section h2 { font-size: 4.5rem; margin-bottom: 2rem; }
+
+    footer { background: var(--dark); color: white; text-align: center; padding: 6rem 6%; font-size: 1.3rem; }
+
+
+    @keyframes fadeInUp { from { opacity:0; transform:translateY(120px); } to { opacity:1; transform:translateY(0); } }
+.icon-item.visible {
+  animation: fadeInUp 1.2s forwards;
+}
+.icon-item:hover {
+  transform: scale(1.18) rotate(2deg);
+  filter: drop-shadow(0 15px 30px rgba(0,74,173,0.25));
+}
+.icon-item img {
+  border-radius: 20px;
+  transition: all 0.5s ease;
+  background: white;
+  padding: 1rem;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+.icon-item:hover img {
+  transform: scale(1.1);
+}
+/* Step Cards */
+.step-card {
+  background: white;
+  border-radius: 32px;
+  padding: 3.5rem 2.5rem;
+  box-shadow: 0 20px 70px rgba(0,0,0,0.12);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(100px);
+  transition: all 0.8s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.animate-step.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.step-card:hover {
+  transform: translateY(-20px);
+  box-shadow: 0 40px 100px rgba(0,74,173,0.25);
+}
+
+.step-icon-wrapper {
+  position: relative;
+  height: 160px;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.step-icon {
+  font-size: 8rem;
+  color: var(--primary);
+  z-index: 2;
+}
+
+/* Animations for each step */
+.scan-animation {
+  position: absolute;
+  width: 140px;
+  height: 140px;
+  border: 3px solid var(--primary);
+  border-radius: 50%;
+  animation: scanPulse 4s infinite ease-in-out;
+  opacity: 0.4;
+}
+
+@keyframes scanPulse {
+  0%, 100% { transform: scale(0.8); opacity: 0.3; }
+  50%      { transform: scale(1.4); opacity: 0.7; }
+}
+
+.flow-animation {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(39,174,96,0.3), transparent);
+  animation: flowDocuments 6s infinite linear;
+}
+
+@keyframes flowDocuments {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.shield-pulse {
+  position: absolute;
+  width: 160px;
+  height: 160px;
+  background: radial-gradient(circle, rgba(39,174,96,0.25) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: shieldPulse 3.5s infinite ease-in-out;
+}
+
+@keyframes shieldPulse {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50%      { transform: scale(1.3); opacity: 1; }
+}
+
+.connect-lines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 10px,
+    rgba(0,74,173,0.2) 10px,
+    rgba(0,74,173,0.2) 20px
+  );
+  animation: connectFlow 8s infinite linear;
+}
+
+@keyframes connectFlow {
+  0%   { background-position: 0 0; }
+  100% { background-position: 200px 200px; }
+}
+  </style>
+</head>
+<body>
+
+  <!-- Top Toolbar -->
+  <nav class="toolbar">
+    <div class="logo">Mehit</div>
+    <div class="nav-links">
+      <a href="#hero">Home</a>
+      <a href="#problem">Problem</a>
+      <a href="#approach">Approach</a>
+      <a href="#who">Who We Serve</a>
+      <a href="#how">How It Works</a>
+      <a href="#blog">Blog</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <div class="toolbar-cta">
+      <a href="#contact" class="btn">Request Demo</a>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section id="hero">
+    <div class="hero-content">
+      <h1>Built for Prevention.<br>Designed for Trust.</h1>
+      <p>Practical systems that help institutions and communities prevent harm — before it happens. From unsafe structures to data breaches and pollution — we turn rules into real protection.</p>
+      <a href="#problem" class="btn">See How Mehit Works</a>
+    </div>
+  </section>
+
+  <!-- Problem Section (keep your real stories cards, made bigger) -->
+  <section id="problem">
+    <h2 class="section-title">Harm Happens Silently — and Often Preventably</h2>
+<div class="cards">
+  <!-- Card 1: Building Collapse – Nairobi Jan 2026 -->
+  <div class="card">
+    <div class="card-img" style="background-image:url('https://nypost.com/wp-content/uploads/sites/2/2026/01/118156716.jpg?quality=75&strip=all&w=1200');"></div>
+    <div style="padding:3rem;">
+      <h3>Building Collapse – Nairobi, Jan 2026</h3>
+      <p>On January 2, 2026, a multi-storey building under construction in South C collapsed, killing at least two people and trapping others under rubble. Illegal extra floors, poor supervision, and regulatory failures turned a site into tragedy — fully preventable with proper safety systems and oversight.</p>
+    </div>
+  </div>
+
+  <!-- Card 2: Biometric Breach – Worldcoin Kenya -->
+  <div class="card">
+    <div class="card-img" style="background-image:url('http://media.wired.com/photos/6633a382dd1c44786e253eba/master/pass/The-Breach-of-a-Facial-Recognition-Firm-Is-Only-Half-the-Problem-Security-GettyImages-51478189.jpg');"></div>
+    <div style="padding:3rem;">
+      <h3>Biometric Data Breach – Worldcoin Kenya</h3>
+      <p>Following a 2025 High Court ruling declaring iris scan collection unlawful, Worldcoin permanently deleted all Kenyan biometric data in early 2026 under ODPC supervision. The case exposed thousands to privacy risks and identity threats due to inadequate consent and safeguards.</p>
+    </div>
+  </div>
+
+  <!-- Card 3: Loan Apps Privacy Violations -->
+  <div class="card">
+    <div class="card-img" style="background-image:url('https://www.mcafee.com/blogs/wp-content/uploads/2024/11/figure-4-1.png');"></div>
+    <div style="padding:3rem;">
+      <h3>Loan Apps Data Abuse – Kenya</h3>
+      <p>Digital lenders like Whitepath and Mulla Pride faced millions in ODPC fines for unlawfully accessing contacts/photos and using third-party data for harassment and shaming. These breaches left vulnerable borrowers exposed to fraud, blackmail, and severe privacy violations.</p>
+    </div>
+  </div>
+
+  <!-- Card 4: Persistent River Pollution – Nairobi -->
+  <div class="card">
+    <div class="card-img" style="background-image:url('https://theintercept.com/wp-content/uploads/2020/04/plastic_kenya-14.jpg');"></div>
+    <div style="padding:3rem;">
+      <h3>Ongoing Pollution – Nairobi River</h3>
+      <p>Despite the 2017 plastic ban, Nairobi River remains heavily polluted with plastic waste, toxic heavy metals (chromium, lead), and industrial effluents. This causes flooding, disease, and long-term health damage — a silent crisis that continues due to poor enforcement and waste management failures.</p>
+    </div>
+  </div>
+</div>
+  </section>
+
+<!-- 3. Our Approach — From Risk to Action -->
+<section id="approach" style="background: linear-gradient(to bottom, #f0f7ff, #ffffff); padding: 180px 6%;">
+  <div class="container">
+    <h2 class="section-title" style="font-size: 4.5rem; margin-bottom: 5rem;">
+      Turning Real Risks Into Practical Systems
+    </h2>
+
+    <div class="steps-grid" style="
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+      gap: 3.5rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    ">
+
+      <!-- Step 1: Discover Risks -->
+      <div class="step-card animate-step" style="animation-delay: 0.2s;">
+        <div class="step-icon-wrapper">
+          <div class="step-icon">🔍</div>
+          <div class="scan-animation"></div>
+        </div>
+        <h3>1. Discover Risks</h3>
+        <p>Audit buildings, workplaces, rivers, and apps to identify hazards before they harm anyone. Early detection prevents tragedies.</p>
+      </div>
+
+      <!-- Step 2: Translate Rules -->
+      <div class="step-card animate-step" style="animation-delay: 0.5s;">
+        <div class="step-icon-wrapper">
+          <div class="step-icon">⚙️📄</div>
+          <div class="flow-animation"></div>
+        </div>
+        <h3>2. Translate Rules</h3>
+        <p>Turn complex construction codes, environmental laws, workplace safety, and data protection regulations into clear, actionable steps your team can follow daily.</p>
+      </div>
+
+      <!-- Step 3: Implement Controls -->
+      <div class="step-card animate-step" style="animation-delay: 0.8s;">
+        <div class="step-icon-wrapper">
+          <div class="step-icon">🛡️</div>
+          <div class="shield-pulse"></div>
+        </div>
+        <h3>3. Implement Controls</h3>
+        <p>Enforce safe scaffolding, chemical protocols, waste management, and secure data handling — tailored safeguards that actually work in real environments.</p>
+      </div>
+
+      <!-- Step 4: Build Trust -->
+      <div class="step-card animate-step" style="animation-delay: 1.1s;">
+        <div class="step-icon-wrapper">
+          <div class="step-icon">🤝🌐</div>
+          <div class="connect-lines"></div>
+        </div>
+        <h3>4. Build Trust</h3>
+        <p>Communities, regulators, and users see visible accountability. Real-time dashboards prove risks are managed responsibly — trust earned through transparency.</p>
+      </div>
+
+    </div>
+
+    <div style="text-align: center; margin-top: 7rem;">
+      <a href="#contact" class="btn" style="font-size: 1.8rem; padding: 1.8rem 5rem;">
+        Start Building Safer Systems Today
+      </a>
+    </div>
+  </div>
+</section>
+
+  <!-- Who We Serve – Icons -->
+<!-- Who We Serve – Enhanced Icons + Use Cases -->
+<section id="who" style="background: linear-gradient(to bottom, #f0f7ff, #ffffff); padding: 180px 6%;">
+  <h2 class="section-title" style="font-size: 4.5rem;">Who We Serve</h2>
+  <p style="text-align: center; font-size: 1.8rem; max-width: 900px; margin: 0 auto 5rem; color: var(--gray);">
+    Tailored prevention systems that protect people, assets, and communities — wherever responsibility meets real-world risk.
+  </p>
+
+  <div class="icons-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 4.5rem; text-align: center;">
+    
+    <!-- Schools -->
+    <div class="icon-item" style="transition: all 0.5s ease; opacity: 0; transform: translateY(80px);">
+
+<grok-card data-id="fda880" data-type="image_card" data-plain-type="render_searched_image"  data-arg-size="LARGE" ></grok-card>
+
+      <h3 style="font-size: 2.2rem; margin: 1.5rem 0 1rem; color: var(--primary);">Schools</h3>
+      <p style="font-size: 1.3rem; color: var(--gray);">Playground safety, lab hazards, fire compliance — preventing accidents before they harm children or staff.</p>
+    </div>
+
+    <!-- Hospitals -->
+    <div class="icon-item" style="transition: all 0.5s ease 0.1s; opacity: 0; transform: translateY(80px);">
+
+<grok-card data-id="3ab7f5" data-type="image_card" data-plain-type="render_searched_image"  data-arg-size="LARGE" ></grok-card>
+
+      <h3 style="font-size: 2.2rem; margin: 1.5rem 0 1rem; color: var(--primary);">Hospitals</h3>
+      <p style="font-size: 1.3rem; color: var(--gray);">Secure patient data, infection control, emergency readiness — protecting lives and privacy in high-stakes environments.</p>
+    </div>
+
+    <!-- Churches -->
+    <div class="icon-item" style="transition: all 0.5s ease 0.2s; opacity: 0; transform: translateY(80px);">
+
+<grok-card data-id="7e5a7b" data-type="image_card" data-plain-type="render_searched_image"  data-arg-size="LARGE" ></grok-card>
+
+      <h3 style="font-size: 2.2rem; margin: 1.5rem 0 1rem; color: var(--primary);">Churches & Faith Orgs</h3>
+      <p style="font-size: 1.3rem; color: var(--gray);">Fire safety, crowd management, child protection — ensuring safe gatherings and trust for congregations.</p>
+    </div>
+
+    <!-- SMEs & Factories -->
+    <div class="icon-item" style="transition: all 0.5s ease 0.3s; opacity: 0; transform: translateY(80px);">
+
+<grok-card data-id="bb27b9" data-type="image_card" data-plain-type="render_searched_image"  data-arg-size="LARGE" ></grok-card>
+
+      <h3 style="font-size: 2.2rem; margin: 1.5rem 0 1rem; color: var(--primary);">SMEs & Factories</h3>
+      <p style="font-size: 1.3rem; color: var(--gray);">Machinery safety, chemical handling, pollution controls — reducing downtime, fines, and worker injuries.</p>
+    </div>
+
+    <!-- Housing Developers -->
+    <div class="icon-item" style="transition: all 0.5s ease 0.4s; opacity: 0; transform: translateY(80px);">
+
+<grok-card data-id="679cd5" data-type="image_card" data-plain-type="render_searched_image"  data-arg-size="LARGE" ></grok-card>
+
+      <h3 style="font-size: 2.2rem; margin: 1.5rem 0 1rem; color: var(--primary);">Housing Developers</h3>
+      <p style="font-size: 1.3rem; color: var(--gray);">Structural integrity, construction compliance, site safety — avoiding collapses, delays, and legal risks.</p>
+    </div>
+
+    <!-- Public Sector -->
+    <div class="icon-item" style="transition: all 0.5s ease 0.5s; opacity: 0; transform: translateY(80px);">
+
+<grok-card data-id="4519e5" data-type="image_card" data-plain-type="render_searched_image"  data-arg-size="LARGE" ></grok-card>
+
+      <h3 style="font-size: 2.2rem; margin: 1.5rem 0 1rem; color: var(--primary);">Public Sector & Communities</h3>
+      <p style="font-size: 1.3rem; color: var(--gray);">Waste management, flood prevention, public infrastructure — delivering accountable, sustainable services to citizens.</p>
+    </div>
+  </div>
+</section>
+  <!-- Blog -->
+  <section id="blog">
+    <h2 class="section-title">Mehit Blog</h2>
+    <div class="blog-grid" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(420px,1fr)); gap:3.5rem;">
+      <div class="blog-card">
+        <div class="blog-img" style="background-image:url('https://www.oecd.org/adobe/dynamicmedia/deliver/dm-aid--49aa82bc-bb81-4cdc-ab48-74a8a8e96a7d/environmental-compliance-assurance-02.png');"></div>
+        <div style="padding:2.5rem;">
+          <h3>Environmental Compliance in 2026</h3>
+          <p>Strategies to monitor and enforce pollution rules effectively.</p>
+        </div>
+      </div>
+      <!-- Add 2 more blog cards similarly -->
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact" style="background:#fff;">
+    <h2 class="section-title">Contact Us</h2>
+    <form style="max-width:900px; margin:0 auto; display:grid; gap:2rem;">
+      <input type="text" placeholder="Your Name" style="padding:1.5rem; font-size:1.4rem; border-radius:16px; border:1px solid #ddd;">
+      <input type="email" placeholder="Email Address" style="padding:1.5rem; font-size:1.4rem; border-radius:16px; border:1px solid #ddd;">
+      <textarea placeholder="Your Message" rows="6" style="padding:1.5rem; font-size:1.4rem; border-radius:16px; border:1px solid #ddd;"></textarea>
+      <button class="btn" style="font-size:1.6rem;">Send Message</button>
+    </form>
+  </section>
+
+  <script>
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) entry.target.classList.add('visible');
+      });
+    }, { threshold: 0.15 });
+
+    document.querySelectorAll('.card, .icon-item').forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>

@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mehit – Prevention Systems for Safer Communities & Institutions</title>
+  <style>
+    :root {
+      --primary: #004aad;
+      --primary-dark: #003080;
+      --accent: #27ae60;
+      --danger: #e74c3c;
+      --light: #f8faff;
+      --gray: #4a5568;
+      --dark: #1a202c;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      color: var(--dark);
+      background: var(--light);
+      line-height: 1.7;
+    }
+    .container { max-width: 1280px; margin: 0 auto; padding: 0 5%; }
+    h1, h2 { font-weight: 700; line-height: 1.2; }
+    .btn {
+      display: inline-block;
+      background: var(--primary);
+      color: white;
+      padding: 1rem 2.2rem;
+      border-radius: 50px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 20px rgba(0,74,173,0.25);
+    }
+    .btn:hover {
+      background: var(--primary-dark);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(0,74,173,0.35);
+    }
+    .btn-outline {
+      background: transparent;
+      border: 2px solid var(--primary);
+      color: var(--primary);
+    }
+    .btn-outline:hover { background: var(--primary); color: white; }
+
+    /* Hero */
+    #hero {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #003080, #004aad);
+      color: white;
+      display: flex;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+    #hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 30% 40%, rgba(255,255,255,0.08) 0%, transparent 60%);
+      animation: subtleDrift 50s infinite alternate ease-in-out;
+    }
+    @keyframes subtleDrift { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(5%,8%) scale(1.05); } }
+    .hero-content { position: relative; z-index: 2; text-align: center; }
+    .hero h1 {
+      font-size: 3.8rem;
+      margin-bottom: 1.2rem;
+      opacity: 0;
+      transform: translateY(40px);
+      transition: all 1.2s ease;
+    }
+    .hero.show h1 { opacity:1; transform:translateY(0); }
+    .hero p { font-size: 1.5rem; max-width: 720px; margin: 0 auto 2.5rem; opacity: 0.9; }
+
+    /* Sections */
+    section { padding: 100px 0; }
+    .section-title { font-size: 2.8rem; text-align: center; margin-bottom: 3rem; color: var(--primary); }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 2rem;
+    }
+    .card {
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      transition: all 0.4s ease;
+      opacity: 0;
+      transform: translateY(40px);
+    }
+    .card.show { opacity:1; transform:translateY(0); }
+    .card:hover { transform: translateY(-12px); box-shadow: 0 20px 50px rgba(0,0,0,0.14); }
+    .card-header { height: 180px; background: #eee; }
+    .card-body { padding: 1.8rem; }
+    .card h3 { font-size: 1.4rem; margin-bottom: 1rem; color: var(--primary); }
+
+    /* CTA Banner */
+    #cta-banner {
+      background: var(--danger);
+      color: white;
+      text-align: center;
+      padding: 5rem 5%;
+    }
+    #cta-banner .btn { background: white; color: var(--danger); font-size: 1.3rem; padding: 1.3rem 3rem; }
+
+    footer {
+      background: var(--dark);
+      color: white;
+      text-align: center;
+      padding: 4rem 5%;
+    }
+    footer a { color: var(--accent); margin: 0 1rem; }
+
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 2.8rem; }
+      .section-title { font-size: 2.2rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Hero -->
+  <section id="hero">
+    <div class="container hero-content">
+      <h1>Built for Prevention.<br>Designed for Trust.</h1>
+      <p>Practical systems that help institutions and communities prevent harm — before it happens. From unsafe buildings to data breaches and polluted rivers — Mehit turns rules into real protection.</p>
+      <a href="#how" class="btn">See How Mehit Works</a>
+    </div>
+  </section>
+
+  <!-- Problem – Real Stories 2026 -->
+  <section id="problem" style="background: #fff;">
+    <div class="container">
+      <h2 class="section-title" style="color: var(--danger);">Harm Happens Silently — and Often Preventably</h2>
+      <p style="text-align:center; max-width:800px; margin:0 auto 4rem; color:var(--gray); font-size:1.25rem;">
+        Recent tragedies show what happens when compliance fails. These are not accidents — they are preventable system failures.
+      </p>
+      <div class="cards">
+        <div class="card">
+          <div class="card-header" style="background:url('https://images.unsplash.com/photo-1581092160560-1c1e428e9d65?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80') center/cover;"></div>
+          <div class="card-body">
+            <h3>Unsafe Structures – Nairobi, Jan 2026</h3>
+            <p>A multi-storey building under construction in South C collapsed on January 2, 2026, killing at least two people and trapping others. Illegal floors, poor supervision, and regulatory lapses turned a site into a tragedy.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header" style="background:url('https://images.unsplash.com/photo-1555949963-aa79d0ebc8fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80') center/cover;"></div>
+          <div class="card-body">
+            <h3>Biometric Data Breach – Worldcoin Kenya</h3>
+            <p>High Court ruled Worldcoin's iris scan collection unlawful (2025). Ordered permanent deletion of all Kenyan biometric data under ODPC supervision — exposing thousands to privacy risks without consent or safeguards.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header" style="background:url('https://images.unsplash.com/photo-1556740714-a8395b3a74dd?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80') center/cover;"></div>
+          <div class="card-body">
+            <h3>Loan Apps Privacy Violations</h3>
+            <p>ODPC fined companies like Whitepath and Mulla Pride millions for accessing contacts/photos without consent — leading to harassment, shaming, and fraud against vulnerable borrowers.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header" style="background:url('https://images.unsplash.com/photo-1621452773447-3f9a6c6e5f3c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80') center/cover;"></div>
+          <div class="card-body">
+            <h3>Ongoing Pollution – Nairobi River & Beyond</h3>
+            <p>Despite the 2017 plastic ban, rivers remain clogged with waste, toxic metals (chromium, lead), and flood risks. Industrial fires and poor enforcement continue to poison communities and ecosystems.</p>
+          </div>
+        </div>
+      </div>
+      <div style="text-align:center; margin-top:4rem;">
+        <a href="#cta" class="btn" style="font-size:1.3rem; padding:1.3rem 3rem;">Prevent the Next Crisis – Request Demo</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Approach -->
+  <section id="approach" style="background: linear-gradient(to bottom, #f0f7ff, white);">
+    <div class="container">
+      <h2 class="section-title">Turning Real Risks Into Practical Systems</h2>
+      <div class="cards">
+        <div class="card">
+          <div class="card-body">
+            <div style="font-size:5rem; margin-bottom:1rem;">🔍</div>
+            <h3>1. Discover Risks</h3>
+            <p>Audit buildings, apps, workplaces, and environments to uncover hazards early — before collapse, breach, or pollution escalates.</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            <div style="font-size:5rem; margin-bottom:1rem;">⚙️📜</div>
+            <h3>2. Translate Rules</h3>
+            <p>Convert complex construction codes, data laws, environmental regs into clear, daily actions your team can follow.</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            <div style="font-size:5rem; margin-bottom:1rem;">🛡️</div>
+            <h3>3. Implement Controls</h3>
+            <p>Deploy safeguards: safe structures, secure data protocols, waste management — tailored to real workflows.</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            <div style="font-size:5rem; margin-bottom:1rem;">🤝</div>
+            <h3>4. Build Trust</h3>
+            <p>Visible dashboards and reports show regulators, communities, and partners that risks are managed responsibly.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Benefits -->
+  <section id="benefits">
+    <div class="container">
+      <h2 class="section-title">What Mehit Enables</h2>
+      <div class="cards">
+        <div class="card"><div class="card-body"><div style="font-size:4.5rem;">🛡️</div><h3>Safer Environments</h3><p>Prevent collapses, accidents, chemical hazards — lives and property protected.</p></div></div>
+        <div class="card"><div class="card-body"><div style="font-size:4.5rem;">🔍</div><h3>Practical Compliance</h3><p>Rules become simple routines — no more fear of fines or shutdowns.</p></div></div>
+        <div class="card"><div class="card-body"><div style="font-size:4.5rem;">📊</div><h3>Accountability & Trust</h3><p>Clear progress tracking — safer sites, secure data, cleaner rivers.</p></div></div>
+        <div class="card"><div class="card-body"><div style="font-size:4.5rem;">🌱</div><h3>Sustainable Growth</h3><p>Development that safeguards people, health, and environment long-term.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Who It's For -->
+  <section id="who" style="background:var(--light);">
+    <div class="container">
+      <h2 class="section-title">Who Mehit Serves</h2>
+      <div class="cards">
+        <div class="card"><div class="card-body"><h3>Schools & Universities</h3><p>Playground, lab, fire safety compliance.</p></div></div>
+        <div class="card"><div class="card-body"><h3>Hospitals & Clinics</h3><p>Patient data security, infection prevention.</p></div></div>
+        <div class="card"><div class="card-body"><h3>Churches & Faith Orgs</h3><p>Child protection, fire & crowd safety.</p></div></div>
+        <div class="card"><div class="card-body"><h3>SMEs & Factories</h3><p>Machinery, chemical, pollution controls.</p></div></div>
+        <div class="card"><div class="card-body"><h3>Housing Developers</h3><p>Structural integrity & construction compliance.</p></div></div>
+        <div class="card"><div class="card-body"><h3>Public & Community Sector</h3><p>Waste, flood, environmental management.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section id="how" style="background:#f8f9fa;">
+    <div class="container">
+      <h2 class="section-title">How Mehit Works</h2>
+      <div class="cards">
+        <div class="card">
+          <div class="card-body">
+            <h3>1. Discover Risks</h3>
+            <p>Smart audits inspect structures, apps, waste sites — identify issues early.</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            <h3>2. Apply Controls</h3>
+            <p>Deploy tailored safeguards: reinforced scaffolding, encrypted data, waste protocols.</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            <h3>3. Track & Report</h3>
+            <p>Real-time dashboards show metrics: accidents down, compliance up, rivers cleaner.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why It Matters -->
+  <section id="why">
+    <div class="container">
+      <h2 class="section-title">Why It Matters</h2>
+      <p style="font-size:1.4rem; text-align:center; max-width:900px; margin:auto;">
+        Across Kenya and beyond, harm happens silently: buildings collapse, data is stolen, rivers are poisoned. <strong>Mehit prevents crises</strong> — not through punishment, but through clear systems, actionable rules, and visible accountability. Because prevention saves lives, trust, and futures.
+      </p>
+    </div>
+  </section>
+
+  <!-- Strong CTA -->
+  <section id="cta" style="text-align:center; padding:140px 5%; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color:white;">
+    <div class="container">
+      <h2 style="font-size:3.2rem; margin-bottom:1.5rem;">Take Action Before Harm Happens</h2>
+      <p style="font-size:1.4rem; max-width:700px; margin:0 auto 2.5rem; opacity:0.95;">
+        No jargon. No endless paperwork. Just clear, effective systems that protect people, institutions, and the environment.
+      </p>
+      <div style="margin:2rem 0;">
+        <a href="#" class="btn" style="font-size:1.4rem; padding:1.4rem 3.5rem; margin:0 1rem;">Request Free Demo</a>
+        <a href="#" class="btn btn-outline" style="margin:0 1rem;">Learn More</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <p>Mehit © 2026 • Life-Changing Technology for Everyday Challenges</p>
+      <p><a href="#">Contact</a> • <a href="#">Privacy Policy</a> • <a href="#">Terms</a></p>
+    </div>
+  </footer>
+
+  <script>
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) entry.target.classList.add('show');
+      });
+    }, { threshold: 0.15 });
+
+    document.querySelectorAll('.hero, .card').forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>

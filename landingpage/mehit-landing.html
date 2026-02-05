@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mehit – Built for Prevention. Designed for Trust.</title>
+  <style>
+    :root {
+      --primary: #007BFF;
+      --accent: #28a745;
+      --danger: #c62828;
+      --eco: #2e7d32;
+      --info: #1565c0;
+      --warning: #8d5524;
+      --dark: #333;
+      --light: #f8f9fa;
+      --gray: #555;
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--dark);
+      background: var(--light);
+      line-height: 1.6;
+    }
+
+    section { padding: 100px 5%; max-width: 1400px; margin: auto; }
+    h1, h2 { text-align: center; margin-bottom: 1.4rem; }
+    .section-title { font-size: 2.8rem; }
+
+    .hero {
+      background: linear-gradient(135deg, #0d47a1, #1976d2);
+      color: white;
+      min-height: 90vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 20% 30%, rgba(255,255,255,0.12) 0%, transparent 50%),
+                  radial-gradient(circle at 80% 70%, rgba(255,255,255,0.1) 0%, transparent 60%);
+      animation: drift 28s infinite alternate ease-in-out;
+    }
+    @keyframes drift { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(12%, 18%) scale(1.08); } }
+
+    .hero h1 { font-size: 3.8rem; opacity: 0; transform: translateY(40px); transition: all 1.2s ease; }
+    .hero.show h1 { opacity:1; transform:translateY(0); }
+    .hero p { font-size: 1.5rem; max-width: 780px; margin: 1.8rem auto; }
+    .cta-btn {
+      display: inline-block;
+      background: white;
+      color: var(--primary);
+      padding: 1.1rem 3rem;
+      border-radius: 50px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.35s;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.22);
+    }
+    .cta-btn:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.28);
+      background: #f0f8ff;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 2rem;
+    }
+
+    .card {
+      background: white;
+      padding: 2.2rem;
+      border-radius: 12px;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.09);
+      text-align: center;
+      opacity: 0;
+      transform: translateY(60px);
+      transition: all 0.9s cubic-bezier(0.22, 0.61, 0.36, 1);
+    }
+    .card.show { opacity:1; transform:translateY(0); }
+    .card:hover { transform: translateY(-12px); box-shadow: 0 22px 44px rgba(0,0,0,0.14); }
+
+    .icon-wrapper { position: relative; height: 100px; margin-bottom: 1.2rem; display: flex; align-items: center; justify-content: center; }
+    .icon { font-size: 5.8rem; opacity: 0.92; }
+
+    /* Story cards specific animations */
+    .story-card { border-top: 5px solid; }
+    .pulse-triangle  { position:absolute; top:-12px; right:-12px; font-size:3.4rem; color:var(--danger); animation: pulse-triangle 2.3s infinite; }
+    .flowing-river   { position:absolute; bottom:0; left:0; right:0; height:110%; background:linear-gradient(to right, transparent, rgba(46,125,50,0.22), transparent); animation: river-flow 11s linear infinite; }
+    .lock-click      { position:absolute; font-size:5rem; color:var(--info); opacity:0; animation: lock-click-anim 5s infinite; }
+    .warning-flash   { position:absolute; top:-18px; right:-18px; font-size:4.8rem; color:#f57c00; animation: flash 2.9s infinite; }
+
+    @keyframes pulse-triangle { 0%,100% { transform:scale(1);   opacity:0.75; } 50% { transform:scale(1.28); opacity:1; } }
+    @keyframes river-flow     { 0% { transform:translateX(-120%); } 100% { transform:translateX(120%); } }
+    @keyframes lock-click-anim{ 0%,40%,100% { opacity:0; transform:scale(0.5); } 45% { opacity:0.95; transform:scale(1.4); } 50% { opacity:0; transform:scale(0.7); } }
+    @keyframes flash          { 0%,100% { opacity:0.45; } 50% { opacity:1; } }
+
+    footer {
+      background: var(--dark);
+      color: white;
+      text-align: center;
+      padding: 4rem 5%;
+    }
+    footer a { color: var(--accent); margin: 0 1.2rem; text-decoration: none; }
+  </style>
+</head>
+<body>
+
+  <!-- 1. Hero -->
+  <section class="hero" id="home">
+    <div>
+      <h1>Built for Prevention. Designed for Trust.</h1>
+      <p>Practical systems that help people and institutions take control of their environment — safely, responsibly, and sustainably.</p>
+      <a href="#problem" class="cta-btn">See the Real Impact →</a>
+    </div>
+  </section>
+
+  <!-- 2. Problem – 4 Story Cards -->
+  <section id="problem" style="background: linear-gradient(to bottom, #ffffff, #f8fbff);">
+    <h2 class="section-title" style="color: var(--danger);">Harm Doesn’t Wait — and Neither Should We</h2>
+    <p style="text-align:center; font-size:1.28rem; max-width:860px; margin:0 auto 4rem; color:var(--gray);">
+      Every ignored rule, every unchecked risk, every avoided inspection<br>
+      eventually writes a real story — of pain, loss, shame or financial ruin.
+    </p>
+
+    <div class="cards story-cards">
+      <!-- Card 1 -->
+      <div class="card story-card" style="border-top-color: var(--danger);">
+        <div class="icon-wrapper">
+          <span class="icon">⛑️⚠️</span>
+          <div class="pulse-triangle">⚠</div>
+        </div>
+        <h3>A child’s life changed in seconds</h3>
+        <p>In a Nairobi school, poorly secured scaffolding collapsed during playtime. One child was critically injured. Routine inspections — required by Kenyan law — would have found the fault.</p>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="card story-card" style="border-top-color: var(--eco);">
+        <div class="icon-wrapper">
+          <span class="icon">🪣🌊</span>
+          <div class="flowing-river"></div>
+        </div>
+        <h3>Rivers & lungs keep paying the price</h3>
+        <p>Plastic bags and waste clog Kenyan rivers — killing fish, worsening floods and spreading disease. Globally, people die from toxic fumes of burning industrial waste and plastic dumps.</p>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="card story-card" style="border-top-color: var(--info);">
+        <div class="icon-wrapper">
+          <span class="icon">🔐📉</span>
+          <div class="lock-click">🔓</div>
+        </div>
+        <h3>One leak → many victims</h3>
+        <p>Kenyan mobile loan apps have leaked personal data — leaving ordinary people exposed to fraud and blackmail. Around the world hospitals lose millions of patient records in breaches every year.</p>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="card story-card" style="border-top-color: var(--warning);">
+        <div class="icon-wrapper">
+          <span class="icon">🏭💸</span>
+          <div class="warning-flash">!</div>
+        </div>
+        <h3>One incident → years of consequences</h3>
+        <p>Factories, schools, hospitals and SMEs lose licences, pay huge fines, face court cases or permanent closure after preventable accidents. Reputation damage often costs far more than the fine itself.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Simple footer / CTA placeholder – expand as needed -->
+  <footer>
+    <p>Mehit © 2026 • Building safer, clearer, more responsible systems</p>
+    <p><a href="#">Contact us</a> • <a href="#">Request Demo</a></p>
+  </footer>
+
+  <script>
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('show');
+        }
+      });
+    }, { threshold: 0.15 });
+
+    document.querySelectorAll('.hero, .card').forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>

@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mehit – Prevention Systems | Safer Tomorrow Starts Today</title>
+  <style>
+    :root {
+      --primary: #004aad;
+      --primary-dark: #003080;
+      --accent: #27ae60;
+      --danger: #e74c3c;
+      --light: #f8faff;
+      --gray: #4a5568;
+      --dark: #1a202c;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      color: var(--dark);
+      background: var(--light);
+      line-height: 1.7;
+    }
+
+    /* Sticky Toolbar */
+    .toolbar {
+      position: sticky;
+      top: 0;
+      background: white;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      z-index: 1000;
+      padding: 1.2rem 6%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo { font-size: 2.2rem; font-weight: 800; color: var(--primary); }
+    .nav-links { display: flex; gap: 2.5rem; }
+    .nav-links a {
+      color: var(--dark);
+      text-decoration: none;
+      font-size: 1.3rem;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+    .nav-links a:hover { color: var(--primary); transform: translateY(-2px); }
+    .toolbar-cta .btn {
+      background: var(--accent);
+      color: white;
+      padding: 1rem 2.5rem;
+      border-radius: 50px;
+      font-weight: 700;
+      text-decoration: none;
+      box-shadow: 0 6px 20px rgba(39,174,96,0.3);
+      transition: all 0.4s;
+    }
+    .toolbar-cta .btn:hover { transform: translateY(-4px) scale(1.05); box-shadow: 0 12px 35px rgba(39,174,96,0.45); }
+
+    /* General */
+    section { padding: 160px 6%; }
+    .section-title { font-size: 4.5rem; text-align: center; margin-bottom: 5rem; color: var(--primary); }
+    .cards, .steps-grid, .icons-grid, .safe-examples {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+      gap: 3.5rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    .card {
+      background: white;
+      border-radius: 32px;
+      overflow: hidden;
+      box-shadow: 0 20px 70px rgba(0,0,0,0.12);
+      transition: all 0.6s;
+      opacity: 0;
+      transform: translateY(100px);
+    }
+    .card.visible { opacity:1; transform:translateY(0); }
+    .card:hover { transform: translateY(-24px) scale(1.04); box-shadow: 0 40px 100px rgba(0,0,0,0.2); }
+    .card-img { height: 320px; background-size: cover; background-position: center; }
+    .card-body { padding: 2.5rem; text-align: center; }
+    .card-body h3 { font-size: 2rem; margin-bottom: 1rem; color: var(--primary); }
+
+    /* Animations */
+    @keyframes fadeInUp { from { opacity:0; transform:translateY(120px); } to { opacity:1; transform:translateY(0); } }
+    .animate-fadeUp.visible { animation: fadeInUp 1.2s forwards; }
+
+    /* Hero */
+    #hero {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #003080, #004aad);
+      color: white;
+      display: flex;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+    #hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url('https://thumbs.dreamstime.com/b/network-abstract-people-icons-connected-glowing-lines-blue-pink-connect-like-structure-gradient-scene-361756747.jpg') center/cover;
+      opacity: 0.2;
+      animation: pulseNetwork 20s infinite ease-in-out;
+    }
+    @keyframes pulseNetwork { 0%,100% { opacity:0.2; transform:scale(1); } 50% { opacity:0.35; transform:scale(1.06); } }
+    .hero-content { max-width: 1000px; margin: 0 auto; text-align: center; position: relative; z-index: 2; }
+    h1 { font-size: 6rem; font-weight: 900; margin-bottom: 1.8rem; text-shadow: 0 6px 30px rgba(0,0,0,0.5); }
+    .hero p { font-size: 2.2rem; max-width: 900px; margin: 0 auto 3.5rem; opacity: 0.95; }
+
+    footer { background: var(--dark); color: white; text-align: center; padding: 6rem 6%; font-size: 1.3rem; }
+ 
+ .safe-card {
+  transition: all 0.5s ease;
+}
+.safe-card:hover {
+  transform: translateY(-20px) scale(1.04);
+  box-shadow: 0 40px 100px rgba(0,0,0,0.35);
+}
+.safe-card.visible {
+  animation: fadeInUp 1.2s forwards;
+}
+.safe-examples .safe-card:nth-child(1) { animation-delay: 0.2s; }
+.safe-examples .safe-card:nth-child(2) { animation-delay: 0.4s; }
+.safe-examples .safe-card:nth-child(3) { animation-delay: 0.6s; }
+.safe-examples .safe-card:nth-child(4) { animation-delay: 0.8s; }
+
+  </style>
+</head>
+<body>
+
+  <!-- Toolbar -->
+  <nav class="toolbar">
+    <div class="logo">Mehit</div>
+    <div class="nav-links">
+      <a href="#hero">Home</a>
+      <a href="#problem">Problem</a>
+      <a href="#approach">Approach</a>
+      <a href="#how">How It Works</a>
+      <a href="#who">Who We Serve</a>
+      <a href="#blog">Blog</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <div class="toolbar-cta">
+      <a href="#contact" class="btn">Request Demo</a>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section id="hero">
+    <div class="hero-content">
+      <h1>Built for Prevention.<br>Designed for Trust.</h1>
+      <p>Practical systems that help institutions and communities prevent harm — before it happens.</p>
+      <a href="#how" class="btn">See How Mehit Works</a>
+    </div>
+  </section>
+
+  <!-- Problem (your existing cards) -->
+  <section id="problem">
+    <h2 class="section-title">Harm Happens Silently — and Often Preventably</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="card-img" style="background-image:url('https://nypost.com/wp-content/uploads/sites/2/2026/01/118156716.jpg?quality=75&strip=all&w=1200');"></div>
+        <div class="card-body">
+          <h3>Building Collapse – Nairobi, Jan 2026</h3>
+          <p>Illegal floors and poor supervision claimed lives — preventable with proper oversight.</p>
+        </div>
+      </div>
+      <!-- other 3 cards here as before -->
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section id="how" style="background:#f8f9fa;">
+    <h2 class="section-title">How It Works</h2>
+    <div class="steps-grid">
+      <div class="card animate-fadeUp">
+        <div class="card-img" style="background-image:url('https://thumbs.dreamstime.com/b/large-shield-symbolizing-security-alert-notification-user-working-laptop-bar-graph-ideal-cybersecurity-data-protection-419027286.jpg');"></div>
+        <div class="card-body">
+          <h3>1. Discover Risks</h3>
+          <p>Smart audits scan structures, data flows, workplaces and environments to uncover hidden dangers early.</p>
+        </div>
+      </div>
+      <div class="card animate-fadeUp" style="animation-delay:0.3s;">
+        <div class="card-img" style="background-image:url('https://thumbs.dreamstime.com/b/gdpr-shield-signifies-data-protection-black-lock-emphasizes-security-cloud-gears-signal-digital-processes-ideal-privacy-418724167.jpg');"></div>
+        <div class="card-body">
+          <h3>2. Apply Controls</h3>
+          <p>Deploy tailored safeguards: reinforced scaffolding, secure protocols, waste systems — prevention becomes routine.</p>
+        </div>
+      </div>
+      <div class="card animate-fadeUp" style="animation-delay:0.6s;">
+        <div class="card-img" style="background-image:url('https://thumbs.dreamstime.com/b/auditor-examining-floating-financial-records-interactive-digital-compliance-checklists-bright-office-space-428362925.jpg');"></div>
+        <div class="card-body">
+          <h3>3. Track & Report</h3>
+          <p>Real-time dashboards show progress: fewer incidents, cleaner sites, secure data — visible to all stakeholders.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Who We Serve with Graphics -->
+  <section id="who" style="background:#f0f7ff;">
+    <h2 class="section-title">Who We Serve</h2>
+    <div class="icons-grid">
+      <div class="icon-item animate-fadeUp">
+        <h3>Schools</h3>
+        <p>Playground & lab safety, fire compliance</p>
+      </div>
+      <div class="icon-item animate-fadeUp" style="animation-delay:0.2s;">
+        <h3>Hospitals</h3>
+        <p>Patient data security, infection control</p>
+      </div>
+      <div class="icon-item animate-fadeUp" style="animation-delay:0.4s;">
+        <h3>Churches</h3>
+        <p>Fire safety, child protection, crowd management</p>
+      </div>
+      <div class="icon-item animate-fadeUp" style="animation-delay:0.6s;">
+        <h3>SMEs & Factories</h3>
+        <p>Machinery, chemical & pollution safety</p>
+      </div>
+      <div class="icon-item animate-fadeUp" style="animation-delay:0.8s;">
+        <h3>Housing Developers</h3>
+        <p>Structural integrity & site compliance</p>
+      </div>
+      <div class="icon-item animate-fadeUp" style="animation-delay:1s;">
+        <h3>Public Sector</h3>
+        <p>Waste, flood & infrastructure protection</p>
+      </div>
+    </div>
+  </section>
+
+<!-- Start Building Safer Systems Today – Graphic Showcase -->
+<section class="cta-section" style="
+  background: linear-gradient(135deg, #004aad, #003080);
+  color: white;
+  text-align: center;
+  padding: 180px 6%;
+  position: relative;
+  overflow: hidden;
+">
+  <div class="container">
+    <h2 style="
+      font-size: 5rem;
+      font-weight: 900;
+      margin-bottom: 2rem;
+      text-shadow: 0 6px 30px rgba(0,0,0,0.5);
+    ">
+      Start Building Safer Systems Today
+    </h2>
+
+    <p style="
+      font-size: 2rem;
+      max-width: 900px;
+      margin: 0 auto 6rem;
+      opacity: 0.95;
+    ">
+      See how Mehit transforms real environments — turning risk into resilience, fear into confidence, and compliance into lasting protection.
+    </p>
+
+    <div class="safe-examples" style="
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+      gap: 3.5rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    ">
+
+      <!-- Safe School -->
+      <div class="safe-card" style="
+        background: rgba(255,255,255,0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 32px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        transition: all 0.5s ease;
+        opacity: 0;
+        transform: translateY(80px);
+      ">
+        <div class="card-img" style="
+          height: 280px;
+          background-image: url('https://images.unsplash.com/photo-1580582932707-520aed4e9987?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');
+          background-size: cover;
+          background-position: center;
+        "></div>
+        <div style="padding: 2.5rem;">
+          <h3 style="font-size: 2.2rem; margin-bottom: 1rem;">Safe School Environment</h3>
+          <p style="font-size: 1.4rem; opacity: 0.9;">
+            Inspected playgrounds, secure labs, clear emergency protocols — zero preventable accidents, confident parents, thriving students.
+          </p>
+        </div>
+      </div>
+
+      <!-- Safe Factory -->
+      <div class="safe-card" style="
+        background: rgba(255,255,255,0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 32px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        transition: all 0.5s ease;
+        opacity: 0;
+        transform: translateY(80px);
+      ">
+        <div class="card-img" style="
+          height: 280px;
+          background-image: url('https://images.unsplash.com/photo-1586776971484-9c8a5a8c7d8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');
+          background-size: cover;
+          background-position: center;
+        "></div>
+        <div style="padding: 2.5rem;">
+          <h3 style="font-size: 2.2rem; margin-bottom: 1rem;">Safe Factory Floor</h3>
+          <p style="font-size: 1.4rem; opacity: 0.9;">
+            Machinery guards, chemical compliance, PPE protocols — worker injuries reduced by up to 80%, higher productivity, zero fines.
+          </p>
+        </div>
+      </div>
+
+      <!-- Clean River -->
+      <div class="safe-card" style="
+        background: rgba(255,255,255,0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 32px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        transition: all 0.5s ease;
+        opacity: 0;
+        transform: translateY(80px);
+      ">
+        <div class="card-img" style="
+          height: 280px;
+          background-image: url('https://images.unsplash.com/photo-1501696461415-6bd6660c6742?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');
+          background-size: cover;
+          background-position: center;
+        "></div>
+        <div style="padding: 2.5rem;">
+          <h3 style="font-size: 2.2rem; margin-bottom: 1rem;">Clean River & Thriving Community</h3>
+          <p style="font-size: 1.4rem; opacity: 0.9;">
+            Effective waste controls, pollution monitoring — reduced flooding, healthier ecosystems, safer drinking water for thousands.
+          </p>
+        </div>
+      </div>
+
+      <!-- Secure Data -->
+      <div class="safe-card" style="
+        background: rgba(255,255,255,0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 32px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        transition: all 0.5s ease;
+        opacity: 0;
+        transform: translateY(80px);
+      ">
+        <div class="card-img" style="
+          height: 280px;
+          background-image: url('https://images.unsplash.com/photo-1555949963-aa79d0ebc8fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');
+          background-size: cover;
+          background-position: center;
+        "></div>
+        <div style="padding: 2.5rem;">
+          <h3 style="font-size: 2.2rem; margin-bottom: 1rem;">Secure Data & Restored Trust</h3>
+          <p style="font-size: 1.4rem; opacity: 0.9;">
+            Encrypted records, strict access controls — zero breaches, full regulatory compliance, renewed stakeholder confidence.
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+    <div style="text-align:center; margin-top: 8rem;">
+      <a href="#contact" class="btn" style="
+        font-size: 2.2rem;
+        padding: 2rem 6rem;
+        background: var(--accent);
+        box-shadow: 0 12px 40px rgba(39,174,96,0.5);
+      ">
+        Get Your Free Demo Now
+      </a>
+      <p style="margin-top: 2rem; font-size: 1.4rem; opacity: 0.9;">
+        No risk, no obligation — see prevention in action within days.
+      </p>
+    </div>
+  </div>
+</section>
+
+  <!-- Contact -->
+  <section id="contact">
+    <h2 class="section-title">Contact Us</h2>
+    <form style="max-width:900px; margin:0 auto; display:grid; gap:2rem;">
+      <input type="text" placeholder="Your Name" style="padding:1.5rem; font-size:1.4rem; border-radius:16px; border:1px solid #ddd;">
+      <input type="email" placeholder="Email Address" style="padding:1.5rem; font-size:1.4rem; border-radius:16px; border:1px solid #ddd;">
+      <textarea placeholder="Your Message" rows="6" style="padding:1.5rem; font-size:1.4rem; border-radius:16px; border:1px solid #ddd;"></textarea>
+      <button class="btn" style="font-size:1.6rem;">Send Message</button>
+    </form>
+  </section>
+
+  <footer>
+    <p>Mehit © 2026 • Life-Changing Technology for Everyday Challenges</p>
+  </footer>
+
+  <script>
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) entry.target.classList.add('visible');
+      });
+    }, { threshold: 0.15 });
+
+    document.querySelectorAll('.card, .icon-item, .step-card').forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>
